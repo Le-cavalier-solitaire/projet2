@@ -1,0 +1,29 @@
+{
+    "users": [
+      {
+        "id": 1,
+        "name": "Thérèse la souriante",
+        "email": "thereses@yahoo.com",
+        "number": "01112321421"
+      },
+      {
+        "id": 2,
+        "name": "Miria l'illusoire",
+        "email": "miria@gmail.com",
+        "number": "08111111111"
+      },
+      {
+        "id": 3,
+        "name": "Le régent",
+        "email": "viltrum@gmail.com",
+        "number": "09022222222"
+      },
+      {
+        "id": 4,
+        "name": "Anissa viltum",
+        "email": "gracefunsho@gmail.com",
+        "number": "09033333333"
+      }
+    ]
+  }
+  
