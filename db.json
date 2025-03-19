@@ -1,29 +1,40 @@
 {
-    "users": [
-      {
-        "id": 1,
-        "name": "Thérèse la souriante",
-        "email": "thereses@yahoo.com",
-        "number": "01112321421"
-      },
-      {
-        "id": 2,
-        "name": "Miria l'illusoire",
-        "email": "miria@gmail.com",
-        "number": "08111111111"
-      },
-      {
-        "id": 3,
-        "name": "Le régent",
-        "email": "viltrum@gmail.com",
-        "number": "09022222222"
-      },
-      {
-        "id": 4,
-        "name": "Anissa viltum",
-        "email": "gracefunsho@gmail.com",
-        "number": "09033333333"
+  "users": [
+    {
+      "id": "603b",
+      "username": "Ali",
+      "role": "student",
+      "studentId": [],
+      "password": "1234",
+      "email": "string@hotmail.co",
+      "createAt": "16/03/2025",
+      "phoneNumber": 123456789,
+      "address": "yaoundé"
+    },
+    {
+      "id": "cebe",
+      "username": "Ali",
+      "role": "teacher",
+      "studentId": [],
+      "password": "1234",
+      "email": "author@hotmail.co",
+      "createAt": "16/03/2025",
+      "phoneNumber": 177456789,
+      "address": "yaoundé"
+    }
+  ],
+  "quiz": [
+    {
+      "id": "5f7d",
+      "startDate": "10/02/2025",
+      "endDate": "12/02/2025",
+      "name": "addresses ipv4",
+      "description": "les classes d'addresse",
+      "authorId": "cebe",
+      "createdDate": "string",
+      "branch": {
+        "name": "Network"
       }
-    ]
-  }
-  
+    }
+  ]
+}
