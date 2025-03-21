@@ -1,0 +1,74 @@
+{
+  "users": [
+    {
+      "id": "f7f6",
+      "name": "raisa",
+      "mail": "kklklkk@gmail.com",
+      "password": "er",
+      "confirm_password": "er"
+    },
+    {
+      "id": "3bff",
+      "name": "raisa",
+      "mail": "bobi@gmail.com",
+      "password": "er",
+      "confirm_password": "er"
+    },
+    {
+      "id": "c464",
+      "name": "bob",
+      "mail": "ds@gmail.cm",
+      "password": "reine",
+      "confirm_password": "reine"
+    },
+    {
+      "id": "be4a",
+      "name": "karel",
+      "mail": "junior@gmail.cm",
+      "password": "yao",
+      "confirm_password": "yao"
+    },
+    {
+      "id": "4258",
+      "name": "bob",
+      "mail": "juior@gmail.cm",
+      "password": "1111",
+      "confirm_password": "1111"
+    },
+    {
+      "id": "621d",
+      "name": "junior",
+      "mail": "tapsend@gmail.com",
+      "password": "karel",
+      "confirm_password": "karel"
+    },
+    {
+      "id": "1ef0",
+      "name": "bob",
+      "mail": "l@gmail.com",
+      "password": "junior",
+      "confirm_password": "junior"
+    },
+    {
+      "id": "203c",
+      "name": "dede",
+      "mail": "hb@gmail.com",
+      "password": "1212",
+      "confirm_password": "1212"
+    },
+    {
+      "id": "2dd4",
+      "name": "loic",
+      "mail": "djkk@gmail.com",
+      "password": "dada",
+      "confirm_password": "dada"
+    },
+    {
+      "id": "9ce0",
+      "name": "andre",
+      "mail": "kre@gmail.com",
+      "password": "rere",
+      "confirm_password": "rere"
+    }
+  ]
+}
