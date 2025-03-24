@@ -1,74 +1,46 @@
 {
   "users": [
     {
-      "id": "f7f6",
-      "name": "raisa",
-      "mail": "kklklkk@gmail.com",
-      "password": "er",
-      "confirm_password": "er"
-    },
-    {
-      "id": "3bff",
-      "name": "raisa",
-      "mail": "bobi@gmail.com",
-      "password": "er",
-      "confirm_password": "er"
-    },
-    {
-      "id": "c464",
-      "name": "bob",
-      "mail": "ds@gmail.cm",
-      "password": "reine",
-      "confirm_password": "reine"
-    },
-    {
-      "id": "be4a",
-      "name": "karel",
-      "mail": "junior@gmail.cm",
-      "password": "yao",
-      "confirm_password": "yao"
-    },
-    {
-      "id": "4258",
-      "name": "bob",
-      "mail": "juior@gmail.cm",
-      "password": "1111",
-      "confirm_password": "1111"
-    },
-    {
-      "id": "621d",
+      "id": "d018",
       "name": "junior",
-      "mail": "tapsend@gmail.com",
-      "password": "karel",
-      "confirm_password": "karel"
+      "surname": "karel",
+      "mail": "karel@fr.com",
+      "password": "",
+      "confirm_password": "",
+      "telephone": "652200629",
+      "role": "Student",
+      "brancnId": "pr",
+      "dob": "2003-07-22"
     },
     {
-      "id": "1ef0",
-      "name": "bob",
-      "mail": "l@gmail.com",
-      "password": "junior",
-      "confirm_password": "junior"
+      "id": "116d",
+      "name": "canada",
+      "surname": "loic",
+      "mail": "loic@gmail.fr",
+      "password": "loic",
+      "confirm_password": "loic",
+      "telephone": "5666666666666",
+      "role": "Student",
+      "brancnId": "btiq",
+      "dob": "2025-03-09"
+    }
+  ],
+  "branch": [
+    {
+      "id": "pr",
+      "name": "programmation"
     },
     {
-      "id": "203c",
-      "name": "dede",
-      "mail": "hb@gmail.com",
-      "password": "1212",
-      "confirm_password": "1212"
+      "id": "btiq",
+      "name": "Bureautique"
     },
     {
-      "id": "2dd4",
-      "name": "loic",
-      "mail": "djkk@gmail.com",
-      "password": "dada",
-      "confirm_password": "dada"
+      "id": "main",
+      "name": "Maintenance"
     },
     {
-      "id": "9ce0",
-      "name": "andre",
-      "mail": "kre@gmail.com",
-      "password": "rere",
-      "confirm_password": "rere"
+      "id": "trd",
+      "name": "Trading"
     }
   ]
 }

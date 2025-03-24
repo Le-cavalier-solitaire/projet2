@@ -4,9 +4,10 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Login from "./pages/login/Login.tsx";
-import Register from "./pages/register/Register.tsx";
 import RegistrationModal from "./pages/dashboard/RegistrationModal.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
+import UserDash from "./pages/dashboard/UserDash.tsx";
+import EditModal from "./pages/dashboard/EditModal.tsx";
 
 const router = createBrowserRouter([
   {
@@ -18,12 +19,16 @@ const router = createBrowserRouter([
     element: <Dashboard />,
   },
   {
+    path: "/userlist",
+    element: <UserDash />,
+  },
+  {
     path: "/login",
     element: <Login />,
   },
   {
-    path: "/register",
-    element: <Register />,
+    path: "/edit/:id",
+    element: <EditModal />,
   },
 ]);
 

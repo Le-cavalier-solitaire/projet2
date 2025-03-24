@@ -1,17 +1,34 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-const RegistrationModal = () => {
+const EditModal = () => {
   const [listBranch, setListBranch] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
+  const params = useParams();
+  console.log(params);
+  const [initialData, setInitialData] = useState([]);
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
+  const navigate = useNavigate();
+
+  function getuser() {
+    axios
+      .get(`http://localhost:3000/users?id=${params.id}`)
+      .then((res) => {
+        setInitialData(res.data);
+      })
+      .catch((error) => {
+        alert("Unable to get user");
+      });
+  }
+
+  useEffect(getuser, []);
+  console.log(initialData);
 
   const [data, setData] = useState({
     name: "",
     surname: "",
     mail: "",
-    password: "",
-    confirm_password: "",
     telephone: "",
     role: "",
     brancnId: "",
@@ -19,29 +36,19 @@ const RegistrationModal = () => {
   });
   function handleSubmit(e) {
     e.preventDefault();
-    if (data.password !== data.confirm_password) {
-      /*toast.success*/ alert("les mots de passes ne correspondent pas");
-    } else {
-      axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
-        if (res.data.length > 0) {
-          /*toast.success*/ alert("Un compte existant");
-        } else {
-          axios
-            .post("http://localhost:3000/users", { ...data })
-            .then((res) => {
-              console.log(res);
-              /*toast.success*/ alert(
-                "Inscription réussie! veuillez quivre la procédure via mail!"
-              );
-            })
-            .catch((err) => {
-              console.log(err);
-              /*toast.success*/ alert("une erreur est survenue");
-            });
-        }
+
+    axios
+      .patch(`http://localhost:3000/users/${params.id}`, { ...data })
+      .then((res) => {
+        console.log(res);
+        toast.success("Modification réussie!");
+        navigate("/");
+        setData("")
+      })
+      .catch((err) => {
+        console.log(err);
+        /*toast.success*/ alert("une erreur est survenue");
       });
-    }
-    console.log(data);
   }
 
   // Gestion de la touche Échap
@@ -58,71 +65,21 @@ const RegistrationModal = () => {
 
   useEffect(getListBranch, []);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        closeModal();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  };
-
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-      <button
-        onClick={openModal}
-        style={{ background: "green" }}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
-      >
-        Ouvrir le formulaire
-      </button>
 
       {/* Overlay du modal */}
-      <div
-        onClick={handleBackdropClick}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
-          isOpen ? "visible" : "hidden"
-        }`}
-      >
-        {/* Contenu du modal */}
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
-          {/* En-tête */}
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
-              Inscription complète
-            </h2>
-            <button
-              onClick={closeModal}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
 
+      {/* Contenu du modal */}
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
+        {/* En-tête */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Modification d'information
+          </h2>
+        </div>
+        {initialData.map((datauser) => (
           <form className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -136,7 +93,7 @@ const RegistrationModal = () => {
                   onChange={(e) =>
                     setData({ ...data, surname: e.target.value })
                   }
-                  value={data.surname}
+                  defaultValue={datauser.surname}
                 />
               </div>
               <div>
@@ -148,7 +105,7 @@ const RegistrationModal = () => {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) => setData({ ...data, name: e.target.value })}
-                  value={data.name}
+                  defaultValue={datauser.name}
                 />
               </div>
             </div>
@@ -164,7 +121,7 @@ const RegistrationModal = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Birthday"
                   onChange={(e) => setData({ ...data, dob: e.target.value })}
-                  value={data.dob}
+                  defaultValue={datauser.dob}
                 />
               </div>
               <div>
@@ -179,7 +136,7 @@ const RegistrationModal = () => {
                   onChange={(e) =>
                     setData({ ...data, telephone: e.target.value })
                   }
-                  value={data.telephone}
+                  defaultValue={datauser.telephone}
                 />
               </div>
             </div>
@@ -194,42 +151,8 @@ const RegistrationModal = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="exemple@email.com"
                 onChange={(e) => setData({ ...data, mail: e.target.value })}
-                value={data.mail}
+                defaultValue={datauser.mail}
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mot de passe
-                </label>
-
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  onChange={(e) =>
-                    setData({ ...data, password: e.target.value })
-                  }
-                  value={data.password}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmation
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  onChange={(e) =>
-                    setData({ ...data, confirm_password: e.target.value })
-                  }
-                  value={data.confirm_password}
-                />
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -240,9 +163,7 @@ const RegistrationModal = () => {
                 <select
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) =>
-                    setData({ ...data, role: e.target.value })
-                  }
+                  onChange={(e) => setData({ ...data, role: e.target.value })}
                 >
                   <option value="">Sélectionner une branche</option>
                   {roles.map((role) => {
@@ -280,7 +201,7 @@ const RegistrationModal = () => {
             <div className="flex items-center">
               <input
                 type="checkbox"
-                id="terms"
+                id="term"
                 required
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
@@ -298,13 +219,13 @@ const RegistrationModal = () => {
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Create Account
+              Update Informations
             </button>
           </form>
-        </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default RegistrationModal;
+export default EditModal;
