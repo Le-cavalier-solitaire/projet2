@@ -3,26 +3,26 @@
     {
       "id": "d018",
       "name": "junior",
-      "surname": "karel",
-      "mail": "karel@fr.com",
-      "password": "",
-      "confirm_password": "",
-      "telephone": "652200629",
-      "role": "Student",
-      "brancnId": "pr",
-      "dob": "2003-07-22"
+      "surname": "karele",
+      "mail": "karel@fr.col",
+      "password": "junior",
+      "confirm_password": "junior",
+      "telephone": "65220065",
+      "role": "Teacher",
+      "brancnId": "",
+      "dob": "2003-07-10"
     },
     {
-      "id": "116d",
-      "name": "canada",
-      "surname": "loic",
-      "mail": "loic@gmail.fr",
-      "password": "loic",
-      "confirm_password": "loic",
-      "telephone": "5666666666666",
-      "role": "Student",
-      "brancnId": "btiq",
-      "dob": "2025-03-09"
+      "id": "270f",
+      "name": "merveille",
+      "surname": "lolita",
+      "mail": "loli@gmail.cm",
+      "password": "lolita",
+      "confirm_password": "lolita",
+      "telephone": "652310423",
+      "role": "Parent",
+      "brancnId": "",
+      "dob": "2025-03-08"
     }
   ],
   "branch": [

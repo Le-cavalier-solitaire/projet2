@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import "C:/Users/Karel_meka/Desktop/oups/projet2/src/App.css"
 import axios from "axios";
-import { Navigate, useNavigate, Link } from "react-router-dom";
+import { useNavigate,} from "react-router-dom";
+import toast from "react-hot-toast";
 
 function Login() {
   const navigate = useNavigate();
@@ -24,9 +25,9 @@ function Login() {
         if (res.data.length > 0) {
           localStorage.setItem("users", JSON.stringify(res.data[0]));
           navigate("/");
-          alert("connexion reussie");
+          toast.success("connexion reussie");
         } else {
-          alert("identifiant ou mot de passe incorrect");
+          toast.error("identifiant ou mot de passe incorrect");
         }
       });
 
@@ -161,9 +162,6 @@ function Login() {
                   Pas de compte ?
                 </span>
               </div>
-            </div>
-            <div className="mt-4 text-center">
-              <Link to="/register" className="text-blue-500 hover:text-blue-700 font-medium">Créer un compte</Link>
             </div>
           </div>
         </div>

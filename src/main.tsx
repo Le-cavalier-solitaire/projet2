@@ -8,6 +8,7 @@ import RegistrationModal from "./pages/dashboard/RegistrationModal.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import UserDash from "./pages/dashboard/UserDash.tsx";
 import EditModal from "./pages/dashboard/EditModal.tsx";
+import { Toaster } from "react-hot-toast";
 
 const router = createBrowserRouter([
   {
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
+    <Toaster />
     <RouterProvider router={router} />{" "}
   </StrictMode>
 );

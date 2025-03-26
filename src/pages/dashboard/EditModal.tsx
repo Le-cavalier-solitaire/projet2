@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const EditModal = () => {
   const [listBranch, setListBranch] = useState([]);
@@ -18,7 +18,7 @@ const EditModal = () => {
         setInitialData(res.data);
       })
       .catch((error) => {
-        alert("Unable to get user");
+        toast.error("Unable to get user");
       });
   }
 
@@ -41,13 +41,13 @@ const EditModal = () => {
       .patch(`http://localhost:3000/users/${params.id}`, { ...data })
       .then((res) => {
         console.log(res);
-        toast.success("Modification réussie!");
         navigate("/");
-        setData("")
+        toast.success("Modification réussie!");
+        setData("");
       })
       .catch((err) => {
         console.log(err);
-        /*toast.success*/ alert("une erreur est survenue");
+        toast.error("une erreur est survenue");
       });
   }
 
@@ -59,7 +59,7 @@ const EditModal = () => {
         setListBranch(res.data);
       })
       .catch((error) => {
-        alert("Unable to get data");
+        toast.error("Unable to get data");
       });
   }
 

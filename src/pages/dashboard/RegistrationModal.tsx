@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 const RegistrationModal = () => {
   const [listBranch, setListBranch] = useState([]);
@@ -20,23 +21,23 @@ const RegistrationModal = () => {
   function handleSubmit(e) {
     e.preventDefault();
     if (data.password !== data.confirm_password) {
-      /*toast.success*/ alert("les mots de passes ne correspondent pas");
+      toast.error("les mots de passes ne correspondent pas");
     } else {
       axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
         if (res.data.length > 0) {
-          /*toast.success*/ alert("Un compte existant");
+          toast.error("compte existant dejà");
         } else {
           axios
             .post("http://localhost:3000/users", { ...data })
             .then((res) => {
               console.log(res);
-              /*toast.success*/ alert(
-                "Inscription réussie! veuillez quivre la procédure via mail!"
+              toast.success(
+                "Compte créer avec succès!"
               );
             })
             .catch((err) => {
               console.log(err);
-              /*toast.success*/ alert("une erreur est survenue");
+              toast.error("une erreur est survenue");
             });
         }
       });
@@ -52,7 +53,7 @@ const RegistrationModal = () => {
         setListBranch(res.data);
       })
       .catch((error) => {
-        alert("Unable to get data");
+        toast.error("Unable to get data");
       });
   }
 
@@ -101,7 +102,7 @@ const RegistrationModal = () => {
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">
-              Inscription complète
+              Create Account
             </h2>
             <button
               onClick={closeModal}
