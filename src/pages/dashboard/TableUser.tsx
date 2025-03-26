@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import RegistrationModal from "./RegistrationModal";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import EditUserModal from "./EditUserModal";
 
 const TableUser = () => {
   const [users, setUsers] = useState([]);
@@ -16,19 +17,21 @@ const TableUser = () => {
       });
   }
 
-  useEffect(getusers, []);
+  useEffect(() => {
+    getusers();
+  }, []);
 
-  function deleteUser(id) {
+  const deleteUser = (id) => {
     axios
       .delete(`http://localhost:3000/users/${id}`)
       .then(() => {
-        setUsers([]);
-        alert("User has already delete");
+        // setUsers([]);
+        // alert("User has already delete");
       })
       .catch((error) => {
         alert("Unable to delete User");
       });
-  }
+  };
 
   return (
     <main className="ml-6 p-8">
@@ -36,7 +39,7 @@ const TableUser = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
 
-        <RegistrationModal/>
+        <RegistrationModal />
 
         <button
           style={{ background: "blue" }}
@@ -53,7 +56,17 @@ const TableUser = () => {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              {["id","Nom","Prenom", "Rôle", "Branch" ,"Birthday" ,"Email", "phone", "Actions"].map((header, index) => (
+              {[
+                "id",
+                "Nom",
+                "Prenom",
+                "Rôle",
+                "Branch",
+                "Birthday",
+                "Email",
+                "phone",
+                "Actions",
+              ].map((header, index) => (
                 <th
                   key={index}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
@@ -67,9 +80,7 @@ const TableUser = () => {
             {users.map((user) => {
               return (
                 <tr key={user.id}>
-                  <td className="px-6 py-4">
-                    {user.id}
-                  </td>
+                  <td className="px-6 py-4">{user.id}</td>
                   <td className="px-6 py-4">{user.name}</td>
                   <td className="px-6 py-4">{user.surname}</td>
                   <td className="px-6 py-4">{user.role}</td>
@@ -79,15 +90,12 @@ const TableUser = () => {
                   <td className="px-6 py-4">{user.telephone}</td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
-                      <Link to={"/edit/" + user.id}> 
+                      <EditUserModal user={user} />
+
                       <button
-                       className="text-blue-500 hover:text-red-700">
-                        Editer
-                      </button>
-                      </Link>
-                      <button
-                      onClick={()=>deleteUser(user.id)}
-                       className="text-red-500 hover:text-red-700">
+                        onClick={() => deleteUser(user.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
                         Supprimer
                       </button>
                     </div>

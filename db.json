@@ -1,26 +1,14 @@
 {
   "users": [
     {
-      "id": "d018",
-      "name": "junior",
-      "surname": "karele",
-      "mail": "karel@fr.col",
-      "password": "junior",
-      "confirm_password": "junior",
-      "telephone": "65220065",
-      "role": "Teacher",
-      "brancnId": "",
-      "dob": "2003-07-10"
-    },
-    {
-      "id": "270f",
-      "name": "merveille",
-      "surname": "lolita",
-      "mail": "loli@gmail.cm",
-      "password": "lolita",
-      "confirm_password": "lolita",
-      "telephone": "652310423",
-      "role": "Parent",
+      "id": "19fd",
+      "name": "j",
+      "surname": "l",
+      "mail": "d@hh",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "125478",
+      "role": "Student",
       "brancnId": "",
       "dob": "2025-03-08"
     }
