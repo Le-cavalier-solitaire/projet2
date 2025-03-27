@@ -2,38 +2,32 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const EdititemModal = ({ item }) => {
+const RegistrationModal = () => {
   const [listBranch, setListBranch] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  console.log(item);
 
   const [data, setData] = useState({
-    name: item.name
+    name: "",
   });
   function handleSubmit(e) {
     e.preventDefault();
-    if (data.password !== data.confirm_password) {
-      toast.error("les mots de passes ne correspondent pas");
-    } else {
-      axios.get(`http://localhost:3000/branch?mail=${data.mail}`).then((res) => {
-        if (res.data.length > 0) {
-          toast.error("compte existant dejà");
-        } else {
-          axios
-            .post("http://localhost:3000/branchitems", { ...data })
-            .then((res) => {
-              console.log(res);
-              toast.success("Compte créer avec succès!");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("une erreur est survenue");
-            });
-        }
-      });
-    }
-    console.log(data);
+    axios.get(`http://localhost:3000/branch?mail=${data.name}`).then((res) => {
+      if (res.data.length > 0) {
+        console.log(res.data);
+        toast.error("Branche existant dejà");
+      } else {
+        axios
+          .post("http://localhost:3000/branch", { ...data })
+          .then((res) => {
+            console.log({ res });
+            toast.success("branche créée avec succès!");
+          })
+          .catch((err) => {
+            console.log(err);
+            toast.error("une erreur est survenue");
+          });
+      }
+    });
   }
 
   // Gestion de la touche Échap
@@ -73,9 +67,12 @@ const EdititemModal = ({ item }) => {
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-
-      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
-        Edit
+      <button
+        onClick={openModal}
+        style={{ background: "green" }}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
+      >
+        Ouvrir le formulaire
       </button>
 
       {/* Overlay du modal */}
@@ -89,7 +86,7 @@ const EdititemModal = ({ item }) => {
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Edit</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -114,7 +111,7 @@ const EdititemModal = ({ item }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom
+                  Nom de la branche
                 </label>
                 <input
                   type="text"
@@ -131,7 +128,7 @@ const EdititemModal = ({ item }) => {
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Create Account
+              Add branch
             </button>
           </form>
         </div>
@@ -140,4 +137,4 @@ const EdititemModal = ({ item }) => {
   );
 };
 
-export default EdititemModal;
+export default RegistrationModal;

@@ -4,11 +4,12 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Login from "./pages/login/Login.tsx";
-import RegistrationModal from "./pages/dashboard/RegistrationModal.tsx";
+import RegistrationModal from "./pages/dashboard/RegistrationBranch.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import UserDash from "./pages/dashboard/UserDash.tsx";
 import EditModal from "./pages/dashboard/EditModal.tsx";
 import { Toaster } from "react-hot-toast";
+import BranchList from "./pages/dashboard/BranchList.tsx";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "/edit/:id",
     element: <EditModal />,
+  },
+  {
+    path: "/ListeDesBranches",
+    element: <BranchList />,
   },
 ]);
 

@@ -14,7 +14,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
       path: "userlist",
       status: false,
     },
-    { icon: "fa-book-open", text: "Branch List", path: "", status: false },
+    { icon: "fa-book-open", text: "Branch List", path: "ListeDesBranches", status: false },
     { icon: "fa-tasks", text: "Add Quiz", path: "", status: false },
     {
       icon: "fa-chart-bar",

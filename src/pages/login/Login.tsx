@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import "C:/Users/Karel_meka/Desktop/oups/projet2/src/App.css"
+import "../App.css";
 import axios from "axios";
-import { useNavigate,} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function Login() {
@@ -15,7 +15,7 @@ function Login() {
     mail: "",
     password: "",
   });
-  function handleSubmit(e:React.ChangeEvent<HTMLInputElement>) {
+  function handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     axios
       .get(
@@ -30,7 +30,6 @@ function Login() {
           toast.error("identifiant ou mot de passe incorrect");
         }
       });
-
   }
   return (
     <>

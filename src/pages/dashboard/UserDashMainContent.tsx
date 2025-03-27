@@ -3,12 +3,12 @@ import Header from "./Header";
 import StatsGrid from "./StatsGrid";
 import TableUser from "./TableUser";
 
-const UserDashMainContent = () => (
+const RegistrationBranch = () => (
   <main className="flex-1 md:ml-64">
     <Header />
-    <StatsGrid/>
+    <StatsGrid />
     <TableUser />
   </main>
 );
 
-export default UserDashMainContent;
+export default RegistrationBranch;

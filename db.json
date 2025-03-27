@@ -1,31 +1,31 @@
 {
   "users": [
     {
-      "id": "19fd",
-      "name": "j",
-      "surname": "l",
-      "mail": "d@hh",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "125478",
+      "id": "1",
+      "name": "ali",
+      "surname": "mama",
+      "mail": "ali@mama",
+      "password": "12345",
+      "confirm_password": "12345",
+      "telephone": "564123987",
+      "role": "teacher",
+      "brancnId": "TIQ",
+      "dob": "10/10/2002"
+    },
+    {
+      "id": "f5ee",
+      "name": "xxx",
+      "surname": "xxx",
+      "mail": "xxx@xxx.com",
+      "password": "12345",
+      "confirm_password": "12345",
+      "telephone": "13322222",
       "role": "Student",
-      "brancnId": "",
-      "dob": "2025-03-08"
+      "brancnId": "btiq",
+      "dob": "2025-04-04"
     }
   ],
   "branch": [
-    {
-      "id": "pr",
-      "name": "programmation"
-    },
-    {
-      "id": "btiq",
-      "name": "Bureautique"
-    },
-    {
-      "id": "main",
-      "name": "Maintenance"
-    },
     {
       "id": "trd",
       "name": "Trading"

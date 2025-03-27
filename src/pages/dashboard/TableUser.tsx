@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
-import RegistrationModal from "./RegistrationModal";
+import RegistrationModal from "./RegistrationBranch";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import EditUserModal from "./EditUserModal";
 
 const TableUser = () => {
-  const [users, setUsers] = useState([]);
+  const [branch, setBranch] = useState([]);
 
-  function getusers() {
-    axios("http://localhost:3000/users?_sort=name&_order=desc")
+  function getBranch() {
+    axios("http://localhost:3000/branch?_sort=name&_order=desc")
       .then((res) => {
-        setUsers(res.data);
+        setBranch(res.data);
       })
       .catch((error) => {
         alert("Unable to get user");
@@ -18,12 +18,12 @@ const TableUser = () => {
   }
 
   useEffect(() => {
-    getusers();
+    getBranch();
   }, []);
 
-  const deleteUser = (id) => {
+  const deleteBranch = (id) => {
     axios
-      .delete(`http://localhost:3000/users/${id}`)
+      .delete(`http://localhost:3000/branch/${id}`)
       .then(() => {
         // setUsers([]);
         // alert("User has already delete");
@@ -37,18 +37,9 @@ const TableUser = () => {
     <main className="ml-6 p-8">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
+        <h1 className="text-2xl font-bold">Gestion des Branches</h1>
 
         <RegistrationModal />
-
-        <button
-          style={{ background: "blue" }}
-          type="button"
-          onClick={getusers}
-          className="bg-blue-500 ml-3 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Refresh
-        </button>
       </div>
 
       {/* Users Table */}
@@ -56,17 +47,7 @@ const TableUser = () => {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              {[
-                "id",
-                "Nom",
-                "Prenom",
-                "Rôle",
-                "Branch",
-                "Birthday",
-                "Email",
-                "phone",
-                "Actions",
-              ].map((header, index) => (
+              {["id", "Nom"].map((header, index) => (
                 <th
                   key={index}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
@@ -77,23 +58,17 @@ const TableUser = () => {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {users.map((user) => {
+            {branch.map((item) => {
               return (
-                <tr key={user.id}>
-                  <td className="px-6 py-4">{user.id}</td>
-                  <td className="px-6 py-4">{user.name}</td>
-                  <td className="px-6 py-4">{user.surname}</td>
-                  <td className="px-6 py-4">{user.role}</td>
-                  <td className="px-6 py-4">{user.brancnId}</td>
-                  <td className="px-6 py-4">{user.dob}</td>
-                  <td className="px-6 py-4">{user.mail}</td>
-                  <td className="px-6 py-4">{user.telephone}</td>
+                <tr key={branch.id}>
+                  <td className="px-6 py-4">{item.id}</td>
+                  <td className="px-6 py-4">{item.name}</td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
-                      <EditUserModal user={user} />
+                      <EditUserModal item={item} />
 
                       <button
-                        onClick={() => deleteUser(user.id)}
+                        onClick={() => deleteBranch(item.id)}
                         className="text-red-500 hover:text-red-700"
                       >
                         Supprimer
