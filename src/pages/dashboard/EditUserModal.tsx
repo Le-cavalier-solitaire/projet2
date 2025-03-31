@@ -1,12 +1,13 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const EditUserModal = ({ user }) => {
   const [listBranch, setListBranch] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  console.log(user);
+  const navigate = useNavigate();
 
   const [data, setData] = useState({
     name: user.name,
@@ -19,27 +20,16 @@ const EditUserModal = ({ user }) => {
   });
   function handleSubmit(e) {
     e.preventDefault();
-    if (data.password !== data.confirm_password) {
-      toast.error("les mots de passes ne correspondent pas");
-    } else {
-      axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
-        if (res.data.length > 0) {
-          toast.error("compte existant dejà");
-        } else {
-          axios
-            .post("http://localhost:3000/users", { ...data })
-            .then((res) => {
-              console.log(res);
-              toast.success("Compte créer avec succès!");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("une erreur est survenue");
-            });
-        }
+    axios
+      .patch(`http://localhost:3000/users/${user.id}`, { ...data })
+      .then((res) => {
+        navigate("/");
+        toast.success("Modification réussie!");
+        setData("");
+      })
+      .catch((err) => {
+        toast.error("une erreur est survenue");
       });
-    }
-    console.log(data);
   }
 
   // Gestion de la touche Échap
@@ -255,7 +245,7 @@ const EditUserModal = ({ user }) => {
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Create Account
+              Update Informations
             </button>
           </form>
         </div>

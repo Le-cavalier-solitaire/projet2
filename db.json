@@ -1,16 +1,28 @@
 {
   "users": [
     {
-      "id": "19fd",
-      "name": "j",
-      "surname": "l",
-      "mail": "d@hh",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "125478",
+      "id": "703e",
+      "name": "lionnel",
+      "surname": "jean",
+      "mail": "jean@gmail.com",
+      "password": "1234",
+      "confirm_password": "1234",
+      "telephone": "666666666",
       "role": "Student",
-      "brancnId": "",
-      "dob": "2025-03-08"
+      "brancnId": "btiq",
+      "dob": "2025-01-02"
+    },
+    {
+      "id": "c04f",
+      "name": "lionnel",
+      "surname": "jean",
+      "mail": "JEAN@FDFDS.COM",
+      "password": "1234",
+      "confirm_password": "1234",
+      "telephone": "88888888",
+      "role": "Administrateur",
+      "brancnId": "main",
+      "dob": "2025-03-31"
     }
   ],
   "branch": [

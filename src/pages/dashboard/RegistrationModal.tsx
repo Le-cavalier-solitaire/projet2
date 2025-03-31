@@ -25,17 +25,14 @@ const RegistrationModal = () => {
     } else {
       axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
         if (res.data.length > 0) {
-          console.log(res.data);
           toast.error("compte existant dejà");
         } else {
           axios
             .post("http://localhost:3000/users", { ...data })
             .then((res) => {
-              console.log({ res });
               toast.success("Compte créer avec succès!");
             })
             .catch((err) => {
-              console.log(err);
               toast.error("une erreur est survenue");
             });
         }
@@ -85,7 +82,7 @@ const RegistrationModal = () => {
         style={{ background: "green" }}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
       >
-        Ouvrir le formulaire
+        Add users
       </button>
 
       {/* Overlay du modal */}
