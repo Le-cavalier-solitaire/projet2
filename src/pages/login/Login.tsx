@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "C:/Users/Karel_meka/Desktop/oups/projet2/src/App.css"
+import "../App.css"
 import axios from "axios";
 import { useNavigate,} from "react-router-dom";
 import toast from "react-hot-toast";

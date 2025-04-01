@@ -2,25 +2,24 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const EditUserModal = ({ user }) => {
+const EditQuizzModal = ({ quiz }) => {
   const [listBranch, setListBranch] = useState([]);
+  const [listAuthor, setListAuthor] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  console.log(user);
-
   const [data, setData] = useState({
-    name: user.name,
-    surname: user.surname,
-    mail: user.mail,
-    telephone: user.telephone,
-    role: user.role,
-    brancnId: "",
-    dob: user.dob,
+    name: quiz.name,
+    description: quiz.description,
+    startDate: quiz.startDate,
+    endDate: quiz.endDate,
+    authorId: "",
+    branchId: "",
+    createAt: quiz.createAt,
   });
+
   function handleSubmit(e) {
     e.preventDefault();
     axios
-      .patch(`http://localhost:3000/users/${user.id}`, { ...data })
+      .patch(`http://localhost:3000/quiz/${quiz.id}`, { ...data })
       .then((res) => {
         console.log(res);
         toast.success("Modification réussie!");
@@ -40,9 +39,21 @@ const EditUserModal = ({ user }) => {
         setListBranch(res.data);
       })
       .catch((error) => {
-        toast.error("Unable to get data");
+        toast.error("Unable to get databranch");
       });
   }
+
+  function getListAuthor() {
+    axios("http://localhost:3000/users?role=Teacher")
+      .then((res) => {
+        setListAuthor(res.data);
+      })
+      .catch((error) => {
+        toast.error("Unable to get dataauthor");
+      });
+  }
+
+  useEffect(getListAuthor, []);
 
   useEffect(getListBranch, []);
 
@@ -70,7 +81,15 @@ const EditUserModal = ({ user }) => {
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
 
-      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
+      <button
+        style={{
+          backgroundColor: "oklch(0.623 0.214 259.815)",
+          borderRadius: "5px",
+          boxShadow: "0px 6px 6px black",
+        }}
+        onClick={openModal}
+        className="text-white" 
+      >
         Edit
       </button>
 
@@ -117,9 +136,9 @@ const EditUserModal = ({ user }) => {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) =>
-                    setData({ ...data, surname: e.target.value })
+                    setData({ ...data, description: e.target.value })
                   }
-                  value={data.surname}
+                  value={data.description}
                 />
               </div>
               <div>
@@ -139,63 +158,67 @@ const EditUserModal = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date de naissance
+                  Start_Date
                 </label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Birthday"
-                  onChange={(e) => setData({ ...data, dob: e.target.value })}
-                  value={data.dob}
+                  onChange={(e) =>
+                    setData({ ...data, startDate: e.target.value })
+                  }
+                  value={data.startDate}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone
+                  End_Date
                 </label>
                 <input
-                  type="tel"
+                  type="datetime-local"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="phone Number"
                   onChange={(e) =>
-                    setData({ ...data, telephone: e.target.value })
+                    setData({ ...data, endDate: e.target.value })
                   }
-                  value={data.telephone}
+                  value={data.endDate}
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Create_At
               </label>
               <input
-                type="email"
+                type="datetime-local"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="exemple@email.com"
-                onChange={(e) => setData({ ...data, mail: e.target.value })}
-                value={data.mail}
+                onChange={(e) => setData({ ...data, createAt: e.target.value })}
+                value={data.createAt}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rôle
+                  Author
                 </label>
                 <select
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) => setData({ ...data, role: e.target.value })}
+                  onChange={(e) =>
+                    setData({ ...data, authorId: e.target.value })
+                  }
                 >
                   <option value="">Sélectionner une branche</option>
-                  {roles.map((role) => {
+                  {listAuthor.map((Author) => {
                     return (
-                      <option value={role} key={role}>
-                        {role}
+                      <option value={Author.id} key={Author.id}>
+                        {Author.name} {Author.surname}
                       </option>
                     );
                   })}
@@ -209,7 +232,7 @@ const EditUserModal = ({ user }) => {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) =>
-                    setData({ ...data, brancnId: e.target.value })
+                    setData({ ...data, branchId: e.target.value })
                   }
                 >
                   <option value="">Sélectionner une branche</option>
@@ -254,4 +277,4 @@ const EditUserModal = ({ user }) => {
   );
 };
 
-export default EditUserModal;
+export default EditQuizzModal;

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import "C:/Users/Karel_meka/Desktop/oups/projet2/src/App.css";
+import "../App.css";
 import axios from "axios";
-import { Navigate, useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 function Register() {
   const navigate = useNavigate();
   const [data, setData] = useState({
@@ -200,9 +200,7 @@ function Register() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Revenir à
-                </span>
+                <span className="px-2 bg-white text-gray-500">Revenir à</span>
               </div>
             </div>
             <div className="mt-4 text-center">

@@ -2,37 +2,46 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const EditUserModal = ({ user }) => {
+const RegistrationQuizzModal = () => {
+  const [listAuthor, setListAuthor] = useState([]);
   const [listBranch, setListBranch] = useState([]);
+
   const [isOpen, setIsOpen] = useState(false);
-  const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  console.log(user);
 
   const [data, setData] = useState({
-    name: user.name,
-    surname: user.surname,
-    mail: user.mail,
-    telephone: user.telephone,
-    role: user.role,
-    brancnId: "",
-    dob: user.dob,
+    name: "",
+    description: "",
+    authorId: "",
+    branchId: "",
+    createAt : "",
+    startDate: "",
+    endDate: "",
   });
   function handleSubmit(e) {
     e.preventDefault();
-    axios
-      .patch(`http://localhost:3000/users/${user.id}`, { ...data })
-      .then((res) => {
-        console.log(res);
-        toast.success("Modification réussie!");
-        setData("");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
-      });
+          axios
+            .post("http://localhost:3000/quiz", { ...data })
+            .then((res) => {
+              console.log({ res });
+              toast.success("Quizz Added Successfuly!");
+            })
+            .catch((err) => {
+              console.log(err);
+              toast.error("une erreur est survenue");
+            });
   }
 
   // Gestion de la touche Échap
+
+  function getListAuthor() {
+    axios("http://localhost:3000/users?role=Teacher")
+      .then((res) => {
+        setListAuthor(res.data);
+      })
+      .catch((error) => {
+        toast.error("Unable to get data");
+      });
+  }
 
   function getListBranch() {
     axios("http://localhost:3000/branch?_sort=name&_order=desc")
@@ -45,6 +54,10 @@ const EditUserModal = ({ user }) => {
   }
 
   useEffect(getListBranch, []);
+
+  useEffect(getListAuthor, []);
+
+
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -69,9 +82,12 @@ const EditUserModal = ({ user }) => {
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-
-      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
-        Edit
+      <button
+        onClick={openModal}
+        style={{ background: "green" }}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
+      >
+        Add New Quiz
       </button>
 
       {/* Overlay du modal */}
@@ -85,7 +101,7 @@ const EditUserModal = ({ user }) => {
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Edit</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Create Quiz</h2>
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -110,21 +126,21 @@ const EditUserModal = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Prénom
+                  Description
                 </label>
                 <input
                   type="text"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) =>
-                    setData({ ...data, surname: e.target.value })
+                    setData({ ...data, description: e.target.value })
                   }
-                  value={data.surname}
+                  value={data.description}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom
+                  Name
                 </label>
                 <input
                   type="text"
@@ -139,63 +155,63 @@ const EditUserModal = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date de naissance
+                Start_Date
                 </label>
                 <input
-                  type="date"
+                  type="datetime-local"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Birthday"
-                  onChange={(e) => setData({ ...data, dob: e.target.value })}
-                  value={data.dob}
+                  onChange={(e) => setData({ ...data, startDate: e.target.value })}
+                  value={data.startDate}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone
+                  End_Date
                 </label>
                 <input
-                  type="tel"
+                  type="datetime-local"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="phone Number"
                   onChange={(e) =>
-                    setData({ ...data, telephone: e.target.value })
+                    setData({ ...data, endDate: e.target.value })
                   }
-                  value={data.telephone}
+                  value={data.endDate}
                 />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                Create_At
               </label>
               <input
-                type="email"
+                type="datetime-local"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="exemple@email.com"
-                onChange={(e) => setData({ ...data, mail: e.target.value })}
-                value={data.mail}
+                onChange={(e) => setData({ ...data, createAt: e.target.value })}
+                value={data.createAt}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rôle
+                  Author_Name
                 </label>
                 <select
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) => setData({ ...data, role: e.target.value })}
+                  onChange={(e) => setData({ ...data, authorId: e.target.value })}
                 >
-                  <option value="">Sélectionner une branche</option>
-                  {roles.map((role) => {
+                  <option value="">Sélectionner l'Auteur</option>
+                  {listAuthor.map((author) => {
                     return (
-                      <option value={role} key={role}>
-                        {role}
+                      <option value={author.id} key={author.id}>
+                        {author.name} {author.surname}
                       </option>
                     );
                   })}
@@ -203,16 +219,16 @@ const EditUserModal = ({ user }) => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branche
+                  branch_Name
                 </label>
                 <select
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) =>
-                    setData({ ...data, brancnId: e.target.value })
+                    setData({ ...data, branchId: e.target.value })
                   }
                 >
-                  <option value="">Sélectionner une branche</option>
+                  <option value="">Sélectionner le quiz referent</option>
                   {listBranch.map((branch) => {
                     return (
                       <option value={branch.id} key={branch.id}>
@@ -224,28 +240,13 @@ const EditUserModal = ({ user }) => {
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="terms"
-                required
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label className="ml-2 text-sm text-gray-600">
-                J'accepte les
-                <a href="#" className="text-blue-600 hover:underline">
-                  conditions d'utilisation
-                </a>
-              </label>
-            </div>
-
             <button
               onClick={(e) => handleSubmit(e)}
               style={{ backgroundColor: "green" }}
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Create Account
+              Create Quiz
             </button>
           </form>
         </div>
@@ -254,4 +255,4 @@ const EditUserModal = ({ user }) => {
   );
 };
 
-export default EditUserModal;
+export default RegistrationQuizzModal;

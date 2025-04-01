@@ -15,7 +15,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
       status: false,
     },
     { icon: "fa-book-open", text: "Branch List", path: "", status: false },
-    { icon: "fa-tasks", text: "Add Quiz", path: "", status: false },
+    { icon: "fa-tasks", text: "Add Quiz", path: "quizzList", status: false },
     {
       icon: "fa-chart-bar",
       text: "View Previously Quiz",
@@ -62,23 +62,10 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
             </p>
           </Link>
         ))}
-        <a
-          key=""
-          href=""
-          className={`flex items-center mt-10 text-white space-x-2 py-3 px-4 rounded bg-red-700 hover:bg-gray-700`}
-          style={{ color: "white" }}
-        >
-          <span
-            onClick={() => {
-              localStorage.removeItem("users");
-              navigate("/login");
-            }}
-          >
-            Log Out
-          </span>
-        </a>
+        
         <button
-          className="flex items-center mt-10 text-white space-x-2 py-3 px-4 rounded bg-red-700 hover:bg-gray-700"
+        style={{backgroundColor:"oklch(0.505 0.213 27.518)", borderRadius:"3px", width:"100%"}}
+          className="flex items-center mt-10 text-white space-x-2 py-3 px-4 rounded hover:bg-gray-700"
           onClick={() => {
             localStorage.removeItem("users");
             navigate("/login");

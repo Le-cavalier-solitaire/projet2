@@ -9,6 +9,7 @@ import Dashboard from "./pages/dashboard/Dashboard.tsx";
 import UserDash from "./pages/dashboard/UserDash.tsx";
 import EditModal from "./pages/dashboard/EditModal.tsx";
 import { Toaster } from "react-hot-toast";
+import QuizzList from "./pages/quizz/QuizzList.tsx";
 
 const router = createBrowserRouter([
   {
@@ -28,8 +29,8 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
-    path: "/edit/:id",
-    element: <EditModal />,
+    path: "/quizzList",
+    element: <QuizzList />,
   },
 ]);
 
