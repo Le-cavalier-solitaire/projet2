@@ -19,7 +19,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     {
       icon: "fa-chart-bar",
       text: "View Previously Quiz",
-      path: "",
+      path: "myQuizz",
       status: false,
     },
     { icon: "fa-calendar-alt", text: "Results", path: "", status: false },

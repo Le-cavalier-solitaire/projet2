@@ -3,6 +3,7 @@ import axios from "axios";
 import EditQuizzModal from "./EditQuizzModal";
 import RegistrationQuizzModal from "./RegistrationQuizzModal";
 import "../App.css";
+import AddQuests from "./AddQuests";
 
 const TableQuizz = () => {
   const [quizs, setQuizs] = useState([]);
@@ -45,7 +46,7 @@ const TableQuizz = () => {
       {/* Users Table */}
       <div className="bg-white rounded shadow overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 font-extrabold">
             <tr>
               {[
                 "id",
@@ -87,7 +88,7 @@ const TableQuizz = () => {
                         style={{
                           backgroundColor: "oklch(0.505 0.213 27.518)",
                           borderRadius: "5px",
-                          boxShadow:"0px 6px 6px black"
+                          boxShadow: "0px 6px 6px black",
                         }}
                         onClick={() => deleteUser(quiz.id)}
                         className="text-white"
@@ -95,17 +96,7 @@ const TableQuizz = () => {
                         Supprimer
                       </button>
 
-                      <button
-                        style={{
-                          backgroundColor: "oklch(0.527 0.154 150.069)",
-                          borderRadius: "5px",
-                          boxShadow:"0px 6px 6px black"
-                        }}
-                        onClick={() => deleteUser(quiz.id)}
-                        className="text-white"
-                      >
-                        Add_Questions
-                      </button>
+                      <AddQuests quiz={quiz}/>
                     </div>
                   </td>
                 </tr>
