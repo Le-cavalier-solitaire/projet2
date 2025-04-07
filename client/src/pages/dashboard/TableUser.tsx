@@ -3,6 +3,7 @@ import RegistrationModal from "./RegistrationModal";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import EditUserModal from "./EditUserModal";
+import toast from "react-hot-toast";
 
 const TableUser = () => {
   const [users, setUsers] = useState([]);
@@ -25,8 +26,8 @@ const TableUser = () => {
     axios
       .delete(`http://localhost:3000/users/${id}`)
       .then(() => {
-        // setUsers([]);
-        // alert("User has already delete");
+        setUsers(users.filter((client) => client.id !== id));
+        toast.success("User has already delete");
       })
       .catch((error) => {
         alert("Unable to delete User");
@@ -39,7 +40,7 @@ const TableUser = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
 
-        <RegistrationModal />
+        <RegistrationModal users={users} setUsers={setUsers} />
 
         <button
           style={{ background: "blue" }}
@@ -90,7 +91,11 @@ const TableUser = () => {
                   <td className="px-6 py-4">{user.telephone}</td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
-                      <EditUserModal user={user} />
+                      <EditUserModal
+                        user={user}
+                        users={users}
+                        setUsers={setUsers}
+                      />
 
                       <button
                         onClick={() => deleteUser(user.id)}

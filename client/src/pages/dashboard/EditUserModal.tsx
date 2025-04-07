@@ -2,45 +2,36 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const RegistrationModal = () => {
+const EditUserModal = ({ user, users, setUsers }) => {
   const [listBranch, setListBranch] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
+  console.log(user);
 
   const [data, setData] = useState({
-    name: "",
-    surname: "",
-    mail: "",
-    password: "",
-    confirm_password: "",
-    telephone: "",
-    role: "",
+    name: user.name,
+    surname: user.surname,
+    mail: user.mail,
+    telephone: user.telephone,
+    role: user.role,
     brancnId: "",
-    dob: "",
+    dob: user.dob,
   });
   function handleSubmit(e) {
     e.preventDefault();
-    if (data.password !== data.confirm_password) {
-      toast.error("les mots de passes ne correspondent pas");
-    } else {
-      axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
-        if (res.data.length > 0) {
-          console.log(res.data);
-          toast.error("compte existant dejà");
-        } else {
-          axios
-            .post("http://localhost:3000/users", { ...data })
-            .then((res) => {
-              console.log({ res });
-              toast.success("Compte créer avec succès!");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("une erreur est survenue");
-            });
-        }
+    axios
+      .patch(`http://localhost:3000/users/${user.id}`, { ...data })
+      .then((res) => {
+        const editUser = users.map((client) =>
+          client.id === user.id ? (client = res.data) : client
+        );
+        setUsers(editUser);
+        toast.success("Information modifié avec succès!");
+        closeModal();
+      })
+      .catch((err) => {
+        toast.error("une erreur est survenue");
       });
-    }
   }
 
   // Gestion de la touche Échap
@@ -80,12 +71,9 @@ const RegistrationModal = () => {
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-      <button
-        onClick={openModal}
-        style={{ background: "green" }}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
-      >
-        Ouvrir le formulaire
+
+      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
+        Edit
       </button>
 
       {/* Overlay du modal */}
@@ -99,7 +87,7 @@ const RegistrationModal = () => {
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Edit</h2>
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -198,40 +186,6 @@ const RegistrationModal = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mot de passe
-                </label>
-
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  onChange={(e) =>
-                    setData({ ...data, password: e.target.value })
-                  }
-                  value={data.password}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmation
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  onChange={(e) =>
-                    setData({ ...data, confirm_password: e.target.value })
-                  }
-                  value={data.confirm_password}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Rôle
                 </label>
                 <select
@@ -302,4 +256,4 @@ const RegistrationModal = () => {
   );
 };
 
-export default RegistrationModal;
+export default EditUserModal;

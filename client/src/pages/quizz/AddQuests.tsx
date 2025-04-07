@@ -65,7 +65,7 @@ function AddQuests({ quiz }) {
     }
   };
   return (
-    <div className="bg-green h-auto">
+    <div style={{height:"auto"}} className="bg-green">
       {/* Bouton d'ouverture */}
       <button
         onClick={openModal}
@@ -87,9 +87,9 @@ function AddQuests({ quiz }) {
         }`}
       >
         {/* Contenu du modal */}
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
+        <div style={{height:"auto"}} className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4 max-h-[90vh] overflow-y-auto">
           {/* En-tête */}
-          <div className="flex justify-between items-center">
+          <div style={{height:"auto"}} className="flex justify-between items-center">
             <h2 className="text-2xl font-bold text-gray-800">
               Build Questions
             </h2>
@@ -113,7 +113,7 @@ function AddQuests({ quiz }) {
             </button>
           </div>
 
-          <div className="poopins flex flex-col px-24 mt h-auto">
+          <div style={{height:"auto"}} className="poopins flex flex-col px-24 mt h-auto">
             <div className="justify-between items-center my-12 flex poopins">
               <div className="flex gap-2 items-center">
                 <CodeRoundedIcon
@@ -129,8 +129,8 @@ function AddQuests({ quiz }) {
             </div>
           </div>
 
-          <div className="mt-6 p-3 justify-between border border-green-600 rounded-md">
-            <div className="flex gap-2 flex-col w-full">
+          <div style={{height:"auto"}} className="mt-6 p-3 justify-between border border-green-600 rounded-md max-h-[90vh] overflow-y-auto">
+            <div style={{height:"auto"}} className="flex gap-2 flex-col w-full">
               <div className="flex gap-2 items-center">
                 <div
                   style={{ backgroundColor: "oklch(0.627 0.194 149.214)" }}
@@ -181,7 +181,7 @@ export default AddQuests;
 
 export function SingleQuestion({ questionIndex }) {
   return (
-    <div className="w-full">
+    <div style={{height:"auto"}} className="w-full">
       <div className="flex items-center-gap-3">
         <div className="flex gap-2 text-15px border-gary 200">
           <span>Question</span>
@@ -200,7 +200,7 @@ export function SingleQuestion({ questionIndex }) {
 
 export function ChoiceAnswer() {
   return (
-    <div className="flex gap-10 items-center mt-3">
+    <div style={{height:"auto"}} className="flex gap-10 items-center mt-3">
       <div className="text-15px">Choices:</div>
       <div className="border border-gray-200 rounded-md p-4 w-full">
         <div className="flex gap-2 items-center mt-3">

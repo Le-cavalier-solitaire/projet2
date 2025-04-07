@@ -2,34 +2,57 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const EditUserModal = ({ user }) => {
+const RegistrationModal = ({ users, setUsers }) => {
   const [listBranch, setListBranch] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  console.log(user);
 
   const [data, setData] = useState({
-    name: user.name,
-    surname: user.surname,
-    mail: user.mail,
-    telephone: user.telephone,
-    role: user.role,
+    name: "",
+    surname: "",
+    mail: "",
+    password: "",
+    confirm_password: "",
+    telephone: "",
+    role: "",
     brancnId: "",
-    dob: user.dob,
+    dob: "",
   });
   function handleSubmit(e) {
     e.preventDefault();
-    axios
-      .patch(`http://localhost:3000/users/${user.id}`, { ...data })
-      .then((res) => {
-        console.log(res);
-        toast.success("Modification réussie!");
-        setData("");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
+    if (data.password !== data.confirm_password) {
+      toast.error("les mots de passes ne correspondent pas");
+    } else {
+      axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
+        if (res.data.length > 0) {
+          console.log(res.data);
+          toast.error("compte existant dejà");
+        } else {
+          axios
+            .post("http://localhost:3000/users", { ...data })
+            .then((res) => {
+              setUsers([...users, res.data]);
+              toast.success("Compte créer avec succès!");
+              setData({
+                name: "",
+                surname: "",
+                mail: "",
+                password: "",
+                confirm_password: "",
+                telephone: "",
+                role: "",
+                brancnId: "",
+                dob: "",
+              });
+              closeModal();
+            })
+            .catch((err) => {
+              console.log(err);
+              toast.error("une erreur est survenue");
+            });
+        }
       });
+    }
   }
 
   // Gestion de la touche Échap
@@ -69,9 +92,12 @@ const EditUserModal = ({ user }) => {
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-
-      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
-        Edit
+      <button
+        onClick={openModal}
+        style={{ background: "green" }}
+        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
+      >
+        Ouvrir le formulaire
       </button>
 
       {/* Overlay du modal */}
@@ -85,7 +111,7 @@ const EditUserModal = ({ user }) => {
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Edit</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -184,6 +210,40 @@ const EditUserModal = ({ user }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mot de passe
+                </label>
+
+                <input
+                  type="password"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="••••••••"
+                  onChange={(e) =>
+                    setData({ ...data, password: e.target.value })
+                  }
+                  value={data.password}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirmation
+                </label>
+                <input
+                  type="password"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="••••••••"
+                  onChange={(e) =>
+                    setData({ ...data, confirm_password: e.target.value })
+                  }
+                  value={data.confirm_password}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Rôle
                 </label>
                 <select
@@ -254,4 +314,4 @@ const EditUserModal = ({ user }) => {
   );
 };
 
-export default EditUserModal;
+export default RegistrationModal;

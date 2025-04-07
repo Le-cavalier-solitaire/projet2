@@ -7,7 +7,7 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen }: SidebarProps) => {
   const [tableMenu, SetTableMenu] = useState([
-    { icon: "fa-home", text: "Dashboard", path: "", status: true },
+    { icon: "fa-home", text: "Dashboard", path: "", status: false },
     {
       icon: "fa-book-open",
       text: "User List",
@@ -31,7 +31,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     const newArray = tableMenu.map((menu) =>
       menu.text === text ? { ...menu, status: !menu.status } : menu
     );
-    SetTableMenu(newArray);
+    SetTableMenu(newArray)
     console.log(tableMenu);
   }
 
@@ -54,7 +54,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
               onClick={() => handleClick(item.text)}
               key={index}
               className={`flex text-white items-center space-x-2 py-3 px-4 ${
-                item.status ? "bg-gray-700" : "hover:bg-gray-700"
+                item.status == true ? "bg-gray-700" : "hover:bg-gray-700"
               }`}
             >
               <i className={`fas ${item.icon}`}></i>
