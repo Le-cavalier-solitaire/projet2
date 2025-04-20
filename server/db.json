@@ -20,7 +20,7 @@
       "password": "123",
       "confirm_password": "123",
       "telephone": "652200629",
-      "role": "Teacher",
+      "role": "Parent",
       "brancnId": "",
       "dob": "2003-07-22"
     }
@@ -46,13 +46,144 @@
   "quiz": [
     {
       "id": "71e9",
-      "name": "<programmation react",
+      "name": "programmation react",
       "description": "reat hook Effect",
-      "authorId": "9bd9",
-      "branchId": "main",
+      "authorId": "9556",
+      "branchId": "pr",
       "createAt": "2025-04-02T19:45",
       "startDate": "2025-04-03T19:45",
-      "endDate": "2025-04-04T19:45"
+      "endDate": "2025-04-04T19:45",
+      "quizQuestions": [
+        {
+          "quizId": "71e9",
+          "id": "45ed13c9-d287-4b66-bdeb-79e99c4f54fe",
+          "mainQuestion": "qu'est ce que react?",
+          "choices": [
+            "A. un langage de programmation",
+            "B. un librairie javascrit",
+            "C. un code préconcu pour les devellopeurs",
+            "D. rien de tout ceci"
+          ],
+          "time": 15,
+          "correctAnswer": 1,
+          "marks": 5,
+          "statistics": {
+            "totalAttempts": 3,
+            "correctAttempts": 2,
+            "incorrectAttempts": 1
+          }
+        },
+        {
+          "quizId": "71e9",
+          "id": "5e846e76-5c02-4902-a2c5-0014cbd6d55f",
+          "mainQuestion": "comment définir un fonction fléchée?",
+          "choices": [
+            "A. functionArrow ...namefunction (...parameter) {...intructions}",
+            "B. function ...namefunction (...parameter) {...intructions}",
+            "C. function ...namefunction (...parameter) => {...intructions}",
+            "D. aucune de ces propositions n'est correcte"
+          ],
+          "time": 20,
+          "correctAnswer": 2,
+          "marks": 5,
+          "statistics": {
+            "totalAttempts": 3,
+            "correctAttempts": 2,
+            "incorrectAttempts": 1
+          }
+        },
+        {
+          "quizId": "71e9",
+          "id": "e6ee761c-5995-41a3-ab41-266430ae93df",
+          "mainQuestion": "quelle est la syntaxe déclarative d'un hooks State?",
+          "choices": [
+            "A. const [constname, functionSetConst] = useState(...intialValueOfConst)",
+            "B. useState((...nameFunction)=>{...instruction}, [])"
+          ],
+          "time": 30,
+          "correctAnswer": 0,
+          "marks": 5,
+          "statistics": {
+            "totalAttempts": 3,
+            "correctAttempts": 2,
+            "incorrectAttempts": 1
+          }
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "16fb",
+      "studentId": "9556",
+      "score": "5/15",
+      "quizId": "71e9",
+      "feedback": "Non Acquis"
+    }
+  ],
+  "questions": [
+    {
+      "0": {
+        "quizId": "71e9",
+        "id": "45ed13c9-d287-4b66-bdeb-79e99c4f54fe",
+        "mainQuestion": "qu'est ce que react?",
+        "choices": [
+          "A. un langage de programmation",
+          "B. un librairie javascrit",
+          "C. un code préconcu pour les devellopeurs",
+          "D. rien de tout ceci"
+        ],
+        "correctAnswer": 1
+      },
+      "1": {
+        "quizId": "71e9",
+        "id": "5e846e76-5c02-4902-a2c5-0014cbd6d55f",
+        "mainQuestion": "comment définir un fonction fléchée?",
+        "choices": [
+          "A. functionArrow ...namefunction (...parameter) {...intructions}",
+          "B. function ...namefunction (...parameter) {...intructions}",
+          "C. function ...namefunction (...parameter) => {...intructions}",
+          "D. aucune de ces propositions n'est correcte"
+        ],
+        "correctAnswer": 2
+      },
+      "2": {
+        "quizId": "71e9",
+        "id": "e6ee761c-5995-41a3-ab41-266430ae93df",
+        "mainQuestion": "quelle est la syntaxe déclarative d'un hooks State?",
+        "choices": [
+          "A. const [constname, functionSetConst] = useState(...intialValueOfConst)",
+          "B. useState((...nameFunction)=>{...instruction}, [])"
+        ],
+        "correctAnswer": 0
+      },
+      "id": "f783"
+    },
+    {
+      "id": "9fe9",
+      "quizQuestions": [
+        {
+          "quizId": "71e9",
+          "id": "558e979f-dce4-4abb-9fdb-15c7fe2acc6f",
+          "mainQuestion": "dededee",
+          "choices": [
+            "A. de",
+            "B. dedede",
+            "C. dede"
+          ],
+          "correctAnswer": 1
+        },
+        {
+          "quizId": "71e9",
+          "id": "437f2aed-f6e8-4acb-879e-08b09751399c",
+          "mainQuestion": "dzdedezezddez",
+          "choices": [
+            "A. fr",
+            "B. en"
+          ],
+          "correctAnswer": 0
+        }
+      ]
     }
   ]
 }

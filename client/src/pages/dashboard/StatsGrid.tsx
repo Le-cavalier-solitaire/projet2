@@ -1,29 +1,91 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import StatCard from "./StatCard";
+import axios from "axios";
 
 const StatsGrid = () => {
+  const [usersTeacher, setUsersTeacher] = useState([]);
+  const [usersParents, setUsersParents] = useState([]);
+  const [usersAdmin, setUsersAdmin] = useState([]);
+  const [usersStudent, setUsersStudent] = useState([]);
+
+  function getTeacher() {
+    axios("http://localhost:3000/users?role=Teacher")
+      .then((res) => {
+        setUsersTeacher(res.data);
+      })
+      .catch((error) => {
+        alert("Unable to get user");
+      });
+  }
+
+  function getParent() {
+    axios("http://localhost:3000/users?role=Parent")
+      .then((res) => {
+        setUsersParents(res.data);
+      })
+      .catch((error) => {
+        alert("Unable to get user");
+      });
+  }
+
+  function getAdmin() {
+    axios("http://localhost:3000/users?role=Administrateur")
+      .then((res) => {
+        setUsersAdmin(res.data);
+      })
+      .catch((error) => {
+        alert("Unable to get user");
+      });
+  }
+
+  function getStudent() {
+    axios("http://localhost:3000/users?role=Student")
+      .then((res) => {
+        setUsersStudent(res.data);
+      })
+      .catch((error) => {
+        alert("Unable to get user");
+      });
+  }
+
+  useEffect(() => {
+    getTeacher();
+  }, []);
+
+  useEffect(() => {
+    getParent();
+  }, []);
+
+  useEffect(() => {
+    getAdmin();
+  }, []);
+
+  useEffect(() => {
+    getStudent();
+  }, []);
+
   const stats = [
     {
       title: "Students Accounts",
-      value: "1,234",
+      value: usersStudent.length,
       icon: "users",
       color: "green",
     },
     {
       title: "Parents Accounts",
-      value: "89%",
+      value: usersParents.length,
       icon: "clipboard-check",
       color: "blue",
     },
     {
       title: "Teachers Accounts",
-      value: "14.5/20",
+      value: usersTeacher.length,
       icon: "chart-line",
       color: "purple",
     },
     {
       title: "AdMins Accounts",
-      value: "5.2%",
+      value: usersAdmin.length,
       icon: "exclamation-triangle",
       color: "red",
     },

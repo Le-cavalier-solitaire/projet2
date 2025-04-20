@@ -45,7 +45,7 @@ const TableUser = () => {
         <button
           style={{ background: "blue" }}
           type="button"
-          onClick={getusers}
+          onClick={getusers()}
           className="bg-blue-500 ml-3 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Refresh

@@ -11,6 +11,7 @@ import EditModal from "./pages/dashboard/EditModal.tsx";
 import { Toaster } from "react-hot-toast";
 import QuizzList from "./pages/quizz/QuizzList.tsx";
 import MyQuizz from "./pages/quizzActiv/MyQuizz.tsx";
+import DoQuizz from "./pages/quizzActiv/DoQuizz.tsx";
 
 const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ const router = createBrowserRouter([
   {
     path: "/MyQuizz",
     element: <MyQuizz />,
+  },
+  {
+    path: "/quizStart/:id",
+    element: <DoQuizz />,
   },
 ]);
 

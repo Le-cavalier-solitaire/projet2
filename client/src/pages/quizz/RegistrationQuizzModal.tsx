@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
-const RegistrationQuizzModal = () => {
+const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   const [listAuthor, setListAuthor] = useState([]);
   const [listBranch, setListBranch] = useState([]);
 
@@ -13,22 +13,32 @@ const RegistrationQuizzModal = () => {
     description: "",
     authorId: "",
     branchId: "",
-    createAt : "",
+    createAt: "",
     startDate: "",
     endDate: "",
   });
   function handleSubmit(e) {
     e.preventDefault();
-          axios
-            .post("http://localhost:3000/quiz", { ...data })
-            .then((res) => {
-              console.log({ res });
-              toast.success("Quizz Added Successfuly!");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("une erreur est survenue");
-            });
+    axios
+      .post("http://localhost:3000/quiz", { ...data })
+      .then((res) => {
+        setQuizs([...quizs, res.data]);
+        toast.success("Quizz added successfully");
+        setQuizs({
+          name: "",
+          description: "",
+          authorId: "",
+          branchId: "",
+          createAt: "",
+          startDate: "",
+          endDate: "",
+        });
+        closeModal();
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("une erreur est survenue");
+      });
   }
 
   // Gestion de la touche Échap
@@ -56,8 +66,6 @@ const RegistrationQuizzModal = () => {
   useEffect(getListBranch, []);
 
   useEffect(getListAuthor, []);
-
-
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -155,14 +163,16 @@ const RegistrationQuizzModal = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start_Date
+                  Start_Date
                 </label>
                 <input
                   type="datetime-local"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Birthday"
-                  onChange={(e) => setData({ ...data, startDate: e.target.value })}
+                  onChange={(e) =>
+                    setData({ ...data, startDate: e.target.value })
+                  }
                   value={data.startDate}
                 />
               </div>
@@ -205,7 +215,9 @@ const RegistrationQuizzModal = () => {
                 <select
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) => setData({ ...data, authorId: e.target.value })}
+                  onChange={(e) =>
+                    setData({ ...data, authorId: e.target.value })
+                  }
                 >
                   <option value="">Sélectionner l'Auteur</option>
                   {listAuthor.map((author) => {
