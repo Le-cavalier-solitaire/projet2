@@ -24,7 +24,7 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
       .then((res) => {
         setQuizs([...quizs, res.data]);
         toast.success("Quizz added successfully");
-        setQuizs({
+        setData({
           name: "",
           description: "",
           authorId: "",

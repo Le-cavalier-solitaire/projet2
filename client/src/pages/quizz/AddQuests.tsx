@@ -18,6 +18,8 @@ function AddQuests({ quiz }) {
       mainQuestion: "",
       choices: prefixes.slice(0, 2).map((prefix) => prefix + ". "),
       correctAnswer: "",
+      time: 0,
+      marks: 1,
     },
   ]);
   const endOfListRef = useRef(null);
@@ -32,6 +34,28 @@ function AddQuests({ quiz }) {
       return question;
     });
     setQuizQuestions(updatequestions);
+  }
+
+  function handleDelayChange(index, text) {
+    const newDelay = quizQuestions.map((question, i) => {
+      if (index == i) {
+        const value = parseFloat(text) || 0;
+        return { ...question, time: value };
+      }
+      return question;
+    });
+    setQuizQuestions(newDelay);
+  }
+
+  function handlePointChange(index, text) {
+    const newPoint = quizQuestions.map((question, i) => {
+      if (index == i) {
+        const value = Math.max(1, parseFloat(text) || 1);
+        return { ...question, marks: value };
+      }
+      return question;
+    });
+    setQuizQuestions(newPoint);
   }
 
   function updateChoicesArray(text, choiceIndex, questionIndex) {
@@ -83,6 +107,8 @@ function AddQuests({ quiz }) {
       mainQuestion: "",
       choices: prefixes.slice(0, 2).map((prefix) => prefix + ""),
       correctAnswer: "",
+      time: 0,
+      marks: 1,
     };
     setQuizQuestions([...quizQuestions, newQuestion]);
     textAreaRefs.current = [...textAreaRefs.current, createRef()];
@@ -124,6 +150,16 @@ function AddQuests({ quiz }) {
     }
   }, [quizQuestions.length]);
 
+  //count total poin
+
+  let totalMarks = 0;
+  if (quizQuestions.length > 0) {
+    quizQuestions.forEach((mark) => {
+      totalMarks += mark.marks || 0;
+    });
+  }
+  console.log(totalMarks);
+
   useEffect(() => {
     //focus the last textarea if it exists
     const lastTextareaIndex = quizQuestions.length - 1;
@@ -160,7 +196,7 @@ function AddQuests({ quiz }) {
       return;
     }
     axios
-    .patch(`http://localhost:3000/quiz/${quiz.id}`, {quizQuestions })
+      .patch(`http://localhost:3000/quiz/${quiz.id}`, { quizQuestions })
       .then((res) => {
         console.log({ res });
         toast.success("Questions Added Successfuly!");
@@ -171,6 +207,8 @@ function AddQuests({ quiz }) {
             mainQuestion: "",
             choices: prefixes.slice(0, 2).map((prefix) => prefix + ". "),
             correctAnswer: "",
+            time: 0,
+            marks: 1,
           },
         ]);
         closeModal();
@@ -289,6 +327,12 @@ function AddQuests({ quiz }) {
                 CountQuestion:{" "}
                 <span className="text-2xl">{quizQuestions.length}</span>
               </span>
+              <span
+                style={{ backgroundColor: "oklch(0.627 0.194 149.214)" }}
+                className="bg-green-700 px-4 py-4 rounded-md text-white"
+              >
+                TotalPoints: <span className="text-2xl">{totalMarks} pts</span>
+              </span>
             </div>
           </div>
 
@@ -307,7 +351,9 @@ function AddQuests({ quiz }) {
                 >
                   1
                 </div>
-                <span className="font-bold">Quiz Question :</span>
+                <span className="font-extrabold text-[22px] font-mono">
+                  Quiz Question :
+                </span>
               </div>
               {quizQuestions.map((singleQuestion, questionIndex) => (
                 <div
@@ -353,6 +399,25 @@ function AddQuests({ quiz }) {
                       updateCorrectAnswer(text, questionIndex);
                     }}
                   />
+                  <div
+                    style={{ height: "auto" }}
+                    className="flex gap-10 items-center mt-3 justify-center"
+                  >
+                    <Delay
+                      questionIndex={questionIndex}
+                      value={singleQuestion.time}
+                      onChange={(e) => {
+                        handleDelayChange(questionIndex, e.target.value);
+                      }}
+                    />
+                    <Point
+                      questionIndex={questionIndex}
+                      value={singleQuestion.marks}
+                      onChange={(e) => {
+                        handlePointChange(questionIndex, e.target.value);
+                      }}
+                    />
+                  </div>
                 </div>
               ))}
 
@@ -384,7 +449,7 @@ export const SingleQuestion = forwardRef(function SingleQuestion(
   return (
     <div style={{ height: "auto" }} className="w-full">
       <div className="flex items-center-gap-3">
-        <div className="flex gap-2 font-bold text-15px border-gary 200">
+        <div className="flex gap-2 font-bold text-[18px] border-gary 200">
           <span>Question</span>
           <span>{questionIndex + 1}</span>
         </div>
@@ -395,7 +460,7 @@ export const SingleQuestion = forwardRef(function SingleQuestion(
           placeholder="Your question here..."
           name=""
           id=""
-          className="border border-gray-500 rounded-md ml-3 w-full h-10 resize-none text-13px outline-none"
+          className="border border-gray-500 rounded-md ml-3 w-full h-10 resize-none text-[18px] font-serif outline-none"
         ></textarea>{" "}
       </div>
     </div>
@@ -446,7 +511,7 @@ export function ChoiceAnswer({
   }
   return (
     <div style={{ height: "auto" }} className="flex gap-10 items-center mt-3">
-      <div className="text-15px font-bold">Choices:</div>
+      <div className="text-[18px] font-bold">Choices:</div>
       <div className="border-2 border-gray-500 rounded-md p-4 w-full">
         {choices.map((singleChoice, choiceIndex) => (
           <div key={choiceIndex} className="flex gap-2 items-center mt-3">
@@ -461,7 +526,7 @@ export function ChoiceAnswer({
                 );
               }}
               placeholder={`Add your ${positions[choiceIndex]} choice`}
-              className="border text-13px border-gray-500 p-2 w-full rounded-md outline-none"
+              className="border text-[18px] font-serif border-gray-500 p-2 w-full rounded-md outline-none"
             />
             {choiceIndex >= 2 && (
               <HighlightOffRoundedIcon
@@ -505,7 +570,7 @@ export function CorrectAnswer({ onChangeCorrectAnswer, singleQuestion }) {
   }
   return (
     <div style={{ height: "auto" }} className="flex gap-10 items-center mt-3">
-      <div className="text-15px font-bold">
+      <div className="text-[18px] font-bold">
         Coorect <br /> answer:
       </div>
       <div className="flex gap-2 items-center w-full mt-3">
@@ -516,7 +581,67 @@ export function CorrectAnswer({ onChangeCorrectAnswer, singleQuestion }) {
             handleOnChangeInput(e.target.value);
           }}
           placeholder={`enter correct answer`}
-          className="border text-13px border-gray-500 p-2 w-full rounded-md outline-none"
+          className="border text-[18px] font-serif border-gray-500 p-2 w-full rounded-md outline-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+export function Delay({ questionIndex, onChange, value }) {
+  const handleChange = (e) => {
+    const inputValue = e.target.value;
+    if (inputValue !== "" && parseInt(inputValue) < 0) {
+      e.target.value = "0";
+    }
+    onChange(e);
+  };
+
+  return (
+    <div
+      style={{ height: "auto" }}
+      className="flex items-center justify-center gap-4 w-full"
+    >
+      <div className="text-[18px] font-bold whitespace-nowrap">
+        Delay(snd):<h4 className="text-red-700">*optional</h4>
+      </div>
+      <div className="flex items-center w-full">
+        <input
+          min="0"
+          type="number"
+          value={value}
+          onChange={handleChange}
+          placeholder="Delay value"
+          className="border text-[18px] font-serif border-gray-500 p-2 w-full rounded-md outline-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+export function Point({ questionIndex, onChange, value }) {
+  const handleChange = (e) => {
+    const inputValue = e.target.value;
+    if (!inputValue || parseInt(inputValue) < 1) {
+      e.target.value = "1";
+    }
+    onChange(e);
+  };
+
+  return (
+    <div
+      style={{ height: "auto" }}
+      className="flex items-center justify-center gap-4 w-full"
+    >
+      <div className="text-[18px] font-bold whitespace-nowrap">Point(s):</div>
+      <div className="flex items-center w-full">
+        <input
+          type="number"
+          min="1"
+          value={value < 1 ? 1 : value}
+          onChange={handleChange}
+          placeholder="Points value"
+          className="border text-[18px] font-serif border-gray-500 p-2 w-full rounded-md outline-none"
         />
       </div>
     </div>

@@ -210,11 +210,10 @@ function DoQuizz() {
                       onClick={() => {
                         selectedChoiceFunction(indexChoice);
                       }}
-                      style={{ backgroundColor: "white" }}
-                      className={`p-3 ml-11 w-10/12 border border-green-700 rounded-md text-[18px] font-serif hover:bg-green-600 hover:text-white transition-all select-none${
-                        selectedChoice == indexChoice
-                          ? `bg-green-700 text-white`
-                          : `bg-white`
+                      className={`p-3 ml-11 w-10/12 border border-green-700 rounded-md text-[18px] font-serif transition-all select-none ${
+                        selectedChoice === indexChoice
+                          ? "bg-white text-black"
+                          : "bg-green-700 text-white hover:bg-white hover:text-black"
                       }`}
                     >
                       {choice}
@@ -244,17 +243,6 @@ function DoQuizz() {
                       : "Suivant"}
                   </button>
                 )}
-
-                {/* <button
-                  onClick={(e) => {
-                    e.preventDefault(); // Empêche la soumission du formulaire
-                    moveToNextQuestion();
-                  }}
-                  style={{ backgroundColor: "green" }}
-                  className="w-1/4 mb-3 bg-blue-500 text-white py-2 px-2 rounded-sm hover:bg-blue-600 transition duration-200"
-                >
-                  validate
-                </button> */}
               </div>
             </form>
           ) : (
@@ -322,6 +310,7 @@ export function ScorePoppop({ doQuizzProps }) {
   const [dataResultQuiz, setDataResultQuiz] = useState({
     studentId: userId,
     score: score,
+    percent: result,
     quizId: quizId,
     feedback: feedback,
   });
@@ -331,29 +320,32 @@ export function ScorePoppop({ doQuizzProps }) {
     setDataResultQuiz({
       studentId: userId,
       score: score,
+      percent: result,
       quizId: quizId,
       feedback: feedback,
     });
   }, [userId, score, quizId, feedback]);
 
-//envoie des resultas du user en bd
-function handleSubmit(){
-  axios.post('http://localhost:3000/results', {...dataResultQuiz})
-  .then((res) => {
-    toast.success("n'arrêtez pas de vous exercer 😊!");
-    setDataResultQuiz({
-      studentId: "",
-      score: "",
-      quizId: "",
-      feedback: "",
-    });
-    navigate("/")
-  })
-  .catch((err) => {
-    console.log(err);
-    toast.error("une erreur est survenue");
-  });
-}  
+  //envoie des resultas du user en bd
+  function handleSubmit() {
+    axios
+      .post("http://localhost:3000/results", { ...dataResultQuiz })
+      .then((res) => {
+        toast.success("n'arrêtez pas de vous exercer 😊!");
+        setDataResultQuiz({
+          studentId: "",
+          score: "",
+          quizId: "",
+          feedback: "",
+          percent: 0,
+        });
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("une erreur est survenue");
+      });
+  }
 
   return (
     <div
@@ -384,11 +376,6 @@ function handleSubmit(){
                 Incorrect Answer: {incorrectAnswer}
               </span>
             </div>
-            <div className="gap-1 flex items-center justify-center mt-2">
-              <span className="text-[18px] font-bold">
-                Feedback: {feedback}
-              </span>
-            </div>
           </div>
           <button
             style={{
@@ -399,7 +386,7 @@ function handleSubmit(){
               borderRadius: "10px",
             }}
             className="mb-2 mt-1 text-[16px] font-bold text-white py-2 px-2 rounded-sm w-full"
-            onClick={()=>handleSubmit()}
+            onClick={() => handleSubmit()}
           >
             Aller à ma page
           </button>

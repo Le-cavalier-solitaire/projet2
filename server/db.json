@@ -23,6 +23,18 @@
       "role": "Parent",
       "brancnId": "",
       "dob": "2003-07-22"
+    },
+    {
+      "id": "8d06",
+      "name": "Divane",
+      "surname": "Lamelo",
+      "mail": "lamelo@gmail.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "643551204",
+      "role": "Student",
+      "brancnId": "pr",
+      "dob": "2004-11-25"
     }
   ],
   "branch": [
@@ -31,16 +43,8 @@
       "name": "programmation"
     },
     {
-      "id": "btiq",
-      "name": "Bureautique"
-    },
-    {
       "id": "main",
       "name": "Maintenance"
-    },
-    {
-      "id": "trd",
-      "name": "Trading"
     }
   ],
   "quiz": [
@@ -50,9 +54,9 @@
       "description": "reat hook Effect",
       "authorId": "9556",
       "branchId": "pr",
-      "createAt": "2025-04-02T19:45",
-      "startDate": "2025-04-03T19:45",
-      "endDate": "2025-04-04T19:45",
+      "createAt": "2025-04-20T00:45",
+      "startDate": "2025-04-22T01:45",
+      "endDate": "2025-04-22T19:45",
       "quizQuestions": [
         {
           "quizId": "71e9",
@@ -66,12 +70,7 @@
           ],
           "time": 15,
           "correctAnswer": 1,
-          "marks": 5,
-          "statistics": {
-            "totalAttempts": 3,
-            "correctAttempts": 2,
-            "incorrectAttempts": 1
-          }
+          "marks": 5
         },
         {
           "quizId": "71e9",
@@ -85,12 +84,7 @@
           ],
           "time": 20,
           "correctAnswer": 2,
-          "marks": 5,
-          "statistics": {
-            "totalAttempts": 3,
-            "correctAttempts": 2,
-            "incorrectAttempts": 1
-          }
+          "marks": 5
         },
         {
           "quizId": "71e9",
@@ -102,12 +96,67 @@
           ],
           "time": 30,
           "correctAnswer": 0,
-          "marks": 5,
-          "statistics": {
-            "totalAttempts": 3,
-            "correctAttempts": 2,
-            "incorrectAttempts": 1
-          }
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "id": "3e1f",
+      "name": "les fonctions fléchées",
+      "description": "Programmation React",
+      "authorId": "9556",
+      "branchId": "pr",
+      "createAt": "2025-04-22T00:50",
+      "startDate": "2025-04-22T05:45",
+      "endDate": "2025-04-23T00:50",
+      "quizQuestions": [
+        {
+          "quizId": "3e1f",
+          "id": "64d2abd4-d97a-4250-8d22-f9c3a6cde394",
+          "mainQuestion": "c'est quoi une fonction?",
+          "choices": [
+            "A. un sous programme ",
+            "B. un programme permettant de réaliser une tache précise"
+          ],
+          "correctAnswer": 0,
+          "time": 30,
+          "marks": 3
+        }
+      ]
+    },
+    {
+      "id": "d164",
+      "name": "les opérateurs de base",
+      "description": "1+1",
+      "authorId": "9556",
+      "branchId": null,
+      "createAt": "2025-04-22T04:06",
+      "startDate": "2025-04-24T04:06",
+      "endDate": "2025-04-30T04:06",
+      "quizQuestions": [
+        {
+          "quizId": "d164",
+          "id": "1d086860-dcc1-42fa-b8aa-13ba12365f67",
+          "mainQuestion": "tantine veut quoi?",
+          "choices": [
+            "A. banane",
+            "B. plantain"
+          ],
+          "correctAnswer": 1,
+          "time": 11,
+          "marks": 5
+        },
+        {
+          "quizId": "d164",
+          "id": "243887dc-ea1c-4903-bf74-f17363485573",
+          "mainQuestion": "elle aime manger quoi?",
+          "choices": [
+            "A. la pain chocolat",
+            "B. la pastèque"
+          ],
+          "correctAnswer": 0,
+          "time": 5,
+          "marks": 4
         }
       ]
     }
@@ -116,9 +165,42 @@
     {
       "id": "16fb",
       "studentId": "9556",
-      "score": "5/15",
+      "score": "10/15",
+      "percent": 66.6666,
       "quizId": "71e9",
+      "feedback": "En cours d'Acquisition"
+    },
+    {
+      "id": "2747",
+      "studentId": "9556",
+      "score": "3/3",
+      "percent": 100,
+      "quizId": "3e1f",
+      "feedback": "Acquis"
+    },
+    {
+      "id": "8736",
+      "studentId": "934f",
+      "score": "0/3",
+      "percent": 0,
+      "quizId": "3e1f",
       "feedback": "Non Acquis"
+    },
+    {
+      "id": "40c9",
+      "studentId": "934f",
+      "score": "15/15",
+      "percent": 100,
+      "quizId": "71e9",
+      "feedback": "Acquis"
+    },
+    {
+      "id": "d3e0",
+      "studentId": "8d06",
+      "score": "10/15",
+      "percent": 66.66666666666666,
+      "quizId": "71e9",
+      "feedback": "En cours d'acquisition"
     }
   ],
   "questions": [

@@ -30,7 +30,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
   const [tableMenu, setTableMenu] = useState<MenuItem[]>([
     { icon: dashboard, text: "Dashboard", path: "", status: false },
     { icon: users, text: "User List", path: "userlist", status: false },
-    { icon: branchs, text: "Branch List", path: "", status: false },
+    { icon: branchs, text: "Branch List", path: "branch", status: false },
     { icon: questions, text: "Add Quiz", path: "quizzList", status: false },
     { icon: doquiz, text: "View Quiz", path: "myQuizz", status: false },
     { icon: results, text: "Results", path: "", status: false },
