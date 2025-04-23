@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import plus from "../../assets/plus.png";
 
-
 const RegistrationBranchModal = ({ branchs, setBranch }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -55,32 +54,47 @@ const RegistrationBranchModal = ({ branchs, setBranch }) => {
       {/* Bouton d'ouverture */}
       <button
         onClick={openModal}
-        style={{ background: "gray", width: "200px", height: "250px" }}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
+        style={{
+          backgroundColor: "whitesmoke",
+          width: "200px",
+          height: "250px",
+          boxShadow: "5px 6px  6px 1px rgb(52, 52, 244)",
+        }}
+        className="bg-blue-500 text-gray-400 px-4 py-2 rounded hover:bg-blue-600 m-4"
       >
-        <div style={{ width: "200px", height: "200px" }} className="relative w-full h-32 mt-[-5] flex items-center justify-center rounded-md">
+        <div
+          style={{ width: "200px", height: "200px" }}
+          className="relative w-full h-32 mt-[-5] flex items-center justify-center rounded-md"
+        >
           <img
             src={plus}
             style={{ width: "200px", height: "200px" }}
-            className="text-white mr-9 justify-center items-center h-80 w-80 mt-[-5px]"
+            className="text-white object-cover mr-9 justify-center items-center h-80 w-80 mt-[-5px]"
             alt="Quiz"
           />
         </div>
-        <p className="font-extrabold text-[22px]">Add New Branch</p>
+        <p className="font-extrabold text-[22px]">Add branch</p>
       </button>
 
       {/* Overlay du modal */}
       <div
         onClick={handleBackdropClick}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
+        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center z-50  ${
           isOpen ? "visible" : "hidden"
         }`}
       >
         {/* Contenu du modal */}
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
+        <div className="bg-white rounded-lg shadow-xl w-[450px] p-6 mx-4 relative">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Create branch</h2>
+            <u>
+              {" "}
+              <h2 className="font-mono text-[28px] font-bold text-gray-800">
+                Create branch
+              </h2>
+            </u>
+
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -104,13 +118,13 @@ const RegistrationBranchModal = ({ branchs, setBranch }) => {
           <form className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
+                <label className="flex text-center text-[20px] font-mono font-semibold text-gray-700 mb-1">
+                  Name:
                 </label>
                 <input
                   type="text"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-[400px] px-3 py-2 ext-black border-2 font-mono text-[18px] border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) => setData({ ...data, name: e.target.value })}
                   value={data.name}
                 />

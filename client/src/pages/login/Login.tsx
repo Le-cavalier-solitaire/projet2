@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import "../App.css"
+import "../App.css";
+import loginBg from "../../assets/loginBg.png";
 import axios from "axios";
-import { useNavigate,} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function Login() {
@@ -15,22 +16,25 @@ function Login() {
     mail: "",
     password: "",
   });
-  function handleSubmit(e:React.ChangeEvent<HTMLInputElement>) {
+  function handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     axios
       .get(
         `http://localhost:3000/users?mail=${data.mail}&password=${data.password}`
       )
-      .then((res) => {
+      .then((res) => {                 
         if (res.data.length > 0) {
           localStorage.setItem("users", JSON.stringify(res.data[0]));
           navigate("/");
           toast.success("connexion reussie");
+          setData({
+            mail: "",
+            password: "",
+          });
         } else {
           toast.error("identifiant ou mot de passe incorrect");
         }
       });
-
   }
   return (
     <>

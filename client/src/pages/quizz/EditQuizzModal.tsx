@@ -99,7 +99,8 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
       {/* Overlay du modal */}
       <div
         onClick={handleBackdropClick}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
+        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center ${
           isOpen ? "visible" : "hidden"
         }`}
       >

@@ -26,7 +26,6 @@ function QuizArea() {
         <h1 className="text-xl font-bold">My QUizzes</h1>
       ) : (
         <div className="flex w-[] grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
-          <h1 className="text-xl font-bold">My QUizzes</h1>
           <div className="mt-10 flex gap-2 flex-wrap">
             {quizs.map((singleQuiz, quizIndex) => (
               <div key={quizIndex}>

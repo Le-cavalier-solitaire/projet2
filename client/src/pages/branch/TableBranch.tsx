@@ -38,10 +38,6 @@ const TableBranch = () => {
 
   return (
     <main className="ml-6 p-8">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Gestion des Quizs</h1>
-      </div>
 
       <div className="flex w-[] grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4">
         <div className="mt-6 flex gap-2 flex-wrap">
@@ -78,7 +74,7 @@ const TableBranch = () => {
                     />{" "}
                   </div>
                   <div
-                    className={`rounded-full text-white w-10 h-10 bg-green-600 flex items-center justify-center cursor-pointer hover:bg-green-500 transition-colors`}
+                    className={`rounded-full text-white w-10 h-10 bg-white flex items-center justify-center cursor-pointer hover:bg-red-400 transition-colors`}
                   >
                     <button
                       style={{
@@ -98,8 +94,8 @@ const TableBranch = () => {
                     >
                       <img
                         src={trash}
-                        height={20}
-                        width={20}
+                        height={30}
+                        width={30}
                         className="object-cover"
                         alt="Éditer"
                       />

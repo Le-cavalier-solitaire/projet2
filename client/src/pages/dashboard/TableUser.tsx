@@ -41,15 +41,6 @@ const TableUser = () => {
         <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
 
         <RegistrationModal users={users} setUsers={setUsers} />
-
-        <button
-          style={{ background: "blue" }}
-          type="button"
-          onClick={getusers()}
-          className="bg-blue-500 ml-3 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Refresh
-        </button>
       </div>
 
       {/* Users Table */}
@@ -99,7 +90,12 @@ const TableUser = () => {
 
                       <button
                         onClick={() => deleteUser(user.id)}
-                        className="text-red-500 hover:text-red-700"
+                        className="text-white"
+                        style={{
+                          backgroundColor: "oklch(0.505 0.213 27.518)",
+                          borderRadius: "5px",
+                          boxShadow: "0px 6px 6px black",
+                        }}
                       >
                         Supprimer
                       </button>

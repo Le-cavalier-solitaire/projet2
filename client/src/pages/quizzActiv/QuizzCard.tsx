@@ -275,7 +275,7 @@ function QuizzCard({ singleQuiz }) {
           )}
         </div>
       </div>
-      <div className="relative bg-white bg-opacity-25 w-full flex justify-center rounded-md py-1">
+      <div className="relative bg-opacity-25 w-full flex justify-center rounded-md py-1">
         {isActiv && (
           <div className="absolute top-[-10px] text-[20px] font-extrabold justify-center cursor-pointer hover:opacity-80 transition-opacity z-10 animate-color-change">
             Fin dans {`${day}J ${hours}H ${min}Min`}

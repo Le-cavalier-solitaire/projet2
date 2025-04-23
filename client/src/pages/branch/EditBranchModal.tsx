@@ -52,36 +52,39 @@ const EditBranchModal = ({ branch, branchs, setBranch }) => {
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-
-      <button
-        style={{
-          backgroundColor: "blue",
-          borderRadius: "100%",
-          boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
-          height: "35px",
-          width: "35px",
-          padding: "0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          overflow: "hidden",
-        }}
-        onClick={openModal}
-        className="text-white hover:scale-110 transition-transform duration-200"
+      <div
+        className={`rounded-full text-white w-10 h-10 bg-white flex items-center justify-center cursor-pointer hover:bg-green-500 transition-colors`}
       >
-        <img
-          src={edit}
-          height={20}
-          width={20}
-          className="object-cover"
-          alt="Éditer"
-        />
-      </button>
+        <button
+          style={{
+            backgroundColor: "blue",
+            borderRadius: "100%",
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.3)",
+            height: "35px",
+            width: "35px",
+            padding: "0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+          }}
+          onClick={openModal}
+          className="text-white hover:scale-110 transition-transform duration-200"
+        >
+          <img
+            src={edit}
+            height={30}
+            width={30}
+            className="object-cover"
+            alt="Éditer"
+          />
+        </button>
+      </div>
 
       {/* Overlay du modal */}
       <div
         onClick={handleBackdropClick}
-        style={{backgroundColor:"rgba(0,0,0,0.6)"}}
+        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
         className={`fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 ${
           isOpen ? "visible" : "hidden"
         }`}
@@ -90,7 +93,9 @@ const EditBranchModal = ({ branch, branchs, setBranch }) => {
         <div className="bg-white rounded-lg shadow-xl w-[450px] p-6 mx-4 relative">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="font-mono text-[28px] font-bold text-gray-800">Edit branch</h2>
+            <h2 className="font-mono text-[28px] font-bold text-gray-800">
+              Edit branch
+            </h2>
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -114,7 +119,7 @@ const EditBranchModal = ({ branch, branchs, setBranch }) => {
           <form className="space-y-4">
             <div className="grid  justify-center items-center grid-cols-1 md:grid-cols-2 gap-4">
               <div className="">
-                <label className="flex text-center text-[20px] font-mono font-semibold font-medium text-gray-700 mb-1">
+                <label className="flex text-center text-[20px] font-mono font-semibold text-gray-700 mb-1">
                   Name:
                 </label>
                 <input

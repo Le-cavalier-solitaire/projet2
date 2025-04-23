@@ -72,14 +72,23 @@ const EditUserModal = ({ user, users, setUsers }) => {
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
 
-      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
+      <button
+        style={{
+          backgroundColor: "oklch(0.623 0.214 259.815)",
+          borderRadius: "5px",
+          boxShadow: "0px 6px 6px black",
+        }}
+        onClick={openModal}
+        className="text-white"
+      >
         Edit
       </button>
 
       {/* Overlay du modal */}
       <div
         onClick={handleBackdropClick}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
+        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center ${
           isOpen ? "visible" : "hidden"
         }`}
       >

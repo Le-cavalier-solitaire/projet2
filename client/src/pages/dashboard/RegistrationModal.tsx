@@ -94,15 +94,16 @@ const RegistrationModal = ({ users, setUsers }) => {
       {/* Bouton d'ouverture */}
       <button
         onClick={openModal}
-        style={{ background: "green" }}
+        style={{ background: "green", boxShadow: "3px 5px 5px 1px black" }}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
       >
-        Ouvrir le formulaire
+        Add_User
       </button>
 
       {/* Overlay du modal */}
       <div
         onClick={handleBackdropClick}
+        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
         className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
           isOpen ? "visible" : "hidden"
         }`}
