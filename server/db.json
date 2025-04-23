@@ -1,58 +1,16 @@
 {
-  "users": [
-    {
-      "id": "9556",
-      "name": "toto",
-      "surname": "merveille",
-      "mail": "toto@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "4545",
-      "role": "Teacher",
-      "brancnId": "",
-      "dob": "2025-04-06"
-    },
-    {
-      "id": "934f",
-      "name": "Meka",
-      "surname": "Karel",
-      "mail": "karel@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "652200629",
-      "role": "Teacher",
-      "brancnId": "",
-      "dob": "2003-07-22"
-    }
+  "utilisateurs": [
+    { "id": 1, "nom": "Dupont", "prenom": "Jean", "age": 32 },
+    { "id": 2, "nom": "Martin", "prenom": "Sophie", "age": 28 },
+    { "id": 3, "nom": "Durand", "prenom": "Pierre", "age": 45 }
   ],
-  "branch": [
-    {
-      "id": "pr",
-      "name": "programmation"
-    },
-    {
-      "id": "btiq",
-      "name": "Bureautique"
-    },
-    {
-      "id": "main",
-      "name": "Maintenance"
-    },
-    {
-      "id": "trd",
-      "name": "Trading"
-    }
+  "produits": [
+    { "id": 1, "nom": "Ordinateur portable", "prix": 899, "stock": 15 },
+    { "id": 2, "nom": "Smartphone", "prix": 499, "stock": 25 },
+    { "id": 3, "nom": "Tablette", "prix": 349, "stock": 0 }
   ],
-  "quiz": [
-    {
-      "id": "71e9",
-      "name": "<programmation react",
-      "description": "reat hook Effect",
-      "authorId": "9bd9",
-      "branchId": "main",
-      "createAt": "2025-04-02T19:45",
-      "startDate": "2025-04-03T19:45",
-      "endDate": "2025-04-04T19:45"
-    }
+  "commandes": [
+    { "id": 1, "utilisateurId": 1, "produits": [1, 2], "date": "2025-03-25" },
+    { "id": 2, "utilisateurId": 2, "produits": [3], "date": "2025-03-28" }
   ]
 }
