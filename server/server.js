@@ -19,12 +19,18 @@ server.use((req, res, next) => {
 // ------------------------------------------------
 
 // Exemple 1: Route pour obtenir les utilisateurs avec filtre d'âge
-server.get("/api/utilisateurs/age/:age", (req, res) => {
-  const age = parseInt(req.params.age);
-  const utilisateurs = router.db.get("utilisateurs").value();
+server.get("/api/users", (req, res) => {
+  const users = router.db.get("users").value();
 
-  const filteredUsers = utilisateurs.filter((user) => user.age >= age);
-  res.json(filteredUsers);
+  res.json(users);
+});
+
+//methode POST
+server.post("/api/user", (req, res) => {
+  const payload = req.body;
+  const users = router.db.get("users");
+  users.push({...payload, id:}).write();
+  res.status(201).json(payload);
 });
 
 // Exemple 2: Route pour obtenir les produits en stock

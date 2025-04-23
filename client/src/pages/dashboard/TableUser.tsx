@@ -9,7 +9,7 @@ const TableUser = () => {
   const [users, setUsers] = useState([]);
 
   function getusers() {
-    axios("http://localhost:3000/users?_sort=name&_order=desc")
+    axios("http://localhost:3000/api/users")
       .then((res) => {
         setUsers(res.data);
       })

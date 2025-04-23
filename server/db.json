@@ -1,16 +1,102 @@
 {
-  "utilisateurs": [
-    { "id": 1, "nom": "Dupont", "prenom": "Jean", "age": 32 },
-    { "id": 2, "nom": "Martin", "prenom": "Sophie", "age": 28 },
-    { "id": 3, "nom": "Durand", "prenom": "Pierre", "age": 45 }
+  "users": [
+    {
+      "id": "9556",
+      "name": "toto",
+      "surname": "merveille",
+      "mail": "toto@gmail.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "4545",
+      "role": "Teacher",
+      "brancnId": "",
+      "dob": "2025-04-06"
+    },
+    {
+      "id": "934f",
+      "name": "Meka",
+      "surname": "Karel",
+      "mail": "karel@gmail.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "652200629",
+      "role": "Parent",
+      "brancnId": "",
+      "dob": "2003-07-22"
+    },
+    {
+      "id": "8d06",
+      "name": "Divane",
+      "surname": "Lamelo",
+      "mail": "lamelo@gmail.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "643551204",
+      "role": "Student",
+      "brancnId": "pr",
+      "dob": "2004-11-25"
+    },
+    {
+      "id": "baa7",
+      "name": "lamorphine",
+      "surname": "bekou",
+      "mail": "bekou@gmail.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "56565656",
+      "role": "Teacher",
+      "brancnId": "",
+      "dob": "2001-12-02"
+    },
+    {
+      "name": "tr",
+      "surname": "tr",
+      "mail": "to@gmail.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "54775",
+      "role": "",
+      "brancnId": "",
+      "dob": "2025-04-23"
+    }
   ],
   "produits": [
-    { "id": 1, "nom": "Ordinateur portable", "prix": 899, "stock": 15 },
-    { "id": 2, "nom": "Smartphone", "prix": 499, "stock": 25 },
-    { "id": 3, "nom": "Tablette", "prix": 349, "stock": 0 }
+    {
+      "id": 1,
+      "nom": "Ordinateur portable",
+      "prix": 899,
+      "stock": 15
+    },
+    {
+      "id": 2,
+      "nom": "Smartphone",
+      "prix": 499,
+      "stock": 25
+    },
+    {
+      "id": 3,
+      "nom": "Tablette",
+      "prix": 349,
+      "stock": 0
+    }
   ],
   "commandes": [
-    { "id": 1, "utilisateurId": 1, "produits": [1, 2], "date": "2025-03-25" },
-    { "id": 2, "utilisateurId": 2, "produits": [3], "date": "2025-03-28" }
+    {
+      "id": 1,
+      "utilisateurId": 1,
+      "produits": [
+        1,
+        2
+      ],
+      "date": "2025-03-25"
+    },
+    {
+      "id": 2,
+      "utilisateurId": 2,
+      "produits": [
+        3
+      ],
+      "date": "2025-03-28"
+    }
   ]
 }
