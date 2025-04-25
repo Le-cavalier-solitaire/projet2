@@ -196,7 +196,9 @@ function AddQuests({ quiz }) {
       return;
     }
     axios
-      .patch(`http://localhost:3000/quiz/${quiz.id}`, { quizQuestions })
+      .put(`http://localhost:3000/api/addQuestions/${quiz.id}`, {
+        quizQuestions,
+      })
       .then((res) => {
         console.log({ res });
         toast.success("Questions Added Successfuly!");

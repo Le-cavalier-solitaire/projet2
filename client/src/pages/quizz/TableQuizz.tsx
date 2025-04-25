@@ -10,7 +10,7 @@ const TableQuizz = () => {
   const [quizs, setQuizs] = useState([]);
 
   function getQuiz() {
-    axios("http://localhost:3000/quiz?_sort=name&_order=desc")
+    axios("http://localhost:3000/api/quiz")
       .then((res) => {
         setQuizs(res.data);
       })

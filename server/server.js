@@ -6,7 +6,6 @@ const router = jsonServer.router(path.join(__dirname, "db.json"));
 const middlewares = jsonServer.defaults();
 const port = 3000;
 
-
 // Utiliser les middlewares par défaut (logger, static, cors et no-cache)
 server.use(middlewares);
 
@@ -40,7 +39,7 @@ server.get("/api/users", (req, res) => {
   }
 });
 
-//methode POST
+//methode POST user
 server.post("/api/user", (req, res) => {
   const payload = req.body;
   const users = router.db.get("users");
@@ -117,6 +116,62 @@ server.patch("/api/updateUser/:id", (req, res) => {
   console.log("Après écriture en BD:", afterUpdate);
 
   res.status(200).json({ success: true, user: updatedUser });
+});
+
+// route pour recupérer les quizs
+server.get("/api/quiz", (req, res) => {
+  try {
+    const quizs = router.db.get("quiz").value();
+    console.log("Utilisateurs récupérés:", quizs ? quizs.length : 0);
+
+    if (!quizs || quizs.length === 0) {
+      console.log("Aucun utilisateur trouvé dans la base de données");
+    }
+
+    res.json(quizs || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
+});
+
+//methode POST quiz
+server.post("/api/quiz", (req, res) => {
+  const payload = req.body;
+  const quizs = router.db.get("quiz");
+  quizs.push(payload).write();
+  res.status(201).json(payload);
+});
+
+//route pour ajouter les questions dans un quiz donné
+server.put("/api/addQuestions/:id", (req, res) => {
+  const formQuestions = req.body;
+  const quizId = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
+  console.log({ quizId });
+  const quizs = router.db.get("quiz");
+  console.log({ quizs });
+  const currentQuiz = quizs.find((quiz) => quiz.id == quizId);
+  console.log(currentQuiz);
+  if (currentQuiz.length == 0) {
+    console.log("quiz non trouvé :", quizId);
+
+    return res.status(404).json({ error: "quiz non trouvé", id: quizId });
+  }
+
+  const newQuiz = {
+    ...currentQuiz[0],
+    quizQuestions: formQuestions,
+  };
+  console.log({ newQuiz });
+  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
+  const updatedquiz = { ...quizs, newQuiz };
+
+  // Mettre à jour l'utilisateur dans l'objet lowdb
+  quizs.push(updatedquiz).write();
+
+  res.status(200).json({ success: true, quiz: updatedquiz });
 });
 
 // Exemple 2: Route pour obtenir les produits en stock

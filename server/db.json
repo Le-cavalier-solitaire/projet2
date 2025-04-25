@@ -25,6 +25,18 @@
       "dob": "2001-12-02"
     }
   ],
+  "quiz": [
+    {
+      "id": 1212,
+      "name": "react",
+      "description": "react",
+      "authorId": "",
+      "branchId": "",
+      "createAt": "2025-04-25T20:32",
+      "startDate": "2025-04-25T20:32",
+      "endDate": "2025-04-25T20:32"
+    }
+  ],
   "produits": [
     {
       "id": 1,
@@ -49,18 +61,13 @@
     {
       "id": 1,
       "utilisateurId": 1,
-      "produits": [
-        1,
-        2
-      ],
+      "produits": [1, 2],
       "date": "2025-03-25"
     },
     {
       "id": 2,
       "utilisateurId": 2,
-      "produits": [
-        3
-      ],
+      "produits": [3],
       "date": "2025-03-28"
     }
   ]
