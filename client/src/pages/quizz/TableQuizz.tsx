@@ -4,6 +4,7 @@ import EditQuizzModal from "./EditQuizzModal";
 import RegistrationQuizzModal from "./RegistrationQuizzModal";
 import "../App.css";
 import AddQuests from "./AddQuests";
+import toast from "react-hot-toast";
 
 const TableQuizz = () => {
   const [quizs, setQuizs] = useState([]);
@@ -26,8 +27,8 @@ const TableQuizz = () => {
     axios
       .delete(`http://localhost:3000/quiz/${id}`)
       .then(() => {
-        // setUsers([]);
-        // alert("User has already delete");
+        setQuizs(quizs.filter((client) => client.id !== id));
+        toast.success("Quiz has already delete");
       })
       .catch((error) => {
         alert("Unable to delete User");
@@ -40,7 +41,7 @@ const TableQuizz = () => {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gestion des Quizs</h1>
 
-        <RegistrationQuizzModal />
+        <RegistrationQuizzModal quizs={quizs} setQuizs={setQuizs} />
       </div>
 
       {/* Users Table */}
@@ -82,7 +83,11 @@ const TableQuizz = () => {
                   <td className="px-6 py-4">{quiz.endDate}</td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
-                      <EditQuizzModal quiz={quiz} />
+                      <EditQuizzModal
+                        quiz={quiz}
+                        quizs={quizs}
+                        setQuizs={setQuizs}
+                      />
 
                       <button
                         style={{
@@ -96,7 +101,7 @@ const TableQuizz = () => {
                         Supprimer
                       </button>
 
-                      <AddQuests quiz={quiz}/>
+                      <AddQuests quiz={quiz} />
                     </div>
                   </td>
                 </tr>

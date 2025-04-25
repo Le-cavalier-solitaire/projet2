@@ -32,7 +32,7 @@ const HeaderQuizz = () => {
     <header className="bg-white shadow-sm">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-4">
-          <h1 className="text-2xl font-bold text-gray-800">My Quizs</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Quiz Session</h1>
         </div>
         <div className="flex items-center space-x-4">
           <button className="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
