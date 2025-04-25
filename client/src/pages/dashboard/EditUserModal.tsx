@@ -19,18 +19,29 @@ const EditUserModal = ({ user, users, setUsers }) => {
   });
   function handleSubmit(e) {
     e.preventDefault();
+    console.log("Envoi des données pour mise à jour:", data);
+
     axios
-      .patch(`http://localhost:3000/users/${user.id}`, { ...data })
-      .then((res) => {
-        const editUser = users.map((client) =>
-          client.id === user.id ? (client = res.data) : client
+      .patch(`http://localhost:3000/api/updateUser/${user.id}`, { ...data })
+      .then((response) => {
+        console.log("Réponse de mise à jour:", response.data);
+
+        // Extraire l'utilisateur mis à jour de la réponse
+        const updatedUser = response.data.user;
+
+        // Mettre à jour le tableau users en remplaçant l'ancien utilisateur par le nouveau
+        const updatedUsers = users.map((client) =>
+          client.id === user.id ? updatedUser : client
         );
-        setUsers(editUser);
-        toast.success("Information modifié avec succès!");
+
+        console.log("Tableau users mis à jour:", updatedUsers);
+        setUsers(updatedUsers);
+        toast.success("Information modifiée avec succès!");
         closeModal();
       })
       .catch((err) => {
-        toast.error("une erreur est survenue");
+        console.error("Erreur lors de la mise à jour:", err);
+        toast.error("Une erreur est survenue lors de la mise à jour");
       });
   }
 

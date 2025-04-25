@@ -1,8 +1,11 @@
+// import { v4 as uuidv4 } from 'uuid';
 const jsonServer = require("json-server");
 const server = jsonServer.create();
-const router = jsonServer.router("db.json");
+const path = require("path");
+const router = jsonServer.router(path.join(__dirname, "db.json"));
 const middlewares = jsonServer.defaults();
 const port = 3000;
+
 
 // Utiliser les middlewares par défaut (logger, static, cors et no-cache)
 server.use(middlewares);
@@ -20,17 +23,100 @@ server.use((req, res, next) => {
 
 // Exemple 1: Route pour obtenir les utilisateurs avec filtre d'âge
 server.get("/api/users", (req, res) => {
-  const users = router.db.get("users").value();
+  try {
+    const users = router.db.get("users").value();
+    console.log("Utilisateurs récupérés:", users ? users.length : 0);
 
-  res.json(users);
+    if (!users || users.length === 0) {
+      console.log("Aucun utilisateur trouvé dans la base de données");
+    }
+
+    res.json(users || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
 });
 
 //methode POST
 server.post("/api/user", (req, res) => {
   const payload = req.body;
   const users = router.db.get("users");
-  users.push({...payload, id:}).write();
+  users.push(payload).write();
   res.status(201).json(payload);
+});
+
+//route pour supprimer un user specifique
+server.delete("/api/deleteUser/:id", (req, res) => {
+  const userID = req.params.id;
+  console.log("ID recherché:", userID, "type:", typeof userID);
+
+  const users = router.db.get("users");
+
+  // Récupérer le tableau complet pour vérification
+  const usersArray = users.value();
+  console.log("Utilisateurs avant suppression:", JSON.stringify(usersArray));
+
+  // Vérifier les IDs existants et leur type
+  const existingIds = usersArray.map((u) => ({ id: u.id, type: typeof u.id }));
+  console.log("IDs existants:", JSON.stringify(existingIds));
+
+  // Trouver l'index directement dans le tableau (pas dans la chaîne lowdb)
+  const userIndex = usersArray.findIndex((user) => user.id === userID);
+  console.log("Index trouvé:", userIndex);
+
+  if (userIndex === -1) {
+    return res
+      .status(404)
+      .json({ error: "Utilisateur non trouvé", id: userID });
+  }
+
+  // Supprimer l'utilisateur spécifique en utilisant l'API lowdb
+  const removedUser = users.splice(userIndex, 1).write();
+
+  // Vérifier le résultat
+  console.log("Utilisateur supprimé:", JSON.stringify(removedUser));
+  console.log("Utilisateurs après suppression:", JSON.stringify(users.value()));
+
+  res.status(200).json({ success: true, id: userID, removed: removedUser });
+});
+
+//route pour mettre à jour les données d'un user spécifique
+server.patch("/api/updateUser/:id", (req, res) => {
+  const newUserData = req.body;
+  const userID = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
+  console.log("Mise à jour utilisateur - ID:", userID, "Données:", newUserData);
+
+  const users = router.db.get("users");
+  const usersArray = users.value();
+
+  // Trouver l'utilisateur par ID
+  const userIndex = usersArray.findIndex((user) => user.id === userID);
+  console.log("Index utilisateur trouvé:", userIndex);
+
+  if (userIndex === -1) {
+    console.log("Utilisateur non trouvé pour la mise à jour:", userID);
+    return res
+      .status(404)
+      .json({ error: "Utilisateur non trouvé", id: userID });
+  }
+
+  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
+  const currentUser = usersArray[userIndex];
+  const updatedUser = { ...currentUser, ...newUserData };
+  console.log("Utilisateur avant mise à jour:", currentUser);
+  console.log("Utilisateur après mise à jour:", updatedUser);
+
+  // Mettre à jour l'utilisateur dans l'objet lowdb
+  users.splice(userIndex, 1, updatedUser).write();
+
+  // Vérifier la mise à jour
+  const afterUpdate = users.value()[userIndex];
+  console.log("Après écriture en BD:", afterUpdate);
+
+  res.status(200).json({ success: true, user: updatedUser });
 });
 
 // Exemple 2: Route pour obtenir les produits en stock

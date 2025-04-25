@@ -1,18 +1,6 @@
 {
   "users": [
     {
-      "id": "9556",
-      "name": "toto",
-      "surname": "merveille",
-      "mail": "toto@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "4545",
-      "role": "Teacher",
-      "brancnId": "",
-      "dob": "2025-04-06"
-    },
-    {
       "id": "934f",
       "name": "Meka",
       "surname": "Karel",
@@ -25,18 +13,6 @@
       "dob": "2003-07-22"
     },
     {
-      "id": "8d06",
-      "name": "Divane",
-      "surname": "Lamelo",
-      "mail": "lamelo@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "643551204",
-      "role": "Student",
-      "brancnId": "pr",
-      "dob": "2004-11-25"
-    },
-    {
       "id": "baa7",
       "name": "lamorphine",
       "surname": "bekou",
@@ -47,17 +23,6 @@
       "role": "Teacher",
       "brancnId": "",
       "dob": "2001-12-02"
-    },
-    {
-      "name": "tr",
-      "surname": "tr",
-      "mail": "to@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "54775",
-      "role": "",
-      "brancnId": "",
-      "dob": "2025-04-23"
     }
   ],
   "produits": [

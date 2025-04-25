@@ -11,9 +11,14 @@ const TableUser = () => {
   function getusers() {
     axios("http://localhost:3000/api/users")
       .then((res) => {
+        console.log("Réponse API utilisateurs:", res.data);
         setUsers(res.data);
       })
       .catch((error) => {
+        console.error(
+          "Erreur lors de la récupération des utilisateurs:",
+          error
+        );
         alert("Unable to get user");
       });
   }
@@ -23,13 +28,19 @@ const TableUser = () => {
   }, []);
 
   const deleteUser = (id) => {
+    console.log("Tentative de suppression de l'utilisateur avec ID:", id);
     axios
-      .delete(`http://localhost:3000/users/${id}`)
-      .then(() => {
-        setUsers(users.filter((client) => client.id !== id));
-        toast.success("User has already delete");
+      .delete(`http://localhost:3000/api/deleteUser/${id}`)
+      .then((response) => {
+        console.log("Réponse de suppression:", response.data);
+        // Mettre à jour l'état des utilisateurs en filtrant l'utilisateur supprimé
+        setUsers(users.filter((user) => user.id !== id));
+        toast.success("Utilisateur supprimé avec succès");
+        // Optionnel: rafraîchir la liste complète
+        // getusers();
       })
       .catch((error) => {
+        console.error("Erreur lors de la suppression:", error);
         alert("Unable to delete User");
       });
   };

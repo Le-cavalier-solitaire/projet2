@@ -9,7 +9,7 @@ function QuizzCard() {
       <div className="relative bg-green-700 w-full h-32 flex justify-center rounded-md">
         <div className="absolute cursor-pointer top-3 right-3">
           <p className="text-white h-13 w-13 font-bold ">{""}</p>
-        </div>
+      </div>
         <CodeRoundedIcon
           style={{ width: "80px", height: "80px", marginTop: "10" }}
           className="text-white h-80 w-80"
