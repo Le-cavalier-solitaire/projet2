@@ -1,4 +1,4 @@
-// import { v4 as uuidv4 } from 'uuid';
+const { v4: uuidv4 } = require("uuid");
 const jsonServer = require("json-server");
 const server = jsonServer.create();
 const path = require("path");
@@ -43,30 +43,26 @@ server.get("/api/users", (req, res) => {
 server.post("/api/user", (req, res) => {
   const payload = req.body;
   const users = router.db.get("users");
-  users.push(payload).write();
+  users.push({ ...payload, id: uuidv4() }).write();
   res.status(201).json(payload);
 });
 
 //route pour supprimer un user specifique
 server.delete("/api/deleteUser/:id", (req, res) => {
   const userID = req.params.id;
-  console.log("ID recherché:", userID, "type:", typeof userID);
 
   const users = router.db.get("users");
 
   // Récupérer le tableau complet pour vérification
   const usersArray = users.value();
-  console.log("Utilisateurs avant suppression:", JSON.stringify(usersArray));
 
   // Vérifier les IDs existants et leur type
   const existingIds = usersArray.map((u) => ({ id: u.id, type: typeof u.id }));
-  console.log("IDs existants:", JSON.stringify(existingIds));
 
   // Trouver l'index directement dans le tableau (pas dans la chaîne lowdb)
   const userIndex = usersArray.findIndex((user) => user.id === userID);
-  console.log("Index trouvé:", userIndex);
 
-  if (userIndex === -1) {
+  if (userIndex == -1) {
     return res
       .status(404)
       .json({ error: "Utilisateur non trouvé", id: userID });
@@ -86,17 +82,14 @@ server.delete("/api/deleteUser/:id", (req, res) => {
 server.patch("/api/updateUser/:id", (req, res) => {
   const newUserData = req.body;
   const userID = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
-  console.log("Mise à jour utilisateur - ID:", userID, "Données:", newUserData);
 
   const users = router.db.get("users");
   const usersArray = users.value();
 
   // Trouver l'utilisateur par ID
   const userIndex = usersArray.findIndex((user) => user.id === userID);
-  console.log("Index utilisateur trouvé:", userIndex);
 
-  if (userIndex === -1) {
-    console.log("Utilisateur non trouvé pour la mise à jour:", userID);
+  if (userIndex == -1) {
     return res
       .status(404)
       .json({ error: "Utilisateur non trouvé", id: userID });
@@ -105,15 +98,12 @@ server.patch("/api/updateUser/:id", (req, res) => {
   // Récupérer l'utilisateur actuel et fusionner les nouvelles données
   const currentUser = usersArray[userIndex];
   const updatedUser = { ...currentUser, ...newUserData };
-  console.log("Utilisateur avant mise à jour:", currentUser);
-  console.log("Utilisateur après mise à jour:", updatedUser);
 
   // Mettre à jour l'utilisateur dans l'objet lowdb
   users.splice(userIndex, 1, updatedUser).write();
 
   // Vérifier la mise à jour
   const afterUpdate = users.value()[userIndex];
-  console.log("Après écriture en BD:", afterUpdate);
 
   res.status(200).json({ success: true, user: updatedUser });
 });
@@ -122,15 +112,12 @@ server.patch("/api/updateUser/:id", (req, res) => {
 server.get("/api/quiz", (req, res) => {
   try {
     const quizs = router.db.get("quiz").value();
-    console.log("Utilisateurs récupérés:", quizs ? quizs.length : 0);
 
     if (!quizs || quizs.length === 0) {
-      console.log("Aucun utilisateur trouvé dans la base de données");
     }
 
     res.json(quizs || []);
   } catch (error) {
-    console.error("Erreur lors de la récupération des utilisateurs:", error);
     res.status(500).json({
       error: "Erreur serveur lors de la récupération des utilisateurs",
     });
@@ -148,30 +135,45 @@ server.post("/api/quiz", (req, res) => {
 //route pour ajouter les questions dans un quiz donné
 server.put("/api/addQuestions/:id", (req, res) => {
   const formQuestions = req.body;
+  console.log(formQuestions);
   const quizId = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
-  console.log({ quizId });
   const quizs = router.db.get("quiz");
-  console.log({ quizs });
-  const currentQuiz = quizs.find((quiz) => quiz.id == quizId);
-  console.log(currentQuiz);
-  if (currentQuiz.length == 0) {
-    console.log("quiz non trouvé :", quizId);
+  const quizArray = quizs.value();
+  const quizIndex = quizArray.findIndex((quiz) => quiz.id == quizId);
 
+  if (quizIndex == -1) {
     return res.status(404).json({ error: "quiz non trouvé", id: quizId });
   }
 
-  const newQuiz = {
-    ...currentQuiz[0],
-    quizQuestions: formQuestions,
-  };
-  console.log({ newQuiz });
-  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
-  const updatedquiz = { ...quizs, newQuiz };
+  const currentQuiz = quizArray[quizIndex];
+  const updatedQuiz = { ...currentQuiz, ...formQuestions };
+  console.log(updatedQuiz);
 
-  // Mettre à jour l'utilisateur dans l'objet lowdb
-  quizs.push(updatedquiz).write();
+  quizs.splice(quizIndex, 1, updatedQuiz).write();
+  const afterUpdate = quizs.value()[quizIndex];
 
-  res.status(200).json({ success: true, quiz: updatedquiz });
+  res.status(200).json({ success: true, quiz: updatedQuiz });
+  // console.log({ quizArray });
+  // const currentQuiz = quizArray.find((quiz) => quiz.id == quizId);
+  // console.log(currentQuiz);
+  // if (currentQuiz.length == 0) {
+  //   console.log("quiz non trouvé :", quizId);
+
+  //   return res.status(404).json({ error: "quiz non trouvé", id: quizId });
+  // }
+
+  // const newQuiz = {
+  //   ...currentQuiz,
+  //   ...formQuestions,
+  // };
+  // console.log({ newQuiz });
+  // // Récupérer l'utilisateur actuel et fusionner les nouvelles données
+  // const updatedquiz = { ...quizArray, newQuiz };
+
+  // // Mettre à jour l'utilisateur dans l'objet lowdb
+  // quizs.push(updatedquiz).write();
+
+  // res.status(200).json({ success: true, quiz: updatedquiz });
 });
 
 // Exemple 2: Route pour obtenir les produits en stock
@@ -301,9 +303,4 @@ server.listen(port, () => {
     `JSON Server est en cours d'exécution sur http://localhost:${port}`
   );
   console.log(`Ressources disponibles sur http://localhost:${port}/api`);
-  console.log(`Routes personnalisées :`);
-  console.log(`- http://localhost:${port}/api/utilisateurs/age/:age`);
-  console.log(`- http://localhost:${port}/api/produits/disponibles`);
-  console.log(`- http://localhost:${port}/api/commandes/details/:id`);
-  console.log(`- http://localhost:${port}/api/commandes/nouvelle (POST)`);
 });

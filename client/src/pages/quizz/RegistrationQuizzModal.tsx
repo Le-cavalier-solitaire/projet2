@@ -20,7 +20,7 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   function handleSubmit(e) {
     e.preventDefault();
     axios
-      .post("http://localhost:3000/quiz", { ...data })
+      .post("http://localhost:3000/api/quiz", { ...data })
       .then((res) => {
         setQuizs([...quizs, res.data]);
         toast.success("Quizz added successfully");

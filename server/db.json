@@ -23,6 +23,18 @@
       "role": "Teacher",
       "brancnId": "",
       "dob": "2001-12-02"
+    },
+    {
+      "name": "blaise",
+      "surname": "junior",
+      "mail": "blaise@gmai.com",
+      "password": "123",
+      "confirm_password": "123",
+      "telephone": "56556",
+      "role": "",
+      "brancnId": "",
+      "dob": "2025-04-26",
+      "id": "c6603aa9-d6fb-4628-b4fc-4ce545459adb"
     }
   ],
   "quiz": [
@@ -34,7 +46,42 @@
       "branchId": "",
       "createAt": "2025-04-25T20:32",
       "startDate": "2025-04-25T20:32",
-      "endDate": "2025-04-25T20:32"
+      "endDate": "2025-04-30T20:32",
+      "quizQuestions": [
+        {
+          "quizId": 1212,
+          "id": "b58251d1-2e0c-4f6d-a55b-dfbd234274dd",
+          "mainQuestion": "holla santos",
+          "choices": [
+            "A. ya",
+            "B. yes"
+          ],
+          "correctAnswer": 0,
+          "time": 5,
+          "marks": 4
+        },
+        {
+          "quizId": 1212,
+          "id": "75e2ab52-8aee-4b6c-802e-add9086c0b4e",
+          "mainQuestion": "quelle est ton age?",
+          "choices": [
+            "A. 18",
+            "B. 32"
+          ],
+          "correctAnswer": 0,
+          "time": 3,
+          "marks": 3
+        }
+      ]
+    },
+    {
+      "name": "ls condensateurs",
+      "description": "maintenance",
+      "authorId": "",
+      "branchId": "",
+      "createAt": "2025-04-26T10:11",
+      "startDate": "2025-04-26T10:11",
+      "endDate": "2025-04-26T10:11"
     }
   ],
   "produits": [
@@ -61,13 +108,18 @@
     {
       "id": 1,
       "utilisateurId": 1,
-      "produits": [1, 2],
+      "produits": [
+        1,
+        2
+      ],
       "date": "2025-03-25"
     },
     {
       "id": 2,
       "utilisateurId": 2,
-      "produits": [3],
+      "produits": [
+        3
+      ],
       "date": "2025-03-28"
     }
   ]

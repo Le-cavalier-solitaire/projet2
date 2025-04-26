@@ -5,6 +5,7 @@ export interface Quiz {
   name: string;
   description: string;
   createAt: string;
-  branchId: string;
+  branchId: string[];
   authorId: string;
+  status:"BLOCK"|"PENDING"
 }
