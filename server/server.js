@@ -47,12 +47,13 @@ server.post("/api/user", (req, res) => {
   res.status(201).json(payload);
 });
 
-//route pour supprimer un user specifique
-server.delete("/api/deleteUser/:id", (req, res) => {
-  const userID = req.params.id;
-  console.log("ID recherché:", userID, "type:", typeof userID);
-
-  const users = router.db.get("users");
+//methode POST branchlist
+server.post("/api/branchlist", (req, res) => {
+  const payload = req.body;
+  const branchlist = router.db.get("branchlist");
+  users.push(payload).write();
+  res.status(201).json(payload);
+});
 
   // Récupérer le tableau complet pour vérification
   const usersArray = users.value();
@@ -136,7 +137,24 @@ server.get("/api/quiz", (req, res) => {
     });
   }
 });
+// route pour recupérer les branches
+server.get("/api/branchlist", (req, res) => {
+  try {
+    const branchlist = router.db.get("branchlist").value();
+    console.log("branchlist récupérés:", branchlist ? branchlist.length : 0);
 
+    if (!branchlist || branchlist.length === 0) {
+      console.log("Aucune branche trouvée dans la base de données");
+    }
+
+    res.json(branchlist || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des branches:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des branchlist",
+    });
+  }
+});
 //methode POST quiz
 server.post("/api/quiz", (req, res) => {
   const payload = req.body;
@@ -285,6 +303,53 @@ server.post("/api/commandes/nouvelle", (req, res) => {
     produits: produitsCommande,
     total: produitsCommande.reduce((sum, produit) => sum + produit.prix, 0),
   });
+});
+
+// Routes pour les branches
+server.get("/branch", (req, res) => {
+  try {
+    const branches = router.db.get("branch").value();
+    res.json(branches || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des branches:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des branches",
+    });
+  }
+});
+
+server.post("/branch", (req, res) => {
+  try {
+    const payload = req.body;
+    const branches = router.db.get("branch");
+    branches.push(payload).write();
+    res.status(201).json(payload);
+  } catch (error) {
+    console.error("Erreur lors de la création de la branche:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la création de la branche",
+    });
+  }
+});
+
+server.delete("/branch/:id", (req, res) => {
+  try {
+    const branchId = req.params.id;
+    const branches = router.db.get("branch");
+    const branchIndex = branches.value().findIndex(branch => branch.id === branchId);
+
+    if (branchIndex === -1) {
+      return res.status(404).json({ error: "Branche non trouvée" });
+    }
+
+    branches.splice(branchIndex, 1).write();
+    res.status(200).json({ success: true, id: branchId });
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la branche:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la suppression de la branche",
+    });
+  }
 });
 
 // Utiliser le routeur par défaut pour les routes REST standards

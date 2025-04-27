@@ -25,6 +25,16 @@
       "dob": "2001-12-02"
     }
   ],
+  "branch": [
+    {
+      "id": "1",
+      "name": "Informatique"
+    },
+    {
+      "id": "2",
+      "name": "Mathématiques"
+    }
+  ],
   "quiz": [
     {
       "id": 1212,
