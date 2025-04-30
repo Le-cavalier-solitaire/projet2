@@ -1,7 +1,11 @@
-import { StrictMode } from "react";
+import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 
 import Login from "./pages/login/Login.tsx";
 import RegistrationModal from "./pages/dashboard/RegistrationModal.tsx";
@@ -12,36 +16,64 @@ import { Toaster } from "react-hot-toast";
 import QuizzList from "./pages/quizz/QuizzList.tsx";
 import MyQuizz from "./pages/quizzActiv/MyQuizz.tsx";
 
-const router = createBrowserRouter([
-  {
-    path: "/registration",
-    element: <RegistrationModal />,
-  },
-  {
-    path: "/",
-    element: <Dashboard />,
-  },
-  {
-    path: "/userlist",
-    element: <UserDash />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/quizzList",
-    element: <QuizzList />,
-  },
-  {
-    path: "/MyQuizz",
-    element: <MyQuizz />,
-  },
-]);
+const isAuthenticated = () => {
+  const token = localStorage.getItem("token");
+  console.log("Vérification de l'authentification, token:", token);
+  return token !== null && token !== undefined && token !== "";
+};
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <Toaster />
-    <RouterProvider router={router} />{" "}
-  </StrictMode>
-);
+const App = () => {
+  const [users, setUsers] = useState([]);
+
+  const router = createBrowserRouter([
+    {
+      path: "/login",
+      element: isAuthenticated() ? <Navigate to="/" replace /> : <Login />,
+    },
+    {
+      path: "/registration",
+      element: <RegistrationModal users={users} setUsers={setUsers} />,
+    },
+    {
+      path: "/",
+      element: isAuthenticated() ? (
+        <Dashboard />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+    {
+      path: "/userlist",
+      element: isAuthenticated() ? (
+        <UserDash />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+    {
+      path: "/quizzList",
+      element: isAuthenticated() ? (
+        <QuizzList />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+    {
+      path: "/MyQuizz",
+      element: isAuthenticated() ? (
+        <MyQuizz />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+  ]);
+
+  return (
+    <StrictMode>
+      <Toaster />
+      <RouterProvider router={router} />
+    </StrictMode>
+  );
+};
+
+createRoot(document.getElementById("root")!).render(<App />);

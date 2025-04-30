@@ -1,4 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const jsonServer = require("json-server");
 const server = jsonServer.create();
 const path = require("path");
@@ -17,10 +19,64 @@ server.use((req, res, next) => {
   setTimeout(next, 500);
 });
 
+// JWT Secret (à remplacer par une clé sécurisée en production)
+const JWT_SECRET = "votre_clé_secrète";
+
+// Middleware pour vérifier le token JWT
+function authenticateToken(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.sendStatus(401); // Non autorisé
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) return res.sendStatus(403); // Token invalide
+    req.user = user;
+    next();
+  });
+}
+
 // Routes personnalisées avant le routeur par défaut
 // ------------------------------------------------
 
-// Exemple 1: Route pour obtenir les utilisateurs avec filtre d'âge
+// Route de connexion (POST /login)
+server.post("/api/login", async (req, res) => {
+  const { email } = req.body;
+  const password = req.body.password;
+
+  console.log("Tentative de connexion avec:", { email, password }); // Debug
+
+  // Cherche l'utilisateur dans "db.json"
+  const users = router.db.get("users").value();
+  const user = users.find((u) => u.mail === email);
+
+  console.log("Utilisateur trouvé:", user); // Debug
+
+  if (!user) {
+    console.log("Utilisateur non trouvé"); // Debug
+    return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  console.log("Mot de passe valide:", isPasswordValid); // Debug
+
+  if (!isPasswordValid) {
+    console.log("Mot de passe incorrect"); // Debug
+    return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+  }
+
+  // Génère un token JWT
+  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
+  res.json({ token });
+});
+
+// Route protégée (GET /profile)
+server.get("/api/profile", authenticateToken, (req, res) => {
+  const user = router.db.get("users").find({ id: req.user.userId }).value();
+
+  if (!user) return res.sendStatus(404);
+  res.json({ username: user.username, email: user.email });
+});
+
+// Exemple 1: Route pour obtenir les utilisateurs
 server.get("/api/users", (req, res) => {
   try {
     const users = router.db.get("users").value();
@@ -39,11 +95,45 @@ server.get("/api/users", (req, res) => {
   }
 });
 
+//route pour un obtenir un user grace à l'email
+server.get("/api/user/mail/:email", (req, res) => {
+  try {
+    const userEmail = req.params.email;
+    const users = router.db.get("users").value();
+    const userData = users.find((user) => user.mail == userEmail);
+    console.log("Utilisateur récupéré:", userData ? userData.length : 0);
+
+    if (!userData || userData.length === 0) {
+      console.log("Aucun utilisateur trouvé dans la base de données");
+    }
+
+    res.json(userData || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
+});
+
 //methode POST user
-server.post("/api/user", (req, res) => {
+server.post("/api/user", async (req, res) => {
   const payload = req.body;
   const users = router.db.get("users");
-  users.push({ ...payload, id: uuidv4() }).write();
+  const password = payload.password;
+  const passwordHash = await bcrypt.hash(password, 10);
+  const userData = {
+    id: uuidv4(),
+    name: payload.name,
+    password: passwordHash,
+    surname: payload.surname,
+    mail: payload.mail,
+    telephone: payload.telephone,
+    role: payload.role,
+    brancnId: payload.brancnId,
+    dob: payload.dob,
+  };
+  users.push(userData).write();
   res.status(201).json(payload);
 });
 
@@ -128,7 +218,8 @@ server.get("/api/quiz", (req, res) => {
 server.post("/api/quiz", (req, res) => {
   const payload = req.body;
   const quizs = router.db.get("quiz");
-  quizs.push(payload).write();
+  const newQuiz = {...payload, id:uuidv4()}
+  quizs.push(newQuiz).write();
   res.status(201).json(payload);
 });
 

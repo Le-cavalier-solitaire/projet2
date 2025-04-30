@@ -20,39 +20,40 @@ const RegistrationModal = ({ users, setUsers }) => {
   });
   function handleSubmit(e) {
     e.preventDefault();
-    // if (data.password !== data.confirm_password) {
-    //   toast.error("les mots de passes ne correspondent pas");
-    // } else {
-    // axios.get(`http://localhost:3000/users?mail=${data.mail}`).then((res) => {
-    //   if (res.data.length > 0) {
-    //     console.log(res.data);
-    //     toast.error("compte existant dejà");
-    //   } else {
-        axios
-          .post("http://localhost:3000/api/user", { ...data })
-          .then((res) => {
-            setUsers([...users, res.data]);
-            toast.success("Compte créer avec succès!");
-            setData({
-              name: "",
-              surname: "",
-              mail: "",
-              password: "",
-              confirm_password: "",
-              telephone: "",
-              role: "",
-              brancnId: "",
-              dob: "",
-            });
-            closeModal();
-          })
-          .catch((err) => {
-            console.log(err);
-            toast.error("une erreur est survenue");
-          });
-    //   }
-    // });
-    // }
+    if (data.password !== data.confirm_password) {
+      toast.error("les mots de passes ne correspondent pas");
+    } else {
+      axios
+        .get(`http://localhost:3000/api/user/mail/${data.mail}`)
+        .then((res) => {
+          if (res.data && res.data.mail === data.mail) {
+            toast.error("compte existant dejà");
+          } else {
+            axios
+              .post("http://localhost:3000/api/user", { ...data })
+              .then((res) => {
+                setUsers([...users, res.data]);
+                toast.success("Compte créer avec succès!");
+                setData({
+                  name: "",
+                  surname: "",
+                  mail: "",
+                  password: "",
+                  confirm_password: "",
+                  telephone: "",
+                  role: "",
+                  brancnId: "",
+                  dob: "",
+                });
+                closeModal();
+              })
+              .catch((err) => {
+                console.log(err);
+                toast.error("une erreur est survenue");
+              });
+          }
+        });
+    }
   }
 
   // Gestion de la touche Échap

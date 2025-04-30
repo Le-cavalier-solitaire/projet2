@@ -11,7 +11,6 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
     description: quiz.description,
     startDate: quiz.startDate,
     endDate: quiz.endDate,
-    authorId: "",
     branchId: "",
     createAt: quiz.createAt,
   });
@@ -45,18 +44,6 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
         toast.error("Unable to get databranch");
       });
   }
-
-  function getListAuthor() {
-    axios("http://localhost:3000/users?role=Teacher")
-      .then((res) => {
-        setListAuthor(res.data);
-      })
-      .catch((error) => {
-        toast.error("Unable to get dataauthor");
-      });
-  }
-
-  useEffect(getListAuthor, []);
 
   useEffect(getListBranch, []);
 
@@ -192,42 +179,7 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Create_At
-              </label>
-              <input
-                type="datetime-local"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="exemple@email.com"
-                onChange={(e) => setData({ ...data, createAt: e.target.value })}
-                value={data.createAt}
-              />
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Author
-                </label>
-                <select
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) =>
-                    setData({ ...data, authorId: e.target.value })
-                  }
-                >
-                  <option value="">Sélectionner une branche</option>
-                  {listAuthor.map((Author) => {
-                    return (
-                      <option value={Author.id} key={Author.id}>
-                        {Author.name} {Author.surname}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Branche

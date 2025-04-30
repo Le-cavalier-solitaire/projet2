@@ -1,39 +1,38 @@
-import { useEffect, useState } from "react";
-import "../App.css"
+import React, { useState } from "react";
+import "../App.css";
 import axios from "axios";
-import { useNavigate,} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../../hooks/useAuth";
 
-function Login() {
-  const navigate = useNavigate();
-  useEffect(() => {
-    if (localStorage.getItem("users")) {
-      navigate("/");
-    }
-  });
+const Login: React.FC = () => {
   const [data, setData] = useState({
     mail: "",
     password: "",
   });
-  function handleSubmit(e:React.ChangeEvent<HTMLInputElement>) {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios
-      .get(
-        `http://localhost:3000/users?mail=${data.mail}&password=${data.password}`
-      )
-      .then((res) => {
-        if (res.data.length > 0) {
-          localStorage.setItem("users", JSON.stringify(res.data[0]));
-          navigate("/");
-          toast.success("connexion reussie");
-        } else {
-          toast.error("identifiant ou mot de passe incorrect");
-        }
+    try {
+      const response = await axios.post("http://localhost:3000/api/login", {
+        email: data.mail,
+        password: data.password,
       });
 
-  }
+      if (response.data.token) {
+        login(response.data.token);
+        toast.success("Connexion réussie");
+        window.location.href = "/";
+      }
+    } catch (error) {
+      toast.error("Email ou mot de passe incorrect");
+    }
+  };
+
   return (
-    <>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md mx-auto p-6">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">
@@ -45,9 +44,9 @@ function Login() {
               stroke="currentColor"
             >
               <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
@@ -59,7 +58,7 @@ function Login() {
             </p>
           </div>
 
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Adresse email
@@ -100,9 +99,9 @@ function Login() {
                     viewBox="0 0 20 20"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     />
                   </svg>
                 </div>
@@ -143,8 +142,6 @@ function Login() {
             </div>
 
             <button
-              onClick={(e) => handleSubmit(e)}
-              style={{ backgroundColor: "red" }}
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
@@ -166,8 +163,8 @@ function Login() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default Login;

@@ -5,7 +5,7 @@
       "name": "Meka",
       "surname": "Karel",
       "mail": "karel@gmail.com",
-      "password": "123",
+      "password": "$2b$10$csNTSpK0.1reFG4K9SebK.qP/DbUY5R3nRpR5uERE/USortj8rHte",
       "confirm_password": "123",
       "telephone": "652200629",
       "role": "Parent",
@@ -15,9 +15,9 @@
     {
       "id": "baa7",
       "name": "lamorphine",
-      "surname": "bekou",
+      "surname": "bekoueeeee",
       "mail": "bekou@gmail.com",
-      "password": "123",
+      "password": "$2b$10$csNTSpK0.1reFG4K9SebK.qP/DbUY5R3nRpR5uERE/USortj8rHte",
       "confirm_password": "123",
       "telephone": "56565656",
       "role": "Teacher",
@@ -25,16 +25,15 @@
       "dob": "2001-12-02"
     },
     {
-      "name": "blaise",
-      "surname": "junior",
-      "mail": "blaise@gmai.com",
-      "password": "123",
-      "confirm_password": "123",
-      "telephone": "56556",
-      "role": "",
+      "id": "67c4d876-48c7-41d7-ace8-32733744461c",
+      "name": "calibre12",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
+      "surname": "bobo",
+      "mail": "bobo@gmail.com",
+      "telephone": "6525223232",
+      "role": "Teacher",
       "brancnId": "",
-      "dob": "2025-04-26",
-      "id": "c6603aa9-d6fb-4628-b4fc-4ce545459adb"
+      "dob": "2025-04-29"
     }
   ],
   "quiz": [
@@ -82,6 +81,16 @@
       "createAt": "2025-04-26T10:11",
       "startDate": "2025-04-26T10:11",
       "endDate": "2025-04-26T10:11"
+    },
+    {
+      "name": "hello world",
+      "description": "les nn nerfs",
+      "authorId": "67c4d876-48c7-41d7-ace8-32733744461c",
+      "branchId": "",
+      "createAt": "2025-04-30T00:46:02.643Z",
+      "startDate": "",
+      "endDate": "",
+      "id": "9099a34a-0bc0-4f53-97cf-163a13b294cd"
     }
   ],
   "produits": [

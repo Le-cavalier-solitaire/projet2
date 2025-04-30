@@ -69,7 +69,6 @@ const TableUser = () => {
           <thead className="bg-gray-50">
             <tr>
               {[
-                "id",
                 "Nom",
                 "Prenom",
                 "Rôle",
@@ -92,7 +91,6 @@ const TableUser = () => {
             {users.map((user) => {
               return (
                 <tr key={user.id}>
-                  <td className="px-6 py-4">{user.id}</td>
                   <td className="px-6 py-4">{user.name}</td>
                   <td className="px-6 py-4">{user.surname}</td>
                   <td className="px-6 py-4">{user.role}</td>

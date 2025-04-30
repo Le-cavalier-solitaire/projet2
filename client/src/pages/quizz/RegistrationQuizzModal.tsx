@@ -1,9 +1,13 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
-  const [listAuthor, setListAuthor] = useState([]);
+  const { user, isLoading } = useAuth();
+  const navigate = useNavigate();
+
   const [listBranch, setListBranch] = useState([]);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -11,25 +15,30 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   const [data, setData] = useState({
     name: "",
     description: "",
-    authorId: "",
+    authorId: user?.id,
     branchId: "",
-    createAt: "",
+    createAt: new Date(),
     startDate: "",
     endDate: "",
   });
   function handleSubmit(e) {
     e.preventDefault();
+    const quizData = {
+      ...data,
+      authorId: user.id,
+    };
+
     axios
-      .post("http://localhost:3000/api/quiz", { ...data })
+      .post("http://localhost:3000/api/quiz", quizData)
       .then((res) => {
         setQuizs([...quizs, res.data]);
         toast.success("Quizz added successfully");
         setData({
           name: "",
           description: "",
-          authorId: "",
+          authorId: user.id,
           branchId: "",
-          createAt: "",
+          createAt: new Date(),
           startDate: "",
           endDate: "",
         });
@@ -43,16 +52,6 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
 
   // Gestion de la touche Échap
 
-  function getListAuthor() {
-    axios("http://localhost:3000/users?role=Teacher")
-      .then((res) => {
-        setListAuthor(res.data);
-      })
-      .catch((error) => {
-        toast.error("Unable to get data");
-      });
-  }
-
   function getListBranch() {
     axios("http://localhost:3000/branch?_sort=name&_order=desc")
       .then((res) => {
@@ -64,8 +63,6 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   }
 
   useEffect(getListBranch, []);
-
-  useEffect(getListAuthor, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -87,6 +84,25 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-between p-4 bg-white shadow">
+        <div className="animate-pulse flex space-x-4">
+          <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+          <div className="space-y-2">
+            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+            <div className="h-4 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    console.log("Redirection vers /login car pas d'utilisateur");
+    navigate("/login");
+    return null;
+  }
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
@@ -194,49 +210,14 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Create_At
-              </label>
-              <input
-                type="datetime-local"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="exemple@email.com"
-                onChange={(e) => setData({ ...data, createAt: e.target.value })}
-                value={data.createAt}
-              />
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Author_Name
-                </label>
-                <select
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) =>
-                    setData({ ...data, authorId: e.target.value })
-                  }
-                >
-                  <option value="">Sélectionner l'Auteur</option>
-                  {listAuthor.map((author) => {
-                    return (
-                      <option value={author.id} key={author.id}>
-                        {author.name} {author.surname}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   branch_Name
                 </label>
                 <select
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-2/1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) =>
                     setData({ ...data, branchId: e.target.value })
                   }

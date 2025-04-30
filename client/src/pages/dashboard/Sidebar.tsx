@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 interface SidebarProps {
-  isOpen: boolean;
+  isOpen?: boolean;
 }
 
-const Sidebar = ({ isOpen }: SidebarProps) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
   const [tableMenu, SetTableMenu] = useState([
     { icon: "fa-home", text: "Dashboard", path: "", status: false },
     {
@@ -19,7 +24,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     {
       icon: "fa-chart-bar",
       text: "View Previously Quiz",
-      path: "myQuizz",
+      path: "MyQuizz",
       status: false,
     },
     { icon: "fa-calendar-alt", text: "Results", path: "", status: false },
@@ -27,31 +32,27 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     { icon: "fa-book-open", text: "Notifications", path: "", status: false },
   ]);
 
-  function handleClick(text) {
-    const newArray = tableMenu.map((menu) =>
-      menu.text === text ? { ...menu, status: !menu.status } : menu
-    );
-    SetTableMenu(newArray)
-    console.log(tableMenu);
-  }
 
-  const navigate = useNavigate();
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/login";
+  };
 
   return (
     <aside
-      className={`bg-gray-800 text-white w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform transition duration-200 ease-in-out z-50 ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0`}
-    >
-      <div className="flex items-center space-x-2 px-4">
-        <i className="fas fa-graduation-cap text-2xl text-blue-400"></i>
-        <span className="text-2xl font-bold">Cabinfo!_Edu</span>
-      </div>
+    className={`bg-gray-800 text-white w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform transition duration-200 ease-in-out z-50 ${
+      isOpen ? "translate-x-0" : "-translate-x-full"
+    } md:translate-x-0`}
+  >
+    <div className="flex items-center space-x-2 px-4">
+      <i className="fas fa-graduation-cap text-2xl text-blue-400"></i>
+      <span className="text-2xl font-bold">Cabinfo!_Edu</span>
+    </div>
       <nav className="space-y-2">
-        {tableMenu.map((item, index) => (
+      {tableMenu.map((item, index) => (
           <Link to={`/${item.path}`}>
             <p
-              onClick={() => handleClick(item.text)}
+              onClick={() => ""}
               key={index}
               className={`flex text-white items-center space-x-2 py-3 px-4 ${
                 item.status == true ? "bg-gray-700" : "hover:bg-gray-700"
@@ -62,16 +63,13 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
             </p>
           </Link>
         ))}
-        
+
         <button
-        style={{backgroundColor:"oklch(0.505 0.213 27.518)", borderRadius:"3px", width:"100%"}}
+          style={{backgroundColor:"oklch(0.505 0.213 27.518)", borderRadius:"3px", width:"100%"}}
           className="flex items-center mt-10 text-white space-x-2 py-3 px-4 rounded hover:bg-gray-700"
-          onClick={() => {
-            localStorage.removeItem("users");
-            navigate("/login");
-          }}
+          onClick={handleLogout}
         >
-          Log Out
+          Déconnexion
         </button>
       </nav>
     </aside>
