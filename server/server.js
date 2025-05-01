@@ -214,11 +214,58 @@ server.get("/api/quiz", (req, res) => {
   }
 });
 
+// route pour recupérer les quizs d'un user donnée
+server.get("/api/quiz/authorId/:userId", (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log("Recherche des quizs pour l'utilisateur:", userId);
+    
+    // Vérifier si l'utilisateur existe
+    const users = router.db.get("users").value();
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      console.log("Utilisateur non trouvé");
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+    
+    const quizs = router.db.get("quiz").value();
+    console.log("Tous les quizs:", quizs);
+    
+    const quizsUserId = quizs.filter((quiz) => {
+      // Ne pas inclure les quizs sans authorId
+      if (!quiz.authorId) {
+        return false;
+      }
+      console.log("Comparaison:", {
+        quizAuthorId: quiz.authorId,
+        userId: userId,
+        typeQuizAuthorId: typeof quiz.authorId,
+        typeUserId: typeof userId,
+        match: quiz.authorId === userId
+      });
+      return quiz.authorId === userId;
+    });
+
+    console.log("Quizs trouvés:", quizsUserId);
+
+    if (!quizsUserId || quizsUserId.length === 0) {
+      console.log("Aucun quiz trouvé pour cet utilisateur");
+    }
+
+    res.json(quizsUserId || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des quizs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des quizs",
+    });
+  }
+});
+
 //methode POST quiz
 server.post("/api/quiz", (req, res) => {
   const payload = req.body;
   const quizs = router.db.get("quiz");
-  const newQuiz = {...payload, id:uuidv4()}
+  const newQuiz = { ...payload, id: uuidv4() };
   quizs.push(newQuiz).write();
   res.status(201).json(payload);
 });
@@ -378,6 +425,28 @@ server.post("/api/commandes/nouvelle", (req, res) => {
     produits: produitsCommande,
     total: produitsCommande.reduce((sum, produit) => sum + produit.prix, 0),
   });
+});
+
+// Route pour obtenir un utilisateur spécifique par ID
+server.get("/api/users/:id", (req, res) => {
+  try {
+    const userId = req.params.id;
+    const users = router.db.get("users").value();
+    const user = users.find((u) => u.id === userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+    // Retourner l'utilisateur sans le mot de passe
+    const { password, confirm_password, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'utilisateur:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération de l'utilisateur",
+    });
+  }
 });
 
 // Utiliser le routeur par défaut pour les routes REST standards

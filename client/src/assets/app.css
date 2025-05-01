@@ -1,0 +1,104 @@
+/* 
+
+/* App.css */
+.editor-container {
+  background: #fdadad;
+  min-height: 100vh;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.paper-sheet {
+  background: linear-gradient(to bottom, white 0%, white 99%, #ccc 100%);
+  width: 100%;
+  min-height: auto;
+  padding: 2.5cm;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: "Times New Roman", serif;
+  position: relative;
+}
+
+.header {
+  border-bottom: 2px solid #000;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.title {
+  font-size: 2.2rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.metadata {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+}
+
+.question-paper {
+  margin: 1.5rem 0;
+  break-inside: avoid;
+}
+
+.question-number {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.question-text {
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.options-paper {
+  margin-left: 1.5rem;
+  border-bottom: 2px solid #3938386a;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.option-paper {
+  margin: 0.5rem 0;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.option-letter {
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.correct-answer {
+  background: #fff3d4;
+  padding: 0.3rem;
+  border-radius: 3px;
+  border-left: 3px solid #ffb700;
+}
+
+.correction-note {
+  color: #2e7d32;
+  font-style: italic;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+.footer {
+  position: absolute;
+  bottom: 2cm;
+  width: calc(100% - 5cm);
+  text-align: center;
+}
+
+.instructions {
+  color: #666;
+  font-size: 1rem;
+  padding-top: 1rem;
+  margin-top: 2rem;
+}

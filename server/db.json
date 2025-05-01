@@ -31,9 +31,20 @@
       "surname": "bobo",
       "mail": "bobo@gmail.com",
       "telephone": "6525223232",
-      "role": "Teacher",
+      "role": "Administrateur",
       "brancnId": "",
       "dob": "2025-04-29"
+    },
+    {
+      "id": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
+      "name": "Junior",
+      "password": "$2b$10$EM6DIiWI02gCX4SIstBnguZSEY9LhbdX/Xudr8I9yzwIDSHnMbPeu",
+      "surname": "loic",
+      "mail": "loic@gmail.com",
+      "telephone": "656525561",
+      "role": "Student",
+      "brancnId": "",
+      "dob": "2025-04-30"
     }
   ],
   "quiz": [
@@ -41,7 +52,7 @@
       "id": 1212,
       "name": "react",
       "description": "react",
-      "authorId": "",
+      "authorId": "baa7",
       "branchId": "",
       "createAt": "2025-04-25T20:32",
       "startDate": "2025-04-25T20:32",
@@ -67,7 +78,7 @@
             "A. 18",
             "B. 32"
           ],
-          "correctAnswer": 0,
+          "correctAnswer": 1,
           "time": 3,
           "marks": 3
         }
@@ -76,7 +87,7 @@
     {
       "name": "ls condensateurs",
       "description": "maintenance",
-      "authorId": "",
+      "authorId": "67c4d876-48c7-41d7-ace8-32733744461c",
       "branchId": "",
       "createAt": "2025-04-26T10:11",
       "startDate": "2025-04-26T10:11",
@@ -91,6 +102,19 @@
       "startDate": "",
       "endDate": "",
       "id": "9099a34a-0bc0-4f53-97cf-163a13b294cd"
+    },
+    {
+      "name": "Le langage python",
+      "description": "les bases de pythons",
+      "authorId": "baa7",
+      "branchId": [
+        4,
+        2
+      ],
+      "createAt": "2025-04-30T23:11:30.155Z",
+      "startDate": "2025-05-02T08:30",
+      "endDate": "2025-05-02T20:30",
+      "id": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1"
     }
   ],
   "produits": [

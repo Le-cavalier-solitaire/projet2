@@ -7,7 +7,8 @@ import HighlightOffRoundedIcon from "@mui/icons-material/HighlightOffRounded";
 import { v4 as uuidv4 } from "uuid";
 import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import AdsClickRoundedIcon from "@mui/icons-material/AdsClickRounded";
-import { TextareaAutosize } from "@mui/material";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { TextareaAutosize, Tooltip } from "@mui/material";
 
 function AddQuests({ quiz }) {
   const prefixes = ["A", "B", "C", "D"];
@@ -242,17 +243,21 @@ function AddQuests({ quiz }) {
   return (
     <div style={{ height: "auto" }} className="bg-green">
       {/* Bouton d'ouverture */}
-      <button
-        onClick={openModal}
-        style={{
-          backgroundColor: "green",
-          borderRadius: "5px",
-          boxShadow: "0px 6px 6px black",
-        }}
-        className=" text-white"
-      >
-        Add_Quests
-      </button>
+      <Tooltip title="Add question">
+        {" "}
+        <button
+          onClick={openModal}
+          style={{
+            backgroundColor: "oklch(0.627 0.194 149.214)",
+            borderRadius: "5px",
+            boxShadow: "0px 6px 6px black",
+          }}
+          className=" text-white"
+        >
+          {" "}
+          <AddCircleIcon className="" fontSize="medium" />
+        </button>
+      </Tooltip>
 
       {/* Overlay du modal */}
       <div

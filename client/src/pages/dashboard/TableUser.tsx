@@ -5,8 +5,19 @@ import { Link } from "react-router-dom";
 import EditUserModal from "./EditUserModal";
 import toast from "react-hot-toast";
 
+interface User {
+  id: number;
+  name: string;
+  surname: string;
+  role: string;
+  brancnId: string;
+  dob: string;
+  mail: string;
+  telephone: string;
+}
+
 const TableUser = () => {
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   function getusers() {
     axios("http://localhost:3000/api/users")
@@ -27,7 +38,7 @@ const TableUser = () => {
     getusers();
   }, []);
 
-  const deleteUser = (id) => {
+  const deleteUser = (id: number) => {
     console.log("Tentative de suppression de l'utilisateur avec ID:", id);
     axios
       .delete(`http://localhost:3000/api/deleteUser/${id}`)

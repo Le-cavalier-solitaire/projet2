@@ -1,6 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import RecentActorsIcon from "@mui/icons-material/RecentActors";
+import QuizIcon from "@mui/icons-material/Quiz";
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import NotesIcon from "@mui/icons-material/Notes";
+import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
+import LogoutIcon from "@mui/icons-material/Logout";
+import BubbleChartIcon from "@mui/icons-material/BubbleChart";
+import SchoolIcon from "@mui/icons-material/School";
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -9,29 +20,86 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
-  const [tableMenu, SetTableMenu] = useState([
-    { icon: "fa-home", text: "Dashboard", path: "", status: false },
+  const [tableMenu, setTableMenu] = useState([
     {
-      icon: "fa-book-open",
+      icon: DashboardIcon,
+      text: "Dashboard",
+      autorised: "any",
+      path: "",
+      status: false,
+    },
+    {
+      icon: RecentActorsIcon,
       text: "User List",
+      autorised: "Administrateur",
       path: "userlist",
       status: false,
     },
-    { icon: "fa-book-open", text: "Branch List", path: "", status: false },
-    { icon: "fa-tasks", text: "Add Quiz", path: "quizzList", status: false },
     {
-      icon: "fa-chart-bar",
+      icon: CloseFullscreenIcon,
+      text: "Branch List",
+      autorised: "Teacher",
+      path: "",
+      status: false,
+    },
+    {
+      icon: BubbleChartIcon,
+      text: "Add Quiz",
+      autorised: "Teacher",
+      path: "quizzList",
+      status: false,
+    },
+    {
+      icon: QuizIcon,
       text: "View Previously Quiz",
+      autorised: "Student",
       path: "MyQuizz",
       status: false,
     },
-    { icon: "fa-calendar-alt", text: "Results", path: "", status: false },
-    { icon: "fa-users", text: "Statistics", path: "", status: false },
-    { icon: "fa-book-open", text: "Notifications", path: "", status: false },
+    {
+      icon: NotesIcon,
+      text: "Results",
+      autorised: "any",
+      path: "",
+      status: false,
+    },
+    {
+      icon: BarChartIcon,
+      text: "Statistics",
+      autorised: "any",
+      path: "",
+      status: false,
+    },
+    {
+      icon: CircleNotificationsIcon,
+      text: "Notifications",
+      autorised: "any",
+      path: "",
+      status: false,
+    },
   ]);
 
+  useEffect(() => {
+    const currentPath = location.pathname.substring(1); // Enlever le slash au début
+    const updatedMenu = tableMenu.map((item) => ({
+      ...item,
+      status: item.path === currentPath,
+    }));
+    setTableMenu(updatedMenu);
+  }, [location.pathname]);
+
+  function handleClick(text: string) {
+    // Mettre à jour le statut dans le menu
+    const newArray = tableMenu.map((menu) => ({
+      ...menu,
+      status: menu.text === text,
+    }));
+
+    setTableMenu(newArray);
+    console.log("Menu mis à jour:", newArray);
+  }
 
   const handleLogout = () => {
     logout();
@@ -40,36 +108,50 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
 
   return (
     <aside
-    className={`bg-gray-800 text-white w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform transition duration-200 ease-in-out z-50 ${
-      isOpen ? "translate-x-0" : "-translate-x-full"
-    } md:translate-x-0`}
-  >
-    <div className="flex items-center space-x-2 px-4">
-      <i className="fas fa-graduation-cap text-2xl text-blue-400"></i>
-      <span className="text-2xl font-bold">Cabinfo!_Edu</span>
-    </div>
-      <nav className="space-y-2">
-      {tableMenu.map((item, index) => (
+      className={`bg-gray-800 text-white w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform transition duration-200 ease-in-out z-50 ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0`}
+    >
+      <div className="flex items-center space-x-1">
+        <SchoolIcon
+          style={{ height: "64px", width: "64px" }}
+          className="text-amber-50"
+        />
+        <span className="text-2xl text-amber-50 font-bold">Cabinfo!_Edu</span>
+      </div>
+      <nav className="space-y-2 border-t-2 border-amber-100">
+        {tableMenu.map((item, index) => (
           <Link to={`/${item.path}`}>
             <p
-              onClick={() => ""}
               key={index}
-              className={`flex text-white items-center space-x-2 py-3 px-4 ${
-                item.status == true ? "bg-gray-700" : "hover:bg-gray-700"
+              className={`flex text-white items-center space-x-2 py-3 px-4 transition-colors duration-200 ${
+                item.status
+                  ? "bg-gray-700 font-bold text-white"
+                  : "hover:bg-gray-700 text-white"
+              } ${
+                item.autorised === user?.role || item.autorised === "any"
+                  ? ""
+                  : "hidden"
               }`}
+              onClick={() => handleClick(item.text)}
             >
-              <i className={`fas ${item.icon}`}></i>
+              <item.icon />
               <span>{item.text}</span>
             </p>
           </Link>
         ))}
 
         <button
-          style={{backgroundColor:"oklch(0.505 0.213 27.518)", borderRadius:"3px", width:"100%"}}
+          style={{
+            backgroundColor: "oklch(0.505 0.213 27.518)",
+            borderRadius: "3px",
+            width: "100%",
+          }}
           className="flex items-center mt-10 text-white space-x-2 py-3 px-4 rounded hover:bg-gray-700"
           onClick={handleLogout}
         >
-          Déconnexion
+          <LogoutIcon />
+          Logout
         </button>
       </nav>
     </aside>

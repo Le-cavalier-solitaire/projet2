@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import EditIcon from "@mui/icons-material/Edit";
+import { Tooltip } from "@mui/material";
 
 const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
   const [listBranch, setListBranch] = useState([]);
@@ -70,18 +72,19 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-
-      <button
-        style={{
-          backgroundColor: "oklch(0.623 0.214 259.815)",
-          borderRadius: "5px",
-          boxShadow: "0px 6px 6px black",
-        }}
-        onClick={openModal}
-        className="text-white"
-      >
-        Edit
-      </button>
+      <Tooltip title="Edit quiz">
+        <button
+          style={{
+            backgroundColor: "oklch(0.623 0.214 259.815)",
+            borderRadius: "5px",
+            boxShadow: "0px 6px 6px black",
+          }}
+          onClick={openModal}
+          className="text-white"
+        >
+          <EditIcon fontSize="medium" />
+        </button>
+      </Tooltip>
 
       {/* Overlay du modal */}
       <div

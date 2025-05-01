@@ -45,7 +45,6 @@ const Header: React.FC = () => {
                 {user.name} {user.surname}
               </h2>
               <p className="text-sm text-gray-500">{user.mail}</p>
-              <p className="text-xs text-gray-400">Rôle: {user.role}</p>
             </div>
           </div>
         </div>

@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import EditQuizzModal from "./EditQuizzModal";
 import RegistrationQuizzModal from "./RegistrationQuizzModal";
+import { DeleteForever } from "@mui/icons-material";
 import "../App.css";
 import AddQuests from "./AddQuests";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import DetailsQuizModal from "./DetailsQuizModal";
+import { Tooltip } from "@mui/material";
 
 const TableQuizz = () => {
   const [quizs, setQuizs] = useState([]);
@@ -14,28 +17,40 @@ const TableQuizz = () => {
   const navigate = useNavigate();
 
   function getQuiz() {
-    axios("http://localhost:3000/api/quiz")
+    if (!user?.id) {
+      console.log("Pas d'ID utilisateur disponible");
+      return;
+    }
+
+    console.log("Récupération des quizs pour l'utilisateur:", user.id);
+
+    axios(`http://localhost:3000/api/quiz/authorId/${user.id}`)
       .then((res) => {
+        console.log("Quizs reçus:", res.data);
         setQuizs(res.data);
       })
       .catch((error) => {
-        alert("Unable to get quiz");
+        console.error("Erreur lors de la récupération des quizs:", error);
+        toast.error("Impossible de récupérer les quizs");
       });
   }
 
   useEffect(() => {
-    getQuiz();
-  }, []);
+    if (user?.id && user?.role == "Teacher") {
+      getQuiz();
+    }
+  }, [user?.id]);
 
   const deleteUser = (id) => {
     axios
       .delete(`http://localhost:3000/quiz/${id}`)
       .then(() => {
         setQuizs(quizs.filter((client) => client.id !== id));
-        toast.success("Quiz has already delete");
+        toast.success("Quiz supprimé avec succès");
       })
       .catch((error) => {
-        alert("Unable to delete User");
+        console.error("Erreur lors de la suppression:", error);
+        toast.error("Impossible de supprimer le quiz");
       });
   };
 
@@ -111,17 +126,24 @@ const TableQuizz = () => {
                         setQuizs={setQuizs}
                       />
 
-                      <button
-                        style={{
-                          backgroundColor: "oklch(0.505 0.213 27.518)",
-                          borderRadius: "5px",
-                          boxShadow: "0px 6px 6px black",
-                        }}
-                        onClick={() => deleteUser(quiz.id)}
-                        className="text-white"
-                      >
-                        Supprimer
-                      </button>
+                      <DetailsQuizModal
+                        quiz={quiz}
+                        // quizs={quizs}
+                        // setQuizs={setQuizs}
+                      />
+                      <Tooltip title="Delete quiz">
+                        <button
+                          style={{
+                            backgroundColor: "oklch(0.505 0.213 27.518)",
+                            borderRadius: "5px",
+                            boxShadow: "0px 6px 6px black",
+                          }}
+                          onClick={() => deleteUser(quiz.id)}
+                          className="text-white"
+                        >
+                          <DeleteForever fontSize="medium" />
+                        </button>
+                      </Tooltip>
 
                       <AddQuests quiz={quiz} />
                     </div>
