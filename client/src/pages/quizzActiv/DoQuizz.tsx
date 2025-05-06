@@ -10,13 +10,14 @@ import incorrectanswerImg from "../../assets/incorrect-answer.png";
 import confusedEmoji from "../../assets/confusedEmoji.png";
 import happyEmoji from "../../assets/happyEmoji.png";
 import verryHappyEmoji from "../../assets/verryHappyEmoji.png";
+import { useAuth } from "../../hooks/useAuth";
 
 function DoQuizz() {
   const [currentQuiz, setCurrentQuiz] = useState([]);
   const params = useParams();
   const navigate = useNavigate();
-  const name = currentQuiz[0]?.name;
-  const quizQuestions = currentQuiz[0]?.quizQuestions;
+  const name = currentQuiz?.name;
+  const quizQuestions = currentQuiz?.quizQuestions;
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [indexOfQuizzSelected, setIndexOfQuizzSelected] = useState(params.id);
@@ -139,7 +140,7 @@ function DoQuizz() {
 
   function getCurrentQuiz() {
     axios
-      .get(`http://localhost:3000/quiz?id=${params.id}`)
+      .get(`http://localhost:3000/api/quiz/id/${params.id}`)
       .then((res) => {
         setCurrentQuiz(res.data);
       })
@@ -149,6 +150,7 @@ function DoQuizz() {
   }
 
   useEffect(getCurrentQuiz, []);
+  console.log(currentQuiz);
 
   // useEffect(() => {
   //   if (isQuizEnded) {
@@ -268,15 +270,7 @@ function DoQuizz() {
 export default DoQuizz;
 
 export function ScorePoppop({ doQuizzProps }) {
-  const [userData, setUserData] = useState([]);
-  function getDataUsers() {
-    const datasUser = localStorage.getItem("users");
-    if (datasUser) {
-      setUserData(JSON.parse(datasUser));
-    }
-  }
-
-  useEffect(getDataUsers, []);
+  const { user, isLoading } = useAuth();
 
   const navigate = useNavigate();
   const { quizId, pointQuiz, totalAttempts, correctAnswer, incorrectAnswer } =
@@ -295,7 +289,7 @@ export function ScorePoppop({ doQuizzProps }) {
 
   const result = (totalAttempts / pointQuiz) * 100;
   const score = `${totalAttempts}/${pointQuiz}`;
-  const userId = userData?.id || "";
+  const userId = user?.id;
   let feedback = "";
 
   // Déterminer le feedback en fonction du résultat
@@ -329,7 +323,7 @@ export function ScorePoppop({ doQuizzProps }) {
   //envoie des resultas du user en bd
   function handleSubmit() {
     axios
-      .post("http://localhost:3000/results", { ...dataResultQuiz })
+      .post("http://localhost:3000/api/results", { ...dataResultQuiz })
       .then((res) => {
         toast.success("n'arrêtez pas de vous exercer 😊!");
         setDataResultQuiz({

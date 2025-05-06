@@ -1,0 +1,31 @@
+.bgImage {
+  background-attachment: fixed;
+  background-image: url("./gitBg.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* --- Wave overlay --- */
+.wave-overlay {
+  position: absolute;
+  inset: 0;
+  /* Décalage pour voir l'image de fond dans les creux */
+  transform: translateX(-20px);
+  pointer-events: none;
+
+  /* Masque à base de dégradé radial répété */
+  mask-image: radial-gradient(circle at 20px 50%, black 0, black 15px, transparent 16px);
+  mask-size: 100% calc(100% / 3); /* 3 ondulations sur la hauteur */
+  mask-repeat: repeat-y;
+}
+
+@supports (-webkit-mask-image: radial-gradient(circle, black, transparent)) {
+  .wave-overlay {
+    -webkit-mask-image: radial-gradient(circle at 20px 50%, black 0, black 15px, transparent 16px);
+    -webkit-mask-size: 100% calc(100% / 3);
+    -webkit-mask-repeat: repeat-y;
+  }
+}

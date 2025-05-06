@@ -45,41 +45,54 @@
       "role": "Student",
       "brancnId": "",
       "dob": "2025-04-30"
+    },
+    {
+      "id": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe2",
+      "name": "brayann",
+      "password": "$2b$10$EM6DIiWI02gCX4SIstBnguZSEY9LhbdX/Xudr8I9yzwIDSHnMbPeu",
+      "surname": "steve",
+      "mail": "loics@gmail.com",
+      "telephone": "656525561",
+      "role": "Student",
+      "brancnId": "",
+      "dob": "2025-04-30"
     }
   ],
   "quiz": [
     {
-      "id": 1212,
-      "name": "react",
-      "description": "react",
+      "id": "88bd2a92-7e87-481f-8168-e9156bfcc904",
+      "name": "L'agricultute Kmer",
+      "description": "L'agricultute Kmer",
       "authorId": "baa7",
       "branchId": "",
       "createAt": "2025-04-25T20:32",
-      "startDate": "2025-04-25T20:32",
-      "endDate": "2025-04-30T20:32",
+      "startDate": "2025-05-01T20:32",
+      "endDate": "2025-05-30T20:32",
       "quizQuestions": [
         {
           "quizId": 1212,
-          "id": "b58251d1-2e0c-4f6d-a55b-dfbd234274dd",
-          "mainQuestion": "holla santos",
+          "id": "88bd2a92-7e87-481f-8168-e9156bfcc901",
+          "mainQuestion": "la periode de la moisson au camer c'est la quelle?",
           "choices": [
-            "A. ya",
-            "B. yes"
+            "A. juin",
+            "B. septembre",
+            "C. mai"
           ],
           "correctAnswer": 0,
-          "time": 5,
-          "marks": 4
+          "time": 15,
+          "marks": 2
         },
         {
           "quizId": 1212,
-          "id": "75e2ab52-8aee-4b6c-802e-add9086c0b4e",
-          "mainQuestion": "quelle est ton age?",
+          "id": "ec940569-8e8f-47eb-beda-b2eca0714db4",
+          "mainQuestion": "c'est quoi ta couleur preférée?",
           "choices": [
-            "A. 18",
-            "B. 32"
+            "A. rouge",
+            "B. violet",
+            "C. rose"
           ],
           "correctAnswer": 1,
-          "time": 3,
+          "time": 6,
           "marks": 3
         }
       ]
@@ -91,7 +104,7 @@
       "branchId": "",
       "createAt": "2025-04-26T10:11",
       "startDate": "2025-04-26T10:11",
-      "endDate": "2025-04-26T10:11"
+      "endDate": "2025-05-26T10:11"
     },
     {
       "name": "hello world",
@@ -113,7 +126,7 @@
       ],
       "createAt": "2025-04-30T23:11:30.155Z",
       "startDate": "2025-05-02T08:30",
-      "endDate": "2025-05-02T20:30",
+      "endDate": "2025-05-12T20:30",
       "id": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1"
     }
   ],
@@ -154,6 +167,24 @@
         3
       ],
       "date": "2025-03-28"
+    }
+  ],
+  "results": [
+    {
+      "studentId": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
+      "score": "5/5",
+      "percent": 100,
+      "quizId": "88bd2a92-7e87-481f-8168-e9156bfcc904",
+      "feedback": "Acquis",
+      "id": 1
+    },
+    {
+      "studentId": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe2",
+      "score": "3/5",
+      "percent": 60,
+      "quizId": "88bd2a92-7e87-481f-8168-e9156bfcc904",
+      "feedback": "En cours d'acquisition",
+      "id": 2
     }
   ]
 }

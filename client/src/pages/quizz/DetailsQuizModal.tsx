@@ -83,8 +83,6 @@ const DetailsQuizModal = ({ quiz }) => {
             <div className="header">
               <div className="title">QUESTIONNAIRE</div>
               <div className="metadata">
-                <span>Nom: __________________</span>
-                <span>Date: __________________</span>
               </div>
             </div>
 
@@ -94,6 +92,7 @@ const DetailsQuizModal = ({ quiz }) => {
                   <div className="question-number flex justify-between items-center">
                     <span>Question {qIndex + 1}</span>
                     <strong className="text-right">{q.marks}pts(s)</strong>
+                    <strong className="text-right">délai: {q.time ==0 ? "pas de delai défini" : (`${q.time}(s)`)}</strong>
                   </div>
                   <div className="question-text text-left">
                     {q.mainQuestion}

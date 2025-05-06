@@ -146,7 +146,10 @@ function AddQuests({ quiz }) {
   useLayoutEffect(() => {
     if (endOfListRef.current) {
       setTimeout(() => {
-        endOfListRef.current.scrollIntoView({ behavior: "smooth" });
+        endOfListRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
       }, 100);
     }
   }, [quizQuestions.length]);
@@ -162,7 +165,6 @@ function AddQuests({ quiz }) {
   console.log(totalMarks);
 
   useEffect(() => {
-    //focus the last textarea if it exists
     const lastTextareaIndex = quizQuestions.length - 1;
     if (lastTextareaIndex >= 0) {
       const lastTextarea = textAreaRefs.current[lastTextareaIndex].current;
@@ -170,7 +172,7 @@ function AddQuests({ quiz }) {
         lastTextarea.focus();
       }
     }
-  }, [quizQuestions.length, textAreaRefs.current]);
+  }, [quizQuestions.length]);
 
   function validateQuizQuestion(quizQuestion) {
     for (let question of quizQuestion) {
@@ -345,7 +347,7 @@ function AddQuests({ quiz }) {
 
           <div
             style={{ height: "auto" }}
-            className="mt-6 p-3 justify-between border-4 border-green-600 rounded-md max-h-[90vh] overflow-y-auto"
+            className="mt-6 p-3 justify-between border-4 border-green-600 rounded-md max-h-[60vh] overflow-y-auto"
           >
             <div
               style={{ height: "auto" }}
@@ -370,7 +372,11 @@ function AddQuests({ quiz }) {
                       : null
                   }
                   key={questionIndex}
-                  className="border-3 ml-5 p-4 mt-4 border-green-600 border-opacity-50-rounded-md"
+                  className={`border-3 ml-5 p-4 mt-4 border-green-600 border-opacity-50-rounded-md ${
+                    questionIndex === quizQuestions.length - 1
+                      ? "bg-gray-50"
+                      : "opacity-50"
+                  }`}
                 >
                   <SingleQuestion
                     questionIndex={questionIndex}
