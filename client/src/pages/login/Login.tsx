@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import "../App.css"
+import "../App.css";
 import axios from "axios";
-import { useNavigate,} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 function Login() {
@@ -15,22 +15,37 @@ function Login() {
     mail: "",
     password: "",
   });
-  function handleSubmit(e:React.ChangeEvent<HTMLInputElement>) {
+  function handleSubmit(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
-    axios
-      .get(
-        `http://localhost:3000/users?mail=${data.mail}&password=${data.password}`
-      )
-      .then((res) => {
-        if (res.data.length > 0) {
-          localStorage.setItem("users", JSON.stringify(res.data[0]));
-          navigate("/");
-          toast.success("connexion reussie");
-        } else {
-          toast.error("identifiant ou mot de passe incorrect");
-        }
-      });
 
+    const users = {
+      id: "baa7",
+      name: "lamorphine",
+      surname: "bekou",
+      mail: "bekou@gmail.com",
+      password: "123",
+      confirm_password: "123",
+      telephone: "56565656",
+      role: "Teacher",
+      brancnId: "",
+      dob: "2001-12-02",
+    };
+    localStorage.setItem("users", JSON.stringify(users));
+    navigate("/");
+    toast.success("connexion reussie");
+    // axios
+    //   .get(
+    //     `http://localhost:3000/users?mail=${data.mail}&password=${data.password}`
+    //   )
+    //   .then((res) => {
+    //     if (res.data.length > 0) {
+    //       localStorage.setItem("users", JSON.stringify(res.data[0]));
+    //       navigate("/");
+    //       toast.success("connexion reussie");
+    //     } else {
+    //       toast.error("identifiant ou mot de passe incorrect");
+    //     }
+    //   });
   }
   return (
     <>

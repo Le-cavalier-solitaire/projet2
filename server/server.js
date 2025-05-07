@@ -6,7 +6,6 @@ const router = jsonServer.router(path.join(__dirname, "db.json"));
 const middlewares = jsonServer.defaults();
 const port = 3000;
 
-
 // Utiliser les middlewares par défaut (logger, static, cors et no-cache)
 server.use(middlewares);
 
@@ -40,7 +39,7 @@ server.get("/api/users", (req, res) => {
   }
 });
 
-//methode POST
+//methode POST user
 server.post("/api/user", (req, res) => {
   const payload = req.body;
   const users = router.db.get("users");
@@ -48,40 +47,30 @@ server.post("/api/user", (req, res) => {
   res.status(201).json(payload);
 });
 
-//route pour supprimer un user specifique
-server.delete("/api/deleteUser/:id", (req, res) => {
-  const userID = req.params.id;
-  console.log("ID recherché:", userID, "type:", typeof userID);
+// Récupérer le tableau complet pour vérification
+const usersArray = users.value();
+console.log("Utilisateurs avant suppression:", JSON.stringify(usersArray));
 
-  const users = router.db.get("users");
+// Vérifier les IDs existants et leur type
+const existingIds = usersArray.map((u) => ({ id: u.id, type: typeof u.id }));
+console.log("IDs existants:", JSON.stringify(existingIds));
 
-  // Récupérer le tableau complet pour vérification
-  const usersArray = users.value();
-  console.log("Utilisateurs avant suppression:", JSON.stringify(usersArray));
+// Trouver l'index directement dans le tableau (pas dans la chaîne lowdb)
+const userIndex = usersArray.findIndex((user) => user.id === userID);
+console.log("Index trouvé:", userIndex);
 
-  // Vérifier les IDs existants et leur type
-  const existingIds = usersArray.map((u) => ({ id: u.id, type: typeof u.id }));
-  console.log("IDs existants:", JSON.stringify(existingIds));
+if (userIndex === -1) {
+  return res.status(404).json({ error: "Utilisateur non trouvé", id: userID });
+}
 
-  // Trouver l'index directement dans le tableau (pas dans la chaîne lowdb)
-  const userIndex = usersArray.findIndex((user) => user.id === userID);
-  console.log("Index trouvé:", userIndex);
+// Supprimer l'utilisateur spécifique en utilisant l'API lowdb
+const removedUser = users.splice(userIndex, 1).write();
 
-  if (userIndex === -1) {
-    return res
-      .status(404)
-      .json({ error: "Utilisateur non trouvé", id: userID });
-  }
+// Vérifier le résultat
+console.log("Utilisateur supprimé:", JSON.stringify(removedUser));
+console.log("Utilisateurs après suppression:", JSON.stringify(users.value()));
 
-  // Supprimer l'utilisateur spécifique en utilisant l'API lowdb
-  const removedUser = users.splice(userIndex, 1).write();
-
-  // Vérifier le résultat
-  console.log("Utilisateur supprimé:", JSON.stringify(removedUser));
-  console.log("Utilisateurs après suppression:", JSON.stringify(users.value()));
-
-  res.status(200).json({ success: true, id: userID, removed: removedUser });
-});
+res.status(200).json({ success: true, id: userID, removed: removedUser });
 
 //route pour mettre à jour les données d'un user spécifique
 server.patch("/api/updateUser/:id", (req, res) => {
@@ -117,6 +106,62 @@ server.patch("/api/updateUser/:id", (req, res) => {
   console.log("Après écriture en BD:", afterUpdate);
 
   res.status(200).json({ success: true, user: updatedUser });
+});
+
+// route pour recupérer les quizs
+server.get("/api/quiz", (req, res) => {
+  try {
+    const quizs = router.db.get("quiz").value();
+    console.log("Utilisateurs récupérés:", quizs ? quizs.length : 0);
+
+    if (!quizs || quizs.length === 0) {
+      console.log("Aucun utilisateur trouvé dans la base de données");
+    }
+
+    res.json(quizs || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
+});
+
+//methode POST quiz
+server.post("/api/quiz", (req, res) => {
+  const payload = req.body;
+  const quizs = router.db.get("quiz");
+  quizs.push(payload).write();
+  res.status(201).json(payload);
+});
+
+//route pour ajouter les questions dans un quiz donné
+server.put("/api/addQuestions/:id", (req, res) => {
+  const formQuestions = req.body;
+  const quizId = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
+  console.log({ quizId });
+  const quizs = router.db.get("quiz");
+  console.log({ quizs });
+  const currentQuiz = quizs.find((quiz) => quiz.id == quizId);
+  console.log(currentQuiz);
+  if (currentQuiz.length == 0) {
+    console.log("quiz non trouvé :", quizId);
+
+    return res.status(404).json({ error: "quiz non trouvé", id: quizId });
+  }
+
+  const newQuiz = {
+    ...currentQuiz[0],
+    quizQuestions: formQuestions,
+  };
+  console.log({ newQuiz });
+  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
+  const updatedquiz = { ...quizs, newQuiz };
+
+  // Mettre à jour l'utilisateur dans l'objet lowdb
+  quizs.push(updatedquiz).write();
+
+  res.status(200).json({ success: true, quiz: updatedquiz });
 });
 
 // Exemple 2: Route pour obtenir les produits en stock
@@ -230,6 +275,56 @@ server.post("/api/commandes/nouvelle", (req, res) => {
     produits: produitsCommande,
     total: produitsCommande.reduce((sum, produit) => sum + produit.prix, 0),
   });
+});
+
+// Routes pour les branches
+server.get("/branch", (req, res) => {
+  try {
+    const branches = router.db.get("branch").value();
+    res.json(branches || []);
+  } catch (error) {
+    console.error("Error to log branch:", error);
+    res.status(500).json({
+      error: "Error to log branch",
+    });
+  }
+});
+
+server.post("/branch", (req, res) => {
+  try {
+    const payload = req.body;
+    const branches = router.db.get("branch");
+    branches.push(payload).write();
+    res.status(201).json(payload);
+  } catch (error) {
+    console.error("Error to create branch:", error);
+    res.status(500).json({
+      error: "Error to create branch",
+    });
+  }
+});
+
+//Road to delete branch
+server.delete("/branch/:id", (req, res) => {
+  try {
+    const branchId = req.params.id;
+    const branches = router.db.get("branch");
+    const branchIndex = branches
+      .value()
+      .findIndex((branch) => branch.id === branchId);
+
+    if (branchIndex === -1) {
+      return res.status(404).json({ error: "Branche not found" });
+    }
+
+    branches.splice(branchIndex, 1).write();
+    res.status(200).json({ success: true, id: branchId });
+  } catch (error) {
+    console.error("error when delete branch:", error);
+    res.status(500).json({
+      error: "an error occured when deleting branch",
+    });
+  }
 });
 
 // Utiliser le routeur par défaut pour les routes REST standards
