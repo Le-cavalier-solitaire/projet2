@@ -329,19 +329,58 @@ server.post("/api/result", (req, res) => {
   }
 });
 
+//route pour mettre à jour les données d'un resultat à jour apres avoir completé la sauvegarde
+server.patch("/api/result/:quizId/:userId/", (req, res) => {
+  const newresultData = req.body;
+  const { userId, quizId } = req.params;
+  const results = router.db.get("results").value();
+
+  const resultIndex = results.findIndex(
+    (result) => result.studentId === userId && result.quizId === quizId
+  );
+
+  if (resultIndex === -1) {
+    return res.status(404).json({ error: "Résultat non trouvé", id: quizId });
+  }
+
+  const currentResult = results[resultIndex];
+  const updatedAnswers = [
+    ...currentResult.answers.filter(
+      (existing) =>
+        !newresultData.answers.some((newItem) => newItem.id === existing.id)
+    ),
+    ...newresultData.answers,
+  ];
+
+  const updatedResult = {
+    ...currentResult,
+    ...newresultData,
+    quizId,
+    studentId: userId,
+    answers: updatedAnswers, // Utiliser le tableau fusionné
+  };
+
+  // Correction : utiliser lowdb pour la mise à jour
+  router.db.get("results").splice(resultIndex, 1, updatedResult).write();
+
+  res.status(200).json({ success: true, result: updatedResult });
+});
+
 // Route pour récupérer tous les résultats d'un quiz spécifique
 server.get("/api/results/quizId/:quizId", (req, res) => {
   const { quizId } = req.params;
   console.log("Recherche de tous les résultats pour le quiz:", quizId);
   const results = router.db.get("results").value();
-  
-  const quizResults = results.filter(result => result.quizId === quizId);
+
+  const quizResults = results.filter((result) => result.quizId === quizId);
   console.log("Résultats trouvés:", quizResults.length);
-  
+
   if (quizResults.length === 0) {
-    return res.status(404).json({ message: "Aucun résultat trouvé pour ce quiz" });
+    return res
+      .status(404)
+      .json({ message: "Aucun résultat trouvé pour ce quiz" });
   }
-  
+
   res.json(quizResults);
 });
 
@@ -352,8 +391,11 @@ server.get("/api/results/:userId/:quizId", (req, res) => {
   const results = router.db.get("results").value();
   console.log("Résultats disponibles:", results);
   console.log("Recherche avec studentId:", userId, "et quizId:", quizId);
-  console.log("Résultats disponibles:", results.map(r => ({ studentId: r.studentId, quizId: r.quizId })));
-  
+  console.log(
+    "Résultats disponibles:",
+    results.map((r) => ({ studentId: r.studentId, quizId: r.quizId }))
+  );
+
   const quizPassedByUser = results.find((result) => {
     const studentIdMatch = result.studentId === userId;
     const quizIdMatch = result.quizId === quizId;
@@ -361,14 +403,14 @@ server.get("/api/results/:userId/:quizId", (req, res) => {
       resultStudentId: result.studentId,
       studentIdMatch,
       resultQuizId: result.quizId,
-      quizIdMatch
+      quizIdMatch,
     });
     return studentIdMatch && quizIdMatch;
   });
-  
+
   console.log("Résultat trouvé:", quizPassedByUser);
   if (quizPassedByUser) {
-    res.json(quizPassedByUser);  // Renvoyer directement le résultat
+    res.json(quizPassedByUser); // Renvoyer directement le résultat
   } else {
     res.status(404).json({ error: "aucun resultat disponible pour le moment" });
   }
@@ -377,40 +419,44 @@ server.get("/api/results/:userId/:quizId", (req, res) => {
 server.get("/api/results/quizId/:singleQuizID", (req, res) => {
   try {
     const quizId = req.params.singleQuizID;
-    console.log("ID reçu du client:", { 
-      id: quizId, 
-      type: typeof quizId, 
-      length: quizId.length 
+    console.log("ID reçu du client:", {
+      id: quizId,
+      type: typeof quizId,
+      length: quizId.length,
     });
-    
+
     const results = router.db.get("results").value();
-    
+
     // Afficher les détails de chaque ID de quiz dans les résultats
-    results.forEach(result => {
+    results.forEach((result) => {
       if (result.quizId) {
-        console.log("ID dans la base:", { 
-          id: result.quizId, 
-          type: typeof result.quizId, 
-          length: result.quizId.length 
+        console.log("ID dans la base:", {
+          id: result.quizId,
+          type: typeof result.quizId,
+          length: result.quizId.length,
         });
       }
     });
-    
+
     const resultsData = results.filter((result) => {
       if (!result.quizId) return false;
-      
+
       // Vérifier si les IDs sont exactement identiques
       const exactMatch = result.quizId === quizId;
-      console.log(`Comparaison exacte entre ${result.quizId} et ${quizId}: ${exactMatch}`);
-      
+      console.log(
+        `Comparaison exacte entre ${result.quizId} et ${quizId}: ${exactMatch}`
+      );
+
       return exactMatch;
     });
-    
+
     console.log("Résultats filtrés:", resultsData);
 
     if (!resultsData || resultsData.length === 0) {
       console.log("Aucun résultat trouvé dans la base de données");
-      return res.status(404).json({ error: "Aucun résultat disponible pour ce quiz" });
+      return res
+        .status(404)
+        .json({ error: "Aucun résultat disponible pour ce quiz" });
     }
 
     res.json(resultsData || []);

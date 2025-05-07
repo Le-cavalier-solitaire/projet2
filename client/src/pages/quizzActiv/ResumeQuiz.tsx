@@ -1,4 +1,6 @@
 import React from "react";
+import { Drawer } from "@mui/material";
+import PlayCircleOutlineRoundedIcon from "@mui/icons-material/PlayCircleOutlineRounded";
 import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
@@ -11,48 +13,58 @@ import confusedEmoji from "../../assets/confusedEmoji.png";
 import happyEmoji from "../../assets/happyEmoji.png";
 import verryHappyEmoji from "../../assets/verryHappyEmoji.png";
 import { useAuth } from "../../hooks/useAuth";
-import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 
-function DoQuizz() {
-  const [currentQuiz, setCurrentQuiz] = useState([]);
+export default function ResumeQuiz({ saveQuiz }) {
+  console.log(saveQuiz);
+  const [currentQuiz, setCurrentQuiz] = useState(saveQuiz);
   const [quizAnswer, setQuizAnswer] = useState([]);
-  const params = useParams();
   const navigate = useNavigate();
   const name = currentQuiz?.name;
-  const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const quizId = currentQuiz.quizId;
+  const questionOfQuiz = saveQuiz?.answers || [];
+  const completeQuestion = questionOfQuiz?.filter(
+    (question) => question.choice
+  );
+  const questionNumber = completeQuestion.length;
+  const currentQuestionIndexBAse = questionNumber + 1;
+  const quizQuestions = questionOfQuiz?.filter(
+    (question, index) => index > questionNumber - 1
+  );
+  const [newArrayQuestion, setNewArrayQuestion] = useState([
+    ...completeQuestion,
+  ]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
-  const [indexOfQuizzSelected, setIndexOfQuizzSelected] = useState(params.id);
   const [isQuizEnded, setIsQuizEnded] = useState(false);
-  const [totalAttempts, setTotalAttempts] = useState(0);
-  const [pointQuiz, setpointQuiz] = useState(0);
-  const [correctAnswer, setCorrectAnswer] = useState(0);
-  const [incorrectAnswer, setIncorrectAnswer] = useState(0);
+  const [totalAttempts, setTotalAttempts] = useState(currentQuiz.totalAttempts);
+  const [pointQuiz, setpointQuiz] = useState(currentQuiz.pointQuiz);
+  console.log(newArrayQuestion);
+
+  const [correctAnswer, setCorrectAnswer] = useState(currentQuiz.correctAnswer);
+  const [incorrectAnswer, setIncorrectAnswer] = useState(
+    currentQuiz.incorrectAnswer
+  );
   const [timer, setTimer] = useState(60); // Valeur par défaut
   const [parentTimer, setParentTimer] = useState(60); // Valeur par défaut
   const intervalRef = useRef<number | null>(null);
-  const quizId = params.id;
   const { user, isLoading } = useAuth();
-  const [dataQuizBreak, setDataQuizBreak] = useState({
-    name: name,
-    quizId: quizId,
-    studentId: user?.id,
-    status: "pending",
-    totalAttempts: totalAttempts,
-    correctAnswer: correctAnswer,
-    incorrectAnswer: incorrectAnswer,
-    pointQuiz: pointQuiz,
-  });
+  const [isOpen, setIsOpen] = React.useState(false);
+
   useEffect(() => {
-    setDataQuizBreak((prev) => ({
-      ...prev,
-      studentId: user?.id || prev.studentId,
-      totalAttempts: totalAttempts,
-      correctAnswer: correctAnswer,
-      incorrectAnswer: incorrectAnswer,
-      pointQuiz: pointQuiz,
-    }));
-  }, [totalAttempts, correctAnswer, incorrectAnswer, user?.id, pointQuiz]);
+    setCurrentQuiz(saveQuiz);
+  }, [saveQuiz]);
+
+  const toggleDrawer =
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === "keydown" &&
+        ((event as React.KeyboardEvent).key === "Tab" ||
+          (event as React.KeyboardEvent).key === "Shift")
+      ) {
+        return;
+      }
+      setIsOpen(open);
+    };
 
   // Mettre à jour les timers lorsque quizQuestions est disponible
   useEffect(() => {
@@ -61,17 +73,6 @@ function DoQuizz() {
       setParentTimer(quizQuestions[currentQuestionIndex].time);
     }
   }, [quizQuestions, currentQuestionIndex]);
-
-  // calculer le total des points
-  useEffect(() => {
-    if (quizQuestions && quizQuestions.length > 0) {
-      const totalPoints = quizQuestions.reduce(
-        (total, question) => total + question.marks,
-        0
-      );
-      setpointQuiz(totalPoints);
-    }
-  }, [quizQuestions]);
 
   useEffect(() => {
     if (timer == 0 && !isQuizEnded) {
@@ -82,11 +83,11 @@ function DoQuizz() {
           id: quizQuestions[currentQuestionIndex].id,
           mainQuestion: quizQuestions[currentQuestionIndex].mainQuestion,
           choice: quizQuestions[currentQuestionIndex].choices[selectedChoice],
-          NumberOfQuestion: currentQuestionIndex,
+          NumberOfQuestion: currentQuestionIndex + questionNumber,
           statusAnswer: true,
           marks: quizQuestions[currentQuestionIndex].marks,
         };
-        setQuizAnswer([...quizAnswer, newQuestion]);
+        setNewArrayQuestion([...newArrayQuestion, newQuestion]);
         setTotalAttempts(
           totalAttempts + quizQuestions[currentQuestionIndex].marks
         );
@@ -95,13 +96,12 @@ function DoQuizz() {
         const newQuestion = {
           id: quizQuestions[currentQuestionIndex].id,
           mainQuestion: quizQuestions[currentQuestionIndex].mainQuestion,
-          choice:
-            quizQuestions[currentQuestionIndex].choices[selectedChoice] || null,
-          NumberOfQuestion: currentQuestionIndex,
+          choice: quizQuestions[currentQuestionIndex].choices[selectedChoice],
+          NumberOfQuestion: currentQuestionIndex + questionNumber,
           statusAnswer: false,
           marks: quizQuestions[currentQuestionIndex].marks,
         };
-        setQuizAnswer([...quizAnswer, newQuestion]);
+        setNewArrayQuestion([...newArrayQuestion, newQuestion]);
         setIncorrectAnswer(incorrectAnswer + 1);
       }
       setSelectedChoice(null);
@@ -127,6 +127,16 @@ function DoQuizz() {
   function onUpdateTime(currentTime: number) {
     setParentTimer(currentTime);
   }
+
+  useEffect(() => {
+    intervalRef.current = window.setInterval(() => {
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isQuizEnded]);
 
   useEffect(() => {
     // Ne pas démarrer le timer si le quiz est terminé
@@ -162,29 +172,29 @@ function DoQuizz() {
     if (
       selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
     ) {
-      setTotalAttempts(
-        totalAttempts + quizQuestions[currentQuestionIndex].marks
-      );
       const newQuestion = {
         id: quizQuestions[currentQuestionIndex].id,
         mainQuestion: quizQuestions[currentQuestionIndex].mainQuestion,
         choice: quizQuestions[currentQuestionIndex].choices[selectedChoice],
-        NumberOfQuestion: currentQuestionIndex,
+        NumberOfQuestion: currentQuestionIndex + questionNumber,
         statusAnswer: true,
         marks: quizQuestions[currentQuestionIndex].marks,
       };
-      setQuizAnswer([...quizAnswer, newQuestion]);
+      setNewArrayQuestion([...newArrayQuestion, newQuestion]);
+      setTotalAttempts(
+        totalAttempts + quizQuestions[currentQuestionIndex].marks
+      );
       setCorrectAnswer(correctAnswer + 1);
     } else {
       const newQuestion = {
         id: quizQuestions[currentQuestionIndex].id,
         mainQuestion: quizQuestions[currentQuestionIndex].mainQuestion,
         choice: quizQuestions[currentQuestionIndex].choices[selectedChoice],
-        NumberOfQuestion: currentQuestionIndex,
-        statusAnswer: false,
+        NumberOfQuestion: currentQuestionIndex + questionNumber,
+        statusAnswer: true,
         marks: quizQuestions[currentQuestionIndex].marks,
       };
-      setQuizAnswer([...quizAnswer, newQuestion]);
+      setNewArrayQuestion([...newArrayQuestion, newQuestion]);
       setIncorrectAnswer(incorrectAnswer + 1);
     }
 
@@ -207,42 +217,6 @@ function DoQuizz() {
     quizAnswer,
   });
 
-  function getCurrentQuiz() {
-    axios
-      .get(`http://localhost:3000/api/quiz/id/${params.id}`)
-      .then((res) => {
-        setCurrentQuiz(res.data);
-        setQuizQuestions(res.data.quizQuestions);
-      })
-      .catch((error) => {
-        toast.error("Unable to get user");
-      });
-  }
-
-  useEffect(getCurrentQuiz, []);
-  console.log(currentQuiz);
-
-  function handleBreak(e) {
-    e.preventDefault();
-    const resultFilter = quizQuestions?.filter(
-      (question) => !quizAnswer.some((answer) => answer.id === question.id)
-    );
-    const quizAnswers = [...quizAnswer, ...resultFilter];
-
-    axios
-      .post("http://localhost:3000/api/results", {
-        ...dataQuizBreak,
-        answers: quizAnswers,
-      })
-      .then((res) => {
-        toast.success("votre travail a été enregisté😊!");
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
-      });
-  }
   // useEffect(() => {
   //   if (isQuizEnded) {
   //     quizQuestions.forEach((quizQuestion) => {
@@ -253,7 +227,7 @@ function DoQuizz() {
   // }, [isQuizEnded]);
 
   useEffect(() => {
-    if (params == null) {
+    if (saveQuiz == null) {
       navigate("/MyQuizz");
     }
   }, []);
@@ -264,116 +238,123 @@ function DoQuizz() {
 
   return (
     <div>
-      <div className="poopins flex border-3 rounded-sm border-green-100 flex-col px-24 mt-[35px]">
-        <div className="justify-between flex mt-3">
-          <div className="flex text-white justify-center bg-green-600 w-12 h-12 p-2 rounded-md">
-            <CodeRoundedIcon style={{ width: "45px", height: "35px" }} />
-          </div>
-          <div className="flex flex-col gap-1 mr-45">
-            <h2 className="font-extrabold font-mono mt-[-10px] text-[35px]">
-              {name}
-            </h2>
-            <span className="font-lignt font-extrabold mr-45 text-[20px]">
-              {quizQuestions?.length} Questions
-            </span>
-          </div>
-          <div className="flex gap-2 text-bold text-[18px] items-center">
-            <ShutterSpeedRoundedIcon className="text-green-700" />
-            <span>00:00:{parentTimer}</span>
-          </div>
-        </div>
+      <PlayCircleOutlineRoundedIcon
+        onClick={toggleDrawer(true)}
+        className="text-red-500 animate-pulse"
+        style={{
+          height: "40px",
+          width: "40px",
+          animation: "pulse 1.5s infinite ease-in-out",
+        }}
+      />
 
-        <div className="mt-10 flex items-center justify-center">
-          {quizQuestions && quizQuestions.length > 0 ? (
-            <form className="space-y-4 justify-center items-center">
-              <div className="flex justify-center items-center gap-2">
-                <div className="bg-green-500 text-white font-bold text-[20px] flex justify-center items-center rounded-md w-11 h-11">
-                  {currentQuestionIndex + 1}
+      <Drawer
+        anchor="right"
+        open={isOpen}
+        onClose={toggleDrawer(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: "50vw",
+            padding: 2,
+            backgroundColor: "#f5f5f5",
+          },
+        }}
+      >
+        <div className="poopins flex border-3 rounded-sm border-green-100 flex-col px-24 mt-[35px]">
+          <div className="justify-between flex mt-3">
+            <div className="flex text-white justify-center bg-green-600 w-12 h-12 p-2 rounded-md">
+              <CodeRoundedIcon style={{ width: "45px", height: "35px" }} />
+            </div>
+            <div className="flex flex-col gap-1 mr-45">
+              <h2 className="font-extrabold font-mono mt-[-10px] text-[35px]">
+                {name}
+              </h2>
+              <span className="font-lignt font-extrabold mr-45 text-[20px]">
+                {questionOfQuiz?.length} Questions
+              </span>
+            </div>
+            <div className="flex gap-2 text-bold text-[18px] items-center">
+              <ShutterSpeedRoundedIcon className="text-green-700" />
+              <span>00:00:{parentTimer}</span>
+            </div>
+          </div>
+
+          <div className="mt-10 flex items-center justify-center">
+            {quizQuestions && quizQuestions.length > 0 ? (
+              <form className="space-y-4 justify-center items-center">
+                <div className="flex justify-center items-center gap-2">
+                  <div className="bg-green-500 text-white font-bold text-[20px] flex justify-center items-center rounded-md w-11 h-11">
+                    {currentQuestionIndex + currentQuestionIndexBAse}
+                  </div>
+                  <p className="text-[24px] font-semibold font-mono">
+                    {quizQuestions[currentQuestionIndex].mainQuestion}
+                  </p>
                 </div>
-                <p className="text-[24px] font-semibold font-mono">
-                  {quizQuestions[currentQuestionIndex].mainQuestion}
-                </p>
-              </div>
 
-              <div className="mt-7 flex flex-col gap-2">
-                {quizQuestions[currentQuestionIndex].choices.map(
-                  (choice, indexChoice) => (
-                    <div
-                      key={indexChoice}
-                      onClick={() => {
-                        selectedChoiceFunction(indexChoice);
+                <div className="mt-7 flex flex-col gap-2">
+                  {quizQuestions[currentQuestionIndex].choices.map(
+                    (choice, indexChoice) => (
+                      <div
+                        key={indexChoice}
+                        onClick={() => {
+                          selectedChoiceFunction(indexChoice);
+                        }}
+                        className={`p-3 ml-11 w-10/12 border border-green-700 rounded-md text-[18px] font-serif transition-all select-none ${
+                          selectedChoice === indexChoice
+                            ? "bg-white text-black"
+                            : "bg-green-700 text-white hover:bg-white hover:text-black"
+                        }`}
+                      >
+                        {choice}
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="flex justify-center mt-7">
+                  {selectedChoice !== null && (
+                    <button
+                      disabled={isQuizEnded ? true : false}
+                      style={{
+                        backgroundColor: "green",
+                        fontWeight: "bold",
+                        fontSize: "16px",
                       }}
-                      className={`p-3 ml-11 w-10/12 border border-green-700 rounded-md text-[18px] font-serif transition-all select-none ${
-                        selectedChoice === indexChoice
-                          ? "bg-white text-black"
-                          : "bg-green-700 text-white hover:bg-white hover:text-black"
+                      className={`w-1/4 mb-3 bg-blue-500 text-[16px] font-bold text-white py-2 px-2 rounded-sm hover:bg-blue-600 transition duration-200 ${
+                        isQuizEnded ? "opacity-60 hidden" : "opacity-100"
                       }`}
+                      onClick={(e) => {
+                        e.preventDefault(); // Empêche la soumission du formulaire
+                        moveToNextQuestion();
+                      }}
                     >
-                      {choice}
-                    </div>
-                  )
-                )}
-              </div>
-              <div className="flex justify-center mt-7">
-                <button
-                  className=" bg-gray-300 mb-2 mr-4"
-                  onClick={(e) => handleBreak(e)}
-                >
-                  <PauseCircleIcon
-                    className="text-red-500 animate-pulse"
-                    style={{
-                      height: "50px",
-                      width: "50px",
-                      animation: "pulse 10.5s infinite ease-in-out",
-                    }}
-                  />
-                </button>
-
-                {selectedChoice !== null && (
-                  <button
-                    disabled={isQuizEnded ? true : false}
-                    style={{
-                      backgroundColor: "green",
-                      fontWeight: "bold",
-                      fontSize: "16px",
-                    }}
-                    className={`w-1/4 mb-3 bg-blue-500 text-[16px] font-bold text-white py-2 px-2 rounded-sm hover:bg-blue-600 transition duration-200 ${
-                      isQuizEnded ? "opacity-60 hidden" : "opacity-100"
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault(); // Empêche la soumission du formulaire
-                      moveToNextQuestion();
-                    }}
-                  >
-                    {currentQuestionIndex == quizQuestions?.length - 1
-                      ? "Terminer"
-                      : "Suivant"}
-                  </button>
-                )}
-              </div>
-            </form>
-          ) : (
-            <p>Chargement des questions...</p>
+                      {currentQuestionIndex == quizQuestions?.length - 1
+                        ? "Terminer"
+                        : "Suivant"}
+                    </button>
+                  )}
+                </div>
+              </form>
+            ) : (
+              <p>Chargement des questions...</p>
+            )}
+          </div>
+          {isQuizEnded && (
+            <ScorePoppop
+              doQuizzProps={{
+                pointQuiz,
+                newArrayQuestion,
+                totalAttempts,
+                correctAnswer,
+                incorrectAnswer,
+                quizId,
+              }}
+            />
           )}
         </div>
-        {isQuizEnded && (
-          <ScorePoppop
-            doQuizzProps={{
-              pointQuiz,
-              totalAttempts,
-              correctAnswer,
-              incorrectAnswer,
-              quizId,
-              quizAnswer,
-            }}
-          />
-        )}
-      </div>
+      </Drawer>
     </div>
   );
 }
-
-export default DoQuizz;
 
 export function ScorePoppop({ doQuizzProps }) {
   const { user, isLoading } = useAuth();
@@ -385,7 +366,7 @@ export function ScorePoppop({ doQuizzProps }) {
     totalAttempts,
     correctAnswer,
     incorrectAnswer,
-    quizAnswer,
+    newArrayQuestion,
   } = doQuizzProps;
   function emojiIconScore() {
     const emojiFaces = [confusedEmoji, happyEmoji, verryHappyEmoji];
@@ -414,32 +395,29 @@ export function ScorePoppop({ doQuizzProps }) {
   }
 
   const [dataResultQuiz, setDataResultQuiz] = useState({
-    studentId: userId,
     score: score,
     percent: result,
-    quizId: quizId,
     feedback: feedback,
     status: "complete",
-    quizAnswer: quizAnswer,
   });
 
   // Mettre à jour dataResultQuiz lorsque les dépendances changent
   useEffect(() => {
     setDataResultQuiz({
-      studentId: userId,
       score: score,
       percent: result,
-      quizId: quizId,
       feedback: feedback,
       status: "complete",
-      quizAnswer: quizAnswer,
     });
   }, [userId, score, quizId, feedback]);
 
   //envoie des resultas du user en bd
   function handleSubmit() {
     axios
-      .post("http://localhost:3000/api/results", { ...dataResultQuiz })
+      .patch(`http://localhost:3000/api/result/${quizId}/${user?.id}`, {
+        ...dataResultQuiz,
+        answers: newArrayQuestion,
+      })
       .then((res) => {
         toast.success("n'arrêtez pas de vous exercer 😊!");
         setDataResultQuiz({
@@ -449,7 +427,6 @@ export function ScorePoppop({ doQuizzProps }) {
           feedback: "",
           percent: 0,
           status: "complete",
-          quizAnswer:[]
         });
         navigate("/");
       })

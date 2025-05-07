@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth";
+import ResumeQuiz from "./ResumeQuiz";
 
 // Définir les types pour notre application
 interface QuizQuestion {
@@ -24,6 +25,8 @@ function QuizzCard({ singleQuiz }) {
   const [successRate, setSuccessRate] = useState(0);
 
   const [doQuizStatus, setDoQuizStatus] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [saveQuiz, setSaveQuiz] = useState({})
 
   const [dateTime, setDateTime] = useState(new Date());
   const [isStarted, setIsStarted] = useState(false);
@@ -134,29 +137,39 @@ function QuizzCard({ singleQuiz }) {
 
       try {
         // Vérifier si l'utilisateur a fait ce quiz
-        const userResult = await axios.get(`http://localhost:3000/api/results/${user.id}/${singleQuiz.id}`)
-          .then(res => {
-            setDoQuizStatus(true);
+        const userResult = await axios
+          .get(`http://localhost:3000/api/results/${user.id}/${singleQuiz.id}`)
+          .then((res) => {
+            setSaveQuiz(res.data)
+            if (res.data.status == "pending") {
+              setIsPending(true);
+            } else {
+              setDoQuizStatus(true);
+            }
             return res.data;
           })
-          .catch(error => {
+          .catch((error) => {
             if (error.response?.status === 404) {
               setDoQuizStatus(false);
             } else {
-              console.error("Erreur lors de la vérification du statut du quiz:", error);
+              console.error(
+                "Erreur lors de la vérification du statut du quiz:",
+                error
+              );
             }
             return null;
           });
 
         // Récupérer tous les résultats du quiz (même si l'utilisateur ne l'a pas fait)
-        const allResults = await axios.get(`http://localhost:3000/api/results/quizId/${singleQuiz.id}`)
-          .then(res => {
+        const allResults = await axios
+          .get(`http://localhost:3000/api/results/quizId/${singleQuiz.id}`)
+          .then((res) => {
             if (res.data && Array.isArray(res.data)) {
               return res.data;
             }
             return [];
           })
-          .catch(error => {
+          .catch((error) => {
             if (error.response?.status === 404) {
               return []; // Retourner un tableau vide si aucun résultat
             }
@@ -164,7 +177,6 @@ function QuizzCard({ singleQuiz }) {
           });
 
         setResultsScore(allResults);
-
       } catch (error) {
         console.error("Erreur lors de la récupération des résultats:", error);
         setResultsScore([]);
@@ -252,6 +264,7 @@ function QuizzCard({ singleQuiz }) {
               : "bg-green-600 cursor-pointer hover:bg-green-500 hover:scale-110"
           } transition-all duration-300 shadow-md`}
         >
+          {" "}
           {doQuizStatus ? (
             <PlayCircleOutlineRoundedIcon
               className="text-gray-400"
@@ -260,6 +273,8 @@ function QuizzCard({ singleQuiz }) {
                 width: "40px",
               }}
             />
+          ) : isPending ? (
+            <ResumeQuiz saveQuiz={saveQuiz} />
           ) : (
             <Link to={"/quizStart/" + singleQuiz.id} className="text-white">
               <PlayCircleOutlineRoundedIcon
