@@ -6,6 +6,8 @@ import AdsClickRoundedIcon from "@mui/icons-material/AdsClickRounded";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../../hooks/useAuth";
+import ResumeQuiz from "./ResumeQuiz";
 
 // Définir les types pour notre application
 interface QuizQuestion {
@@ -17,26 +19,14 @@ interface Result {
   percent?: number;
 }
 
-// function successRate(singleQuiz) {
-//   let correctQuestions = 0;
-//   let totalAttemptes = 0;
-//   let successRate = 0;
-
-//   singleQuiz.quizQuestions.forEach((question) => {
-//     totalAttemptes += question.statistics.totalAttempts;
-//     correctQuestions += question.statistics.correctAttempts;
-//   });
-
-//   successRate = Math.ceil((correctQuestions / totalAttemptes) * 100);
-//   return successRate;
-// }
-
 function QuizzCard({ singleQuiz }) {
+  const { user, isLoading } = useAuth();
   const [ResultsScore, setResultsScore] = useState<Result[]>([]);
   const [successRate, setSuccessRate] = useState(0);
 
-  const [userData, setUserData] = useState<any>(null);
   const [doQuizStatus, setDoQuizStatus] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [saveQuiz, setSaveQuiz] = useState({});
 
   const [dateTime, setDateTime] = useState(new Date());
   const [isStarted, setIsStarted] = useState(false);
@@ -140,55 +130,61 @@ function QuizzCard({ singleQuiz }) {
     }
   }, [singleQuiz, dateTime]);
 
-  // Récupérer les données utilisateur depuis localStorage
+  // Récupérer les résultats et le statut du quiz avec meilleure gestion des erreurs
   useEffect(() => {
-    try {
-      const datasUser = localStorage.getItem("users");
-      if (datasUser) {
-        const parsedData = JSON.parse(datasUser);
-        setUserData(parsedData);
+    const fetchResults = async () => {
+      if (!singleQuiz?.id || !user?.id) return;
+
+      try {
+        // Vérifier si l'utilisateur a fait ce quiz
+        const userResult = await axios
+          .get(`http://localhost:3000/api/results/${user.id}/${singleQuiz.id}`)
+          .then((res) => {
+            setSaveQuiz(res.data);
+            if (res.data.status == "pending") {
+              setIsPending(true);
+            } else {
+              setDoQuizStatus(true);
+            }
+            return res.data;
+          })
+          .catch((error) => {
+            if (error.response?.status === 404) {
+              setDoQuizStatus(false);
+            } else {
+              console.error(
+                "Erreur lors de la vérification du statut du quiz:",
+                error
+              );
+            }
+            return null;
+          });
+
+        // Récupérer tous les résultats du quiz (même si l'utilisateur ne l'a pas fait)
+        const allResults = await axios
+          .get(`http://localhost:3000/api/results/quizId/${singleQuiz.id}`)
+          .then((res) => {
+            if (res.data && Array.isArray(res.data)) {
+              return res.data;
+            }
+            return [];
+          })
+          .catch((error) => {
+            if (error.response?.status === 404) {
+              return []; // Retourner un tableau vide si aucun résultat
+            }
+            throw error; // Propager les autres erreurs
+          });
+
+        setResultsScore(allResults);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des résultats:", error);
+        setResultsScore([]);
       }
-    } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données utilisateur:",
-        error
-      );
-    }
-  }, []);
+    };
 
-  // Récupérer les résultats du quiz
-  useEffect(() => {
-    if (singleQuiz && singleQuiz.id) {
-      axios
-        .get(`http://localhost:3000/results?quizId=${singleQuiz.id}`)
-        .then((res) => {
-          setResultsScore(res.data);
-        })
-        .catch((error) => {
-          console.error("Erreur lors de la récupération des résultats:", error);
-          toast.error("Impossible de récupérer les résultats");
-        });
-    }
-  }, [singleQuiz.id]);
-
-  // Vérifier si l'utilisateur a déjà fait ce quiz
-  useEffect(() => {
-    if (userData && userData.id && singleQuiz && singleQuiz.id) {
-      axios
-        .get(
-          `http://localhost:3000/results?studentId=${userData.id}&quizId=${singleQuiz.id}`
-        )
-        .then((res) => {
-          setDoQuizStatus(res.data.length > 0);
-        })
-        .catch((error) => {
-          console.error(
-            "Erreur lors de la vérification du statut du quiz:",
-            error
-          );
-        });
-    }
-  }, [userData, singleQuiz.id]);
+    fetchResults();
+  }, [user?.id, singleQuiz?.id]);
 
   // Calculer le taux de succès moyen à partir des résultats
   useEffect(() => {
@@ -211,8 +207,23 @@ function QuizzCard({ singleQuiz }) {
   // Utiliser le taux de succès calculé à partir des résultats
   const globalSuccessRate = successRate || 0;
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-between p-4 bg-white shadow">
+        <div className="animate-pulse flex space-x-4">
+          <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+          <div className="space-y-2">
+            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+            <div className="h-4 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
+      style={{ height: "auto" }}
       className={`rounded-md flex flex-col gap-2 border-3 border-gray-400 bg-gradient-to-br from-green-700 to-green-900 text-white p-6 relative shadow-lg hover:shadow-xl transition-all duration-300`}
     >
       {/* Info icon positioned at top right */}
@@ -253,6 +264,7 @@ function QuizzCard({ singleQuiz }) {
               : "bg-green-600 cursor-pointer hover:bg-green-500 hover:scale-110"
           } transition-all duration-300 shadow-md`}
         >
+          {" "}
           {doQuizStatus ? (
             <PlayCircleOutlineRoundedIcon
               className="text-gray-400"
@@ -261,6 +273,8 @@ function QuizzCard({ singleQuiz }) {
                 width: "40px",
               }}
             />
+          ) : isPending ? (
+            <ResumeQuiz saveQuiz={saveQuiz} />
           ) : (
             <Link to={"/quizStart/" + singleQuiz.id} className="text-white">
               <PlayCircleOutlineRoundedIcon
@@ -278,7 +292,7 @@ function QuizzCard({ singleQuiz }) {
       <div className="relative bg-opacity-25 w-full flex justify-center rounded-md py-1">
         {isActiv && (
           <div className="absolute top-[-10px] text-[20px] font-extrabold justify-center cursor-pointer hover:opacity-80 transition-opacity z-10 animate-color-change">
-            Fin dans {`${day}J ${hours}H ${min}Min`}
+            restant {`${day}J ${hours}H ${min}Min`}
           </div>
         )}
       </div>
