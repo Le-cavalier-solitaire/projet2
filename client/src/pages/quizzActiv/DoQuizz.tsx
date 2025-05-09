@@ -16,7 +16,7 @@ function DoQuizz() {
   const params = useParams();
   const navigate = useNavigate();
   const name = currentQuiz[0]?.name;
-  const quizQuestions = currentQuiz[0]?.quizQuestions;
+  const [quizQuestions, setQuizQuestions ]= useState(currentQuiz[0]?.quizQuestions);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [indexOfQuizzSelected, setIndexOfQuizzSelected] = useState(params.id);
@@ -132,10 +132,11 @@ function DoQuizz() {
       setIsQuizEnded(true);
       return;
     }
+    setQuizQuestions([...currentQuiz.quizQuestions[currentQuestionIndex], selectedChoice])
     setCurrentQuestionIndex((current) => current + 1);
     setSelectedChoice(null);
   }
-  console.log({ pointQuiz, totalAttempts, correctAnswer, incorrectAnswer });
+  console.log({ pointQuiz, totalAttempts, correctAnswer, incorrectAnswer, currentQuiz});
 
   function getCurrentQuiz() {
     axios

@@ -273,8 +273,8 @@ function QuizzCard({ singleQuiz }) {
                 width: "40px",
               }}
             />
-          ) : isPending ? (
-            <ResumeQuiz saveQuiz={saveQuiz} />
+          ) : isPending ? (1
+            // <ResumeQuiz saveQuiz={saveQuiz} />
           ) : (
             <Link to={"/quizStart/" + singleQuiz.id} className="text-white">
               <PlayCircleOutlineRoundedIcon
