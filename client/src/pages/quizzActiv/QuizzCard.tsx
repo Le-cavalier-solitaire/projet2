@@ -276,7 +276,7 @@ function QuizzCard({ singleQuiz }) {
           ) : isPending ? (1
             // <ResumeQuiz saveQuiz={saveQuiz} />
           ) : (
-            <Link to={"/quizStart/" + singleQuiz.id} className="text-white">
+            <Link to={"/quizStart/" + singleQuiz.id + "/" + isPending} className="text-white">
               <PlayCircleOutlineRoundedIcon
                 className="text-red-500 animate-pulse"
                 style={{

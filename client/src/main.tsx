@@ -15,6 +15,7 @@ import EditModal from "./pages/dashboard/EditModal.tsx";
 import { Toaster } from "react-hot-toast";
 import QuizzList from "./pages/quizz/QuizzList.tsx";
 import MyQuizz from "./pages/quizzActiv/MyQuizz.tsx";
+import DoQuizz from "./pages/quizzActiv/DoQuizz.tsx";
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("token");
@@ -62,6 +63,14 @@ const App = () => {
       path: "/MyQuizz",
       element: isAuthenticated() ? (
         <MyQuizz />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+    {
+      path: "/quizStart/:id/:status",
+      element: isAuthenticated() ? (
+        <DoQuizz />
       ) : (
         <Navigate to="/login" replace />
       ),

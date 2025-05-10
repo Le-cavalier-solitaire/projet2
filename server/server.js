@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const jsonServer = require("json-server");
 const server = jsonServer.create();
 const path = require("path");
+const { error } = require("console");
 const router = jsonServer.router(path.join(__dirname, "db.json"));
 const middlewares = jsonServer.defaults();
 const port = 3000;
@@ -214,23 +215,43 @@ server.get("/api/quiz", (req, res) => {
   }
 });
 
+//recupérer un quiz donné
+server.get("/api/quiz/id/:id", (req, res) => {
+  try {
+    const quizId = req.params.id;
+    console.log(quizId);
+    const quizs = router.db.get("quiz").value();
+    const currentQUiz = quizs.find((quiz) => quiz.id == quizId);
+    console.log(currentQUiz);
+
+    if (!quizs || quizs.length === 0) {
+      console.log("le at.........");
+    }
+    res.json(currentQUiz || []);
+  } catch (error) {
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
+});
+
 // route pour recupérer les quizs d'un user donnée
 server.get("/api/quiz/authorId/:userId", (req, res) => {
   try {
     const userId = req.params.userId;
     console.log("Recherche des quizs pour l'utilisateur:", userId);
-    
+
     // Vérifier si l'utilisateur existe
     const users = router.db.get("users").value();
-    const user = users.find(u => u.id === userId);
+    const user = users.find((u) => u.id === userId);
     if (!user) {
       console.log("Utilisateur non trouvé");
       return res.status(404).json({ error: "Utilisateur non trouvé" });
     }
-    
+
     const quizs = router.db.get("quiz").value();
     console.log("Tous les quizs:", quizs);
-    
+
     const quizsUserId = quizs.filter((quiz) => {
       // Ne pas inclure les quizs sans authorId
       if (!quiz.authorId) {
@@ -241,7 +262,7 @@ server.get("/api/quiz/authorId/:userId", (req, res) => {
         userId: userId,
         typeQuizAuthorId: typeof quiz.authorId,
         typeUserId: typeof userId,
-        match: quiz.authorId === userId
+        match: quiz.authorId === userId,
       });
       return quiz.authorId === userId;
     });
@@ -291,27 +312,160 @@ server.put("/api/addQuestions/:id", (req, res) => {
   const afterUpdate = quizs.value()[quizIndex];
 
   res.status(200).json({ success: true, quiz: updatedQuiz });
-  // console.log({ quizArray });
-  // const currentQuiz = quizArray.find((quiz) => quiz.id == quizId);
-  // console.log(currentQuiz);
-  // if (currentQuiz.length == 0) {
-  //   console.log("quiz non trouvé :", quizId);
+});
 
-  //   return res.status(404).json({ error: "quiz non trouvé", id: quizId });
-  // }
+//route pour ajouter les resultats d'un quiz
+server.post("/api/result", (req, res) => {
+  try {
+    const currentResult = req.body;
+    const results = router.db("result.body").value();
+    results.push(currentResult).write();
+    res.status(201).json(currentResult);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des quizs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des quizs",
+    });
+  }
+});
 
-  // const newQuiz = {
-  //   ...currentQuiz,
-  //   ...formQuestions,
-  // };
-  // console.log({ newQuiz });
-  // // Récupérer l'utilisateur actuel et fusionner les nouvelles données
-  // const updatedquiz = { ...quizArray, newQuiz };
+//route pour mettre à jour les données d'un resultat à jour apres avoir completé la sauvegarde
+server.patch("/api/result/:quizId/:userId/", (req, res) => {
+  const newresultData = req.body;
+  const { userId, quizId } = req.params;
+  const results = router.db.get("results").value();
 
-  // // Mettre à jour l'utilisateur dans l'objet lowdb
-  // quizs.push(updatedquiz).write();
+  const resultIndex = results.findIndex(
+    (result) => result.studentId === userId && result.quizId === quizId
+  );
 
-  // res.status(200).json({ success: true, quiz: updatedquiz });
+  if (resultIndex === -1) {
+    return res.status(404).json({ error: "Résultat non trouvé", id: quizId });
+  }
+
+  const currentResult = results[resultIndex];
+  const updatedAnswers = [
+    ...currentResult.answers.filter(
+      (existing) =>
+        !newresultData.answers.some((newItem) => newItem.id === existing.id)
+    ),
+    ...newresultData.answers,
+  ];
+
+  const updatedResult = {
+    ...currentResult,
+    ...newresultData,
+    quizId,
+    studentId: userId,
+    answers: updatedAnswers, // Utiliser le tableau fusionné
+  };
+
+  // Correction : utiliser lowdb pour la mise à jour
+  router.db.get("results").splice(resultIndex, 1, updatedResult).write();
+
+  res.status(200).json({ success: true, result: updatedResult });
+});
+
+// Route pour récupérer tous les résultats d'un quiz spécifique
+server.get("/api/results/quizId/:quizId", (req, res) => {
+  const { quizId } = req.params;
+  console.log("Recherche de tous les résultats pour le quiz:", quizId);
+  const results = router.db.get("results").value();
+
+  const quizResults = results.filter((result) => result.quizId === quizId);
+  console.log("Résultats trouvés:", quizResults.length);
+
+  if (quizResults.length === 0) {
+    return res
+      .status(404)
+      .json({ message: "Aucun résultat trouvé pour ce quiz" });
+  }
+
+  res.json(quizResults);
+});
+
+//route pour recuperer un resultat avec les filtres userId et quizId
+server.get("/api/results/:userId/:quizId", (req, res) => {
+  const { userId, quizId } = req.params;
+  console.log("Recherche de résultats pour:", { userId, quizId });
+  const results = router.db.get("results").value();
+  console.log("Résultats disponibles:", results);
+  console.log("Recherche avec studentId:", userId, "et quizId:", quizId);
+  console.log(
+    "Résultats disponibles:",
+    results.map((r) => ({ studentId: r.studentId, quizId: r.quizId }))
+  );
+
+  const quizPassedByUser = results.find((result) => {
+    const studentIdMatch = result.studentId === userId;
+    const quizIdMatch = result.quizId === quizId;
+    console.log("Comparaison:", {
+      resultStudentId: result.studentId,
+      studentIdMatch,
+      resultQuizId: result.quizId,
+      quizIdMatch,
+    });
+    return studentIdMatch && quizIdMatch;
+  });
+
+  console.log("Résultat trouvé:", quizPassedByUser);
+  if (quizPassedByUser) {
+    res.json(quizPassedByUser); // Renvoyer directement le résultat
+  } else {
+    res.status(404).json({ error: "aucun resultat disponible pour le moment" });
+  }
+});
+//route pour obtenir les resultats d'un quiz donné
+server.get("/api/results/quizId/:singleQuizID", (req, res) => {
+  try {
+    const quizId = req.params.singleQuizID;
+    console.log("ID reçu du client:", {
+      id: quizId,
+      type: typeof quizId,
+      length: quizId.length,
+    });
+
+    const results = router.db.get("results").value();
+
+    // Afficher les détails de chaque ID de quiz dans les résultats
+    results.forEach((result) => {
+      if (result.quizId) {
+        console.log("ID dans la base:", {
+          id: result.quizId,
+          type: typeof result.quizId,
+          length: result.quizId.length,
+        });
+      }
+    });
+
+    const resultsData = results.filter((result) => {
+      if (!result.quizId) return false;
+
+      // Vérifier si les IDs sont exactement identiques
+      const exactMatch = result.quizId === quizId;
+      console.log(
+        `Comparaison exacte entre ${result.quizId} et ${quizId}: ${exactMatch}`
+      );
+
+      return exactMatch;
+    });
+
+    console.log("Résultats filtrés:", resultsData);
+
+    if (!resultsData || resultsData.length === 0) {
+      console.log("Aucun résultat trouvé dans la base de données");
+      return res
+        .status(404)
+        .json({ error: "Aucun résultat disponible pour ce quiz" });
+    }
+
+    res.json(resultsData || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des resultat:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
 });
 
 // Exemple 2: Route pour obtenir les produits en stock

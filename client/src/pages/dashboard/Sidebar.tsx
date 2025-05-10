@@ -41,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
       icon: CloseFullscreenIcon,
       text: "Branch List",
       autorised: "Teacher",
-      path: "",
+      path: "branch",
       status: false,
     },
     {
@@ -62,21 +62,21 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
       icon: NotesIcon,
       text: "Results",
       autorised: "any",
-      path: "",
+      path: "result",
       status: false,
     },
     {
       icon: BarChartIcon,
       text: "Statistics",
       autorised: "any",
-      path: "",
+      path: "statistic",
       status: false,
     },
     {
       icon: CircleNotificationsIcon,
       text: "Notifications",
       autorised: "any",
-      path: "",
+      path: "notification",
       status: false,
     },
   ]);

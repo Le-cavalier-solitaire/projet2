@@ -10,13 +10,16 @@ import incorrectanswerImg from "../../assets/incorrect-answer.png";
 import confusedEmoji from "../../assets/confusedEmoji.png";
 import happyEmoji from "../../assets/happyEmoji.png";
 import verryHappyEmoji from "../../assets/verryHappyEmoji.png";
+import { useAuth } from "../../hooks/useAuth";
+import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 
 function DoQuizz() {
   const [currentQuiz, setCurrentQuiz] = useState([]);
+  const [quizAnswer, setQuizAnswer] = useState([]);
   const params = useParams();
   const navigate = useNavigate();
-  const name = currentQuiz[0]?.name;
-  const [quizQuestions, setQuizQuestions ]= useState(currentQuiz[0]?.quizQuestions);
+  const name = currentQuiz?.name;
+  const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [indexOfQuizzSelected, setIndexOfQuizzSelected] = useState(params.id);
@@ -29,6 +32,29 @@ function DoQuizz() {
   const [parentTimer, setParentTimer] = useState(60); // Valeur par défaut
   const intervalRef = useRef<number | null>(null);
   const quizId = params.id;
+  const statusIsPending = params.status;
+  const { user, isLoading } = useAuth();
+  const [dataQuizBreak, setDataQuizBreak] = useState({
+    name: name,
+    quizId: quizId,
+    studentId: user?.id,
+    status: "pending",
+    totalAttempts: totalAttempts,
+    correctAnswer: correctAnswer,
+    incorrectAnswer: incorrectAnswer,
+    pointQuiz: pointQuiz,
+  });
+  useEffect(() => {
+    setDataQuizBreak((prev) => ({
+      ...prev,
+      studentId: user?.id || prev.studentId,
+      totalAttempts: totalAttempts,
+      correctAnswer: correctAnswer,
+      incorrectAnswer: incorrectAnswer,
+      pointQuiz: pointQuiz,
+    }));
+  }, [totalAttempts, correctAnswer, incorrectAnswer, user?.id, pointQuiz]);
+
   // Mettre à jour les timers lorsque quizQuestions est disponible
   useEffect(() => {
     if (quizQuestions && quizQuestions.length > 0) {
@@ -53,11 +79,31 @@ function DoQuizz() {
       if (
         selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
       ) {
+        const updatedQuiz = { ...currentQuiz };
+
+        // Mettre à jour la réponse de la question actuelle
+        updatedQuiz.quizQuestions[currentQuestionIndex] = {
+          ...updatedQuiz.quizQuestions[currentQuestionIndex],
+          userAnswer: selectedChoice,
+        };
+
+        // Mettre à jour le state
+        setCurrentQuiz(updatedQuiz);
         setTotalAttempts(
           totalAttempts + quizQuestions[currentQuestionIndex].marks
         );
         setCorrectAnswer(correctAnswer + 1);
       } else {
+        const updatedQuiz = { ...currentQuiz };
+
+        // Mettre à jour la réponse de la question actuelle
+        updatedQuiz.quizQuestions[currentQuestionIndex] = {
+          ...updatedQuiz.quizQuestions[currentQuestionIndex],
+          userAnswer: selectedChoice,
+        };
+
+        // Mettre à jour le state
+        setCurrentQuiz(updatedQuiz);
         setIncorrectAnswer(incorrectAnswer + 1);
       }
       setSelectedChoice(null);
@@ -115,12 +161,34 @@ function DoQuizz() {
   }, [currentQuestionIndex, isQuizEnded]); // Réinitialiser le timer quand on change de question ou que le quiz se termine
 
   function moveToNextQuestion() {
-    if (selectedChoice == quizQuestions[currentQuestionIndex].correctAnswer) {
+    if (
+      selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
+    ) {
       setTotalAttempts(
         totalAttempts + quizQuestions[currentQuestionIndex].marks
       );
+      const updatedQuiz = { ...currentQuiz };
+
+      // Mettre à jour la réponse de la question actuelle
+      updatedQuiz.quizQuestions[currentQuestionIndex] = {
+        ...updatedQuiz.quizQuestions[currentQuestionIndex],
+        userAnswer: selectedChoice,
+      };
+
+      // Mettre à jour le state
+      setCurrentQuiz(updatedQuiz);
       setCorrectAnswer(correctAnswer + 1);
     } else {
+      const updatedQuiz = { ...currentQuiz };
+
+      // Mettre à jour la réponse de la question actuelle
+      updatedQuiz.quizQuestions[currentQuestionIndex] = {
+        ...updatedQuiz.quizQuestions[currentQuestionIndex],
+        userAnswer: selectedChoice,
+      };
+
+      // Mettre à jour le state
+      setCurrentQuiz(updatedQuiz);
       setIncorrectAnswer(incorrectAnswer + 1);
     }
 
@@ -132,25 +200,71 @@ function DoQuizz() {
       setIsQuizEnded(true);
       return;
     }
-    setQuizQuestions([...currentQuiz.quizQuestions[currentQuestionIndex], selectedChoice])
     setCurrentQuestionIndex((current) => current + 1);
     setSelectedChoice(null);
   }
-  console.log({ pointQuiz, totalAttempts, correctAnswer, incorrectAnswer, currentQuiz});
+  console.log({
+    pointQuiz,
+    totalAttempts,
+    correctAnswer,
+    incorrectAnswer,
+  });
 
   function getCurrentQuiz() {
-    axios
-      .get(`http://localhost:3000/quiz?id=${params.id}`)
-      .then((res) => {
-        setCurrentQuiz(res.data);
-      })
-      .catch((error) => {
-        toast.error("Unable to get user");
-      });
+    if (statusIsPending) {
+      axios
+        .get(`http://localhost:3000/api/results/${user?.id}/${params.id}`)
+        .then((res) => {
+          setCurrentQuiz(res.data);
+          setQuizQuestions(res.data.quizQuestions);
+        })
+        .catch((error) => {
+          if (error.response?.status === 404) {
+          } else {
+            console.error(
+              "Erreur lors de la vérification du statut du quiz:",
+              error
+            );
+          }
+          return null;
+        });
+    } else {
+      axios
+        .get(`http://localhost:3000/api/quiz/id/${params.id}`)
+        .then((res) => {
+          setCurrentQuiz(res.data);
+          setQuizQuestions(res.data.quizQuestions);
+        })
+        .catch((error) => {
+          toast.error("Unable to get quiz");
+        });
+    }
   }
 
   useEffect(getCurrentQuiz, []);
+  console.log(currentQuiz);
 
+  function handleBreak(e) {
+    e.preventDefault();
+    const resultFilter = quizQuestions?.filter(
+      (question) => !quizAnswer.some((answer) => answer.id === question.id)
+    );
+    const quizAnswers = [...quizAnswer, ...resultFilter];
+
+    axios
+      .post("http://localhost:3000/api/results", {
+        ...dataQuizBreak,
+        answers: quizAnswers,
+      })
+      .then((res) => {
+        toast.success("votre travail a été enregisté😊!");
+        navigate("/");
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("une erreur est survenue");
+      });
+  }
   // useEffect(() => {
   //   if (isQuizEnded) {
   //     quizQuestions.forEach((quizQuestion) => {
@@ -223,6 +337,20 @@ function DoQuizz() {
                 )}
               </div>
               <div className="flex justify-center mt-7">
+                <button
+                  className=" bg-gray-300 mb-2 mr-4"
+                  onClick={(e) => handleBreak(e)}
+                >
+                  <PauseCircleIcon
+                    className="text-red-500 animate-pulse"
+                    style={{
+                      height: "50px",
+                      width: "50px",
+                      animation: "pulse 10.5s infinite ease-in-out",
+                    }}
+                  />
+                </button>
+
                 {selectedChoice !== null && (
                   <button
                     disabled={isQuizEnded ? true : false}
@@ -257,6 +385,7 @@ function DoQuizz() {
               totalAttempts,
               correctAnswer,
               incorrectAnswer,
+              currentQuiz,
               quizId,
             }}
           />
@@ -269,19 +398,17 @@ function DoQuizz() {
 export default DoQuizz;
 
 export function ScorePoppop({ doQuizzProps }) {
-  const [userData, setUserData] = useState([]);
-  function getDataUsers() {
-    const datasUser = localStorage.getItem("users");
-    if (datasUser) {
-      setUserData(JSON.parse(datasUser));
-    }
-  }
-
-  useEffect(getDataUsers, []);
+  const { user, isLoading } = useAuth();
 
   const navigate = useNavigate();
-  const { quizId, pointQuiz, totalAttempts, correctAnswer, incorrectAnswer } =
-    doQuizzProps;
+  const {
+    pointQuiz,
+    totalAttempts,
+    correctAnswer,
+    incorrectAnswer,
+    currentQuiz,
+    quizId,
+  } = doQuizzProps;
   function emojiIconScore() {
     const emojiFaces = [confusedEmoji, happyEmoji, verryHappyEmoji];
     const result = (totalAttempts / pointQuiz) * 100;
@@ -296,7 +423,7 @@ export function ScorePoppop({ doQuizzProps }) {
 
   const result = (totalAttempts / pointQuiz) * 100;
   const score = `${totalAttempts}/${pointQuiz}`;
-  const userId = userData?.id || "";
+  const userId = user?.id;
   let feedback = "";
 
   // Déterminer le feedback en fonction du résultat
@@ -312,8 +439,8 @@ export function ScorePoppop({ doQuizzProps }) {
     studentId: userId,
     score: score,
     percent: result,
-    quizId: quizId,
     feedback: feedback,
+    status: "complete",
   });
 
   // Mettre à jour dataResultQuiz lorsque les dépendances changent
@@ -322,15 +449,23 @@ export function ScorePoppop({ doQuizzProps }) {
       studentId: userId,
       score: score,
       percent: result,
-      quizId: quizId,
       feedback: feedback,
+      status: "complete",
     });
-  }, [userId, score, quizId, feedback]);
+  }, [userId, score, feedback]);
 
   //envoie des resultas du user en bd
   function handleSubmit() {
     axios
-      .post("http://localhost:3000/results", { ...dataResultQuiz })
+      .post("http://localhost:3000/api/results", {
+        studentId: userId,
+        score: score,
+        percent: result,
+        feedback: feedback,
+        status: "complete",
+        quizId: quizId,
+        ...currentQuiz,
+      })
       .then((res) => {
         toast.success("n'arrêtez pas de vous exercer 😊!");
         setDataResultQuiz({
@@ -339,6 +474,8 @@ export function ScorePoppop({ doQuizzProps }) {
           quizId: "",
           feedback: "",
           percent: 0,
+          status: "complete",
+          quizAnswer: [],
         });
         navigate("/");
       })
