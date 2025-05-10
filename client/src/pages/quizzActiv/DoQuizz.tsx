@@ -57,9 +57,9 @@ function DoQuizz() {
 
   // Mettre à jour les timers lorsque quizQuestions est disponible
   useEffect(() => {
-    if (quizQuestions && quizQuestions.length > 0) {
-      setTimer(quizQuestions[currentQuestionIndex].time);
-      setParentTimer(quizQuestions[currentQuestionIndex].time);
+    if (quizQuestions?.length > 0) {
+      setTimer(quizQuestions[currentQuestionIndex]?.time || 60);
+      setParentTimer(quizQuestions[currentQuestionIndex]?.time || 60);
     }
   }, [quizQuestions, currentQuestionIndex]);
 
@@ -76,16 +76,32 @@ function DoQuizz() {
 
   useEffect(() => {
     if (timer == 0 && !isQuizEnded) {
+      if (!selectedChoice) {
+        const updatedQuiz = { ...currentQuiz };
+
+        // Mettre à jour la réponse de la question actuelle
+        if (quizQuestions?.length > currentQuestionIndex) {
+          updatedQuiz.quizQuestions[currentQuestionIndex] = {
+            ...updatedQuiz.quizQuestions[currentQuestionIndex],
+            userAnswer: -1,
+          };
+        }
+
+        // Mettre à jour le state
+        setCurrentQuiz(updatedQuiz);
+      }
       if (
         selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
       ) {
         const updatedQuiz = { ...currentQuiz };
 
         // Mettre à jour la réponse de la question actuelle
-        updatedQuiz.quizQuestions[currentQuestionIndex] = {
-          ...updatedQuiz.quizQuestions[currentQuestionIndex],
-          userAnswer: selectedChoice,
-        };
+        if (quizQuestions?.length > currentQuestionIndex) {
+          updatedQuiz.quizQuestions[currentQuestionIndex] = {
+            ...updatedQuiz.quizQuestions[currentQuestionIndex],
+            userAnswer: selectedChoice,
+          };
+        }
 
         // Mettre à jour le state
         setCurrentQuiz(updatedQuiz);
@@ -97,10 +113,12 @@ function DoQuizz() {
         const updatedQuiz = { ...currentQuiz };
 
         // Mettre à jour la réponse de la question actuelle
-        updatedQuiz.quizQuestions[currentQuestionIndex] = {
-          ...updatedQuiz.quizQuestions[currentQuestionIndex],
-          userAnswer: selectedChoice,
-        };
+        if (quizQuestions?.length > currentQuestionIndex) {
+          updatedQuiz.quizQuestions[currentQuestionIndex] = {
+            ...updatedQuiz.quizQuestions[currentQuestionIndex],
+            userAnswer: selectedChoice,
+          };
+        }
 
         // Mettre à jour le state
         setCurrentQuiz(updatedQuiz);
@@ -170,10 +188,12 @@ function DoQuizz() {
       const updatedQuiz = { ...currentQuiz };
 
       // Mettre à jour la réponse de la question actuelle
-      updatedQuiz.quizQuestions[currentQuestionIndex] = {
-        ...updatedQuiz.quizQuestions[currentQuestionIndex],
-        userAnswer: selectedChoice,
-      };
+      if (quizQuestions?.length > currentQuestionIndex) {
+        updatedQuiz.quizQuestions[currentQuestionIndex] = {
+          ...updatedQuiz.quizQuestions[currentQuestionIndex],
+          userAnswer: selectedChoice,
+        };
+      }
 
       // Mettre à jour le state
       setCurrentQuiz(updatedQuiz);
@@ -182,10 +202,12 @@ function DoQuizz() {
       const updatedQuiz = { ...currentQuiz };
 
       // Mettre à jour la réponse de la question actuelle
-      updatedQuiz.quizQuestions[currentQuestionIndex] = {
-        ...updatedQuiz.quizQuestions[currentQuestionIndex],
-        userAnswer: selectedChoice,
-      };
+      if (quizQuestions?.length > currentQuestionIndex) {
+        updatedQuiz.quizQuestions[currentQuestionIndex] = {
+          ...updatedQuiz.quizQuestions[currentQuestionIndex],
+          userAnswer: selectedChoice,
+        };
+      }
 
       // Mettre à jour le state
       setCurrentQuiz(updatedQuiz);
@@ -210,51 +232,53 @@ function DoQuizz() {
     incorrectAnswer,
   });
 
-  function getCurrentQuiz() {
-    if (statusIsPending) {
-      axios
-        .get(`http://localhost:3000/api/results/${user?.id}/${params.id}`)
-        .then((res) => {
-          setCurrentQuiz(res.data);
-          setQuizQuestions(res.data.quizQuestions);
-        })
-        .catch((error) => {
-          if (error.response?.status === 404) {
-          } else {
-            console.error(
-              "Erreur lors de la vérification du statut du quiz:",
-              error
-            );
-          }
-          return null;
-        });
-    } else {
-      axios
-        .get(`http://localhost:3000/api/quiz/id/${params.id}`)
-        .then((res) => {
-          setCurrentQuiz(res.data);
-          setQuizQuestions(res.data.quizQuestions);
-        })
-        .catch((error) => {
-          toast.error("Unable to get quiz");
-        });
-    }
-  }
+  useEffect(() => {
+    const getCurrentQuiz = () => {
+      if (statusIsPending) {
+        axios.get(`http://localhost:3000/api/results/${user?.id}/${params.id}`)
+          .then((res) => {  setCurrentQuiz(res.data);
+            setQuizQuestions(res.data.quizQuestions);})
+          .catch((error) => {
+            if (error.response?.status === 404) {
+            } else {
+              console.error(
+                "Erreur lors de la vérification du statut du quiz:",
+                error
+              );
+            }
+            return null;
+          });
+      } else {
+        axios.get(`http://localhost:3000/api/quiz/id/${params.id}`)
+          .then((res) => {
+            setCurrentQuiz(res.data);
+            setQuizQuestions(res.data.quizQuestions);
+          })
+          .catch((error) => {
+            toast.error("Unable to get quiz");
+          });
+      }
+    };
 
-  useEffect(getCurrentQuiz, []);
+    // Exécuter SEULEMENT si user.id et params.id existent
+    if (user?.id && params.id) {
+      getCurrentQuiz();
+    }
+  }, [user?.id, params.id, statusIsPending]); 
+
+
+  
   console.log(currentQuiz);
 
   function handleBreak(e) {
     e.preventDefault();
-    const resultFilter = quizQuestions?.filter(
-      (question) => !quizAnswer.some((answer) => answer.id === question.id)
-    );
-    const quizAnswers = [...quizAnswer, ...resultFilter];
 
     axios
       .post("http://localhost:3000/api/results", {
-        ...dataQuizBreak,
-        answers: quizAnswers,
+        studentId: user?.id,
+        status: "pending",
+        quizId: quizId,
+        ...currentQuiz,
       })
       .then((res) => {
         toast.success("votre travail a été enregisté😊!");
@@ -282,6 +306,20 @@ function DoQuizz() {
 
   function selectedChoiceFunction(choieIndexClicked: number) {
     setSelectedChoice(choieIndexClicked);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-between p-4 bg-white shadow">
+        <div className="animate-pulse flex space-x-4">
+          <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+          <div className="space-y-2">
+            <div className="h-4 w-24 bg-gray-200 rounded"></div>
+            <div className="h-4 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -484,6 +522,7 @@ export function ScorePoppop({ doQuizzProps }) {
         toast.error("une erreur est survenue");
       });
   }
+  
 
   return (
     <div
