@@ -68,7 +68,7 @@ const App = () => {
       ),
     },
     {
-      path: "/quizStart/:id/:status",
+      path: "/quizStart/:id/:status/:userId",
       element: isAuthenticated() ? (
         <DoQuizz />
       ) : (

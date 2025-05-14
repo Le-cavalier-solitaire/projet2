@@ -20,6 +20,7 @@ function DoQuizz() {
   const navigate = useNavigate();
   const name = currentQuiz?.name;
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
+  const [numberQuestion, setNumberQuestion] = useState(0);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [indexOfQuizzSelected, setIndexOfQuizzSelected] = useState(params.id);
@@ -32,7 +33,9 @@ function DoQuizz() {
   const [parentTimer, setParentTimer] = useState(60); // Valeur par défaut
   const intervalRef = useRef<number | null>(null);
   const quizId = params.id;
+  const userId = params.userId;
   const statusIsPending = params.status;
+  console.log(statusIsPending);
   const { user, isLoading } = useAuth();
   const [dataQuizBreak, setDataQuizBreak] = useState({
     name: name,
@@ -76,20 +79,6 @@ function DoQuizz() {
 
   useEffect(() => {
     if (timer == 0 && !isQuizEnded) {
-      if (!selectedChoice) {
-        const updatedQuiz = { ...currentQuiz };
-
-        // Mettre à jour la réponse de la question actuelle
-        if (quizQuestions?.length > currentQuestionIndex) {
-          updatedQuiz.quizQuestions[currentQuestionIndex] = {
-            ...updatedQuiz.quizQuestions[currentQuestionIndex],
-            userAnswer: -1,
-          };
-        }
-
-        // Mettre à jour le state
-        setCurrentQuiz(updatedQuiz);
-      }
       if (
         selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
       ) {
@@ -234,10 +223,39 @@ function DoQuizz() {
 
   useEffect(() => {
     const getCurrentQuiz = () => {
-      if (statusIsPending) {
-        axios.get(`http://localhost:3000/api/results/${user?.id}/${params.id}`)
-          .then((res) => {  setCurrentQuiz(res.data);
-            setQuizQuestions(res.data.quizQuestions);})
+      if (statusIsPending == "true") {
+        axios
+          .get(`http://localhost:3000/api/results/${userId}/${params.id}`)
+          .then((res) => {
+            setCurrentQuiz(res.data);
+            const questions = res.data.quizQuestions;
+            const completedQuestion = questions.filter(
+              (question) => "userAnswer" in question
+            );
+            const numberOfCompletedQuestion = completedQuestion.length;
+            setNumberQuestion(numberOfCompletedQuestion);
+            setCurrentQuestionIndex(numberOfCompletedQuestion);
+            const inCompletedQuestion = questions.filter(
+              (question) => !("userAnswer" in question)
+            );
+            setQuizQuestions(res.data.quizQuestions);
+
+            const result = completedQuestion.reduce(
+              (acc, { userAnswer, correctAnswer, marks }) => {
+                if (userAnswer == correctAnswer) {
+                  acc.correct++;
+                  acc.score += marks;
+                } else {
+                  acc.inCorrect++;
+                }
+                return acc;
+              },
+              { correct: 0, inCorrect: 0, score: 0 }
+            );
+            setCorrectAnswer(result.correct);
+            setIncorrectAnswer(result.inCorrect);
+            setTotalAttempts(result.score);
+          })
           .catch((error) => {
             if (error.response?.status === 404) {
             } else {
@@ -249,7 +267,8 @@ function DoQuizz() {
             return null;
           });
       } else {
-        axios.get(`http://localhost:3000/api/quiz/id/${params.id}`)
+        axios
+          .get(`http://localhost:3000/api/quiz/id/${params.id}`)
           .then((res) => {
             setCurrentQuiz(res.data);
             setQuizQuestions(res.data.quizQuestions);
@@ -259,35 +278,46 @@ function DoQuizz() {
           });
       }
     };
-
     // Exécuter SEULEMENT si user.id et params.id existent
     if (user?.id && params.id) {
       getCurrentQuiz();
     }
-  }, [user?.id, params.id, statusIsPending]); 
+  }, [user?.id, params.id, statusIsPending]);
 
-
-  
   console.log(currentQuiz);
-
   function handleBreak(e) {
     e.preventDefault();
 
-    axios
-      .post("http://localhost:3000/api/results", {
-        studentId: user?.id,
-        status: "pending",
-        quizId: quizId,
-        ...currentQuiz,
-      })
-      .then((res) => {
-        toast.success("votre travail a été enregisté😊!");
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
-      });
+    if (statusIsPending == "true") {
+      axios
+        .patch(`http://localhost:3000/api/result/${userId}/${params.id}`, {
+          ...currentQuiz,
+        })
+        .then((res) => {
+          toast.success("votre travail a été enregisté😊!");
+          navigate("/");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("une erreur est survenue");
+        });
+    } else {
+      axios
+        .post("http://localhost:3000/api/results", {
+          studentId: user?.id,
+          status: "pending",
+          quizId: quizId,
+          ...currentQuiz,
+        })
+        .then((res) => {
+          toast.success("votre travail a été enregisté😊!");
+          navigate("/");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("une erreur est survenue");
+        });
+    }
   }
   // useEffect(() => {
   //   if (isQuizEnded) {
@@ -307,6 +337,14 @@ function DoQuizz() {
   function selectedChoiceFunction(choieIndexClicked: number) {
     setSelectedChoice(choieIndexClicked);
   }
+
+  // function handleNumberQuestion(currentQuestionIndex) {
+  //   if (statusIsPending == "true") {
+  //     return currentQuestionIndex + 1 + numberQuestion;
+  //   } else {
+  //     return currentQuestionIndex + 1;
+  //   }
+  // }
 
   if (isLoading) {
     return (
@@ -425,6 +463,7 @@ function DoQuizz() {
               incorrectAnswer,
               currentQuiz,
               quizId,
+              statusIsPending,
             }}
           />
         )}
@@ -446,6 +485,7 @@ export function ScorePoppop({ doQuizzProps }) {
     incorrectAnswer,
     currentQuiz,
     quizId,
+    statusIsPending,
   } = doQuizzProps;
   function emojiIconScore() {
     const emojiFaces = [confusedEmoji, happyEmoji, verryHappyEmoji];
@@ -494,35 +534,53 @@ export function ScorePoppop({ doQuizzProps }) {
 
   //envoie des resultas du user en bd
   function handleSubmit() {
-    axios
-      .post("http://localhost:3000/api/results", {
-        studentId: userId,
-        score: score,
-        percent: result,
-        feedback: feedback,
-        status: "complete",
-        quizId: quizId,
-        ...currentQuiz,
-      })
-      .then((res) => {
-        toast.success("n'arrêtez pas de vous exercer 😊!");
-        setDataResultQuiz({
-          studentId: "",
-          score: "",
-          quizId: "",
-          feedback: "",
-          percent: 0,
+    if (statusIsPending == "true") {
+      axios
+        .patch(`http://localhost:3000/api/result/${userId}/${quizId}`, {
+          score: score,
+          percent: result,
+          feedback: feedback,
+          ...currentQuiz,
           status: "complete",
-          quizAnswer: [],
+        })
+        .then((res) => {
+          toast.success("votre travail a été enregisté😊!");
+          navigate("/");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("une erreur est survenue");
         });
-        navigate("/");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
-      });
+    } else {
+      axios
+        .post("http://localhost:3000/api/results", {
+          studentId: userId,
+          score: score,
+          percent: result,
+          feedback: feedback,
+          quizId: quizId,
+          ...currentQuiz,
+          status: "complete",
+        })
+        .then((res) => {
+          toast.success("n'arrêtez pas de vous exercer 😊!");
+          setDataResultQuiz({
+            studentId: "",
+            score: "",
+            quizId: "",
+            feedback: "",
+            percent: 0,
+            status: "complete",
+            quizAnswer: [],
+          });
+          navigate("/");
+        })
+        .catch((err) => {
+          console.log(err);
+          toast.error("une erreur est survenue");
+        });
+    }
   }
-  
 
   return (
     <div

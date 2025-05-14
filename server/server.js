@@ -330,7 +330,7 @@ server.post("/api/result", (req, res) => {
 });
 
 //route pour mettre à jour les données d'un resultat à jour apres avoir completé la sauvegarde
-server.patch("/api/result/:quizId/:userId/", (req, res) => {
+server.patch("/api/result/:userId/:quizId/", (req, res) => {
   const newresultData = req.body;
   const { userId, quizId } = req.params;
   const results = router.db.get("results").value();
@@ -344,20 +344,10 @@ server.patch("/api/result/:quizId/:userId/", (req, res) => {
   }
 
   const currentResult = results[resultIndex];
-  const updatedAnswers = [
-    ...currentResult.answers.filter(
-      (existing) =>
-        !newresultData.answers.some((newItem) => newItem.id === existing.id)
-    ),
-    ...newresultData.answers,
-  ];
-
+  
   const updatedResult = {
     ...currentResult,
     ...newresultData,
-    quizId,
-    studentId: userId,
-    answers: updatedAnswers, // Utiliser le tableau fusionné
   };
 
   // Correction : utiliser lowdb pour la mise à jour

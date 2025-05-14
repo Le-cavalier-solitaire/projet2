@@ -224,12 +224,78 @@
   ],
   "results": [
     {
-      "studentId": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe2",
-      "score": "3/5",
-      "percent": 60,
+      "studentId": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
+      "status": "complete",
       "quizId": "88bd2a92-7e87-481f-8168-e9156bfcc904",
-      "feedback": "En cours d'acquisition",
-      "id": 2
+      "id": "88bd2a92-7e87-481f-8168-e9156bfcc904",
+      "name": "L'agricultute Kmer",
+      "description": "L'agricultute Kmer",
+      "authorId": "baa7",
+      "branchId": "",
+      "createAt": "2025-04-25T20:32",
+      "startDate": "2025-05-01T20:32",
+      "endDate": "2025-05-30T20:32",
+      "quizQuestions": [
+        {
+          "quizId": 1212,
+          "id": "88bd2a92-7e87-481f-8168-e9156bfcc901",
+          "mainQuestion": "la periode de la moisson au camer c'est la quelle?",
+          "choices": [
+            "A. juin",
+            "B. septembre",
+            "C. mai"
+          ],
+          "correctAnswer": 0,
+          "time": 15,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": 1212,
+          "id": "ec940569-8e8f-47eb-beda-b2eca0714db4",
+          "mainQuestion": "c'est quoi ta couleur preférée?",
+          "choices": [
+            "A. rouge",
+            "B. violet",
+            "C. rose"
+          ],
+          "correctAnswer": 1,
+          "time": 6,
+          "marks": 3,
+          "userAnswer": 1
+        },
+        {
+          "quizId": 1212,
+          "id": "ec940569-8e8f-47eb-beda-b2eca0714db447",
+          "mainQuestion": "c'est quoi le premier mot q'un bébé prononce toujours?",
+          "choices": [
+            "A. mama",
+            "B. papa",
+            "C. tantine"
+          ],
+          "correctAnswer": 1,
+          "time": 6,
+          "marks": 3,
+          "userAnswer": 1
+        },
+        {
+          "quizId": 1212,
+          "id": "ec940569-8e8f-47eb-beda-b2eca0714d25",
+          "mainQuestion": "c'est quoi ton plat preférée?",
+          "choices": [
+            "A. rouge",
+            "B. violet",
+            "C. rose"
+          ],
+          "correctAnswer": 1,
+          "time": 6,
+          "marks": 3,
+          "userAnswer": 1
+        }
+      ],
+      "score": "11/11",
+      "percent": 100,
+      "feedback": "Acquis"
     }
   ]
 }

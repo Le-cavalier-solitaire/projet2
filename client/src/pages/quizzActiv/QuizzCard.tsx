@@ -175,8 +175,10 @@ function QuizzCard({ singleQuiz }) {
             }
             throw error; // Propager les autres erreurs
           });
-
-        setResultsScore(allResults);
+        const currentResultsForsuccesRate = allResults.filter(
+          (currentResult) => currentResult.status != "pending"
+        );
+        setResultsScore(currentResultsForsuccesRate);
       } catch (error) {
         console.error("Erreur lors de la récupération des résultats:", error);
         setResultsScore([]);
@@ -274,7 +276,12 @@ function QuizzCard({ singleQuiz }) {
               }}
             />
           ) : (
-            <Link to={"/quizStart/" + singleQuiz.id + "/" + isPending} className="text-white">
+            <Link
+              to={
+                "/quizStart/" + singleQuiz.id + "/" + isPending + "/" + user?.id
+              }
+              className="text-white"
+            >
               <PlayCircleOutlineRoundedIcon
                 className="text-red-500 animate-pulse"
                 style={{
