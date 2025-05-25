@@ -9,8 +9,9 @@ import CodeRoundedIcon from "@mui/icons-material/CodeRounded";
 import AdsClickRoundedIcon from "@mui/icons-material/AdsClickRounded";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { TextareaAutosize, Tooltip } from "@mui/material";
+import { Drawer } from "@mui/material";
 
-function AddQuests({ quiz }) {
+function AddQuests({ quiz, quizs, setQuizs }) {
   const prefixes = ["A", "B", "C", "D"];
   const [quizQuestions, setQuizQuestions] = useState([
     {
@@ -19,13 +20,27 @@ function AddQuests({ quiz }) {
       mainQuestion: "",
       choices: prefixes.slice(0, 2).map((prefix) => prefix + ". "),
       correctAnswer: "",
-      time: 0,
+      time: 5,
       marks: 1,
     },
   ]);
   const endOfListRef = useRef(null);
   const textAreaRefs = useRef(quizQuestions.map(() => createRef()));
   const [isOpen, setIsOpen] = useState(false);
+
+  // Gestion de la touche Échap
+
+  const toggleDrawer =
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === "keydown" &&
+        ((event as React.KeyboardEvent).key === "Tab" ||
+          (event as React.KeyboardEvent).key === "Shift")
+      ) {
+        return;
+      }
+      setIsOpen(open);
+    };
 
   function handleInputChange(index, text) {
     const updatequestions = quizQuestions.map((question, i) => {
@@ -36,6 +51,18 @@ function AddQuests({ quiz }) {
     });
     setQuizQuestions(updatequestions);
   }
+
+  useEffect(() => {
+    if (quiz.typeOfTime === "global Time") {
+      setQuizQuestions((prevQuestions) =>
+        prevQuestions.map((question) => {
+          const newQuestion = { ...question };
+          delete newQuestion.time;
+          return newQuestion;
+        })
+      );
+    }
+  }, [quiz.typeOfTime]);
 
   function handleDelayChange(index, text) {
     const newDelay = quizQuestions.map((question, i) => {
@@ -102,15 +129,20 @@ function AddQuests({ quiz }) {
       return toast.error("please ensure to fill out the correct answer");
     }
 
-    const newQuestion = {
+    const baseQuestion = {
       quizId: quiz.id,
       id: uuidv4(),
       mainQuestion: "",
       choices: prefixes.slice(0, 2).map((prefix) => prefix + ""),
       correctAnswer: "",
-      time: 0,
       marks: 1,
     };
+
+    const newQuestion =
+      quiz.typeOfTime === "global Time"
+        ? baseQuestion
+        : { ...baseQuestion, time: 5 };
+
     setQuizQuestions([...quizQuestions, newQuestion]);
     textAreaRefs.current = [...textAreaRefs.current, createRef()];
   }
@@ -201,7 +233,11 @@ function AddQuests({ quiz }) {
         quizQuestions,
       })
       .then((res) => {
-        console.log({ res });
+        const editCurrentQuiz = res.data;
+        const editQUizs = quizs.map((client) =>
+          client.id === quiz.id ? editCurrentQuiz : client
+        );
+        setQuizs(editQUizs);
         toast.success("Questions Added Successfuly!");
         setQuizQuestions([
           {
@@ -210,67 +246,49 @@ function AddQuests({ quiz }) {
             mainQuestion: "",
             choices: prefixes.slice(0, 2).map((prefix) => prefix + ". "),
             correctAnswer: "",
-            time: 0,
+            time: 5,
             marks: 1,
           },
         ]);
-        closeModal();
+        setIsOpen(false);
       })
       .catch((err) => {
         console.log(err);
         toast.error("une erreur est survenue");
       });
   }
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        closeModal();
-      }
-    };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  };
   return (
-    <div style={{ height: "auto" }} className="bg-green">
-      {/* Bouton d'ouverture */}
-      <Tooltip title="Add question">
-        {" "}
+    <div>
+      <Tooltip title="Add questions">
         <button
-          onClick={openModal}
           style={{
-            backgroundColor: "oklch(0.627 0.194 149.214)",
+            backgroundColor: "oklch(0.623 0.214 259.815)",
             borderRadius: "5px",
             boxShadow: "0px 6px 6px black",
           }}
-          className=" text-white"
+          onClick={toggleDrawer(true)}
+          className="text-white"
         >
-          {" "}
-          <AddCircleIcon className="" fontSize="medium" />
+          <AddCircleIcon fontSize="medium" />
         </button>
       </Tooltip>
-
-      {/* Overlay du modal */}
-      <div
-        onClick={handleBackdropClick}
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
-        className={`fixed inset-0 bg-transparent bg-opacity-50 flex items-center justify-center ${
-          isOpen ? "visible" : "hidden"
-        }`}
+      <Drawer
+        anchor="right"
+        open={isOpen}
+        onClose={toggleDrawer(false)}
+        sx={{
+          "& .MuiDrawer-paper": {
+            width: "85vw",
+            padding: 2,
+            backgroundColor: "#f5f5f5",
+          },
+        }}
       >
         {/* Contenu du modal */}
         <div
           style={{ height: "auto" }}
-          className="bg-white rounded-lg shadow-xl w-[120vh] max-w-[120vh] p-6 mx-4 max-h-[90vh] overflow-y-auto"
+          className="bg-white rounded-lg shadow-xl p-2 mx-2 overflow-y-auto"
         >
           {/* En-tête */}
           <div
@@ -280,31 +298,7 @@ function AddQuests({ quiz }) {
             <h2 className="text-3xl font-bold text-green-600">
               Build Questions
             </h2>
-            <button
-              onClick={closeModal}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <div
-            style={{ height: "auto" }}
-            className="poopins flex flex-col px-24 mt h-auto"
-          >
-            <div className="justify-between items-center my-12 flex poopins">
+            <div className=" flex gap-4 items-center">
               <div className="flex gap-2 items-center">
                 <AdsClickRoundedIcon
                   style={{ width: "65px", height: "55px" }}
@@ -315,18 +309,31 @@ function AddQuests({ quiz }) {
                 </span>
               </div>
               <button
-                onClick={(e) => handleSubmit(e)}
-                type="submit"
-                style={{
-                  backgroundColor: "oklch(0.627 0.194 149.214)",
-                  boxShadow: "0px 6px 6px 1px black",
-                }}
-                className="p-2 px-4 bg-green-700 rounded-md text-white"
+                onClick={toggleDrawer(false)}
+                className="text-gray-400 hover:text-gray-600"
               >
-                Save
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
               </button>
             </div>
-            <div className="flex gap-2 font-bold text-15px border-gary 200">
+          </div>
+
+          <div
+            style={{ height: "auto" }}
+            className="poopins flex flex-col px-2 h-auto"
+          >
+            {/* <div className="flex gap-2 font-bold text-15px border-gary 200">
               <span
                 style={{ backgroundColor: "oklch(0.627 0.194 149.214)" }}
                 className="bg-green-700 px-4 py-4 rounded-md text-white"
@@ -340,12 +347,12 @@ function AddQuests({ quiz }) {
               >
                 TotalPoints: <span className="text-2xl">{totalMarks} pts</span>
               </span>
-            </div>
+            </div> */}
           </div>
 
           <div
             style={{ height: "auto" }}
-            className="mt-6 p-3 justify-between border-4 border-green-600 rounded-md max-h-[90vh] overflow-y-auto"
+            className="mt-6 p-3 justify-between border-4 border-green-600 rounded-md max-h-[69vh] overflow-y-auto"
           >
             <div
               style={{ height: "auto" }}
@@ -410,13 +417,15 @@ function AddQuests({ quiz }) {
                     style={{ height: "auto" }}
                     className="flex gap-10 items-center mt-3 justify-center"
                   >
-                    <Delay
-                      questionIndex={questionIndex}
-                      value={singleQuestion.time}
-                      onChange={(e) => {
-                        handleDelayChange(questionIndex, e.target.value);
-                      }}
-                    />
+                    {quiz.typeOfTime != "global Time" && (
+                      <Delay
+                        questionIndex={questionIndex}
+                        value={singleQuestion.time}
+                        onChange={(e) => {
+                          handleDelayChange(questionIndex, e.target.value);
+                        }}
+                      />
+                    )}
                     <Point
                       questionIndex={questionIndex}
                       value={singleQuestion.marks}
@@ -433,7 +442,10 @@ function AddQuests({ quiz }) {
                   onClick={() => {
                     addNewQuestion();
                   }}
-                  style={{ backgroundColor: "oklch(0.627 0.194 149.214)" }}
+                  style={{
+                    backgroundColor: "oklch(0.627 0.194 149.214)",
+                    boxShadow: "0px 6px 6px 1px black",
+                  }}
                   className="p-3 bg-green-600 rounded-md text-white w-210px text-20px"
                 >
                   Add a New Question
@@ -441,8 +453,21 @@ function AddQuests({ quiz }) {
               </div>
             </div>
           </div>
+          <div className="justify-center items-center my-12 flex poopins">
+            <button
+              onClick={(e) => handleSubmit(e)}
+              type="submit"
+              style={{
+                backgroundColor: "oklch(0.627 0.194 149.214)",
+                boxShadow: "0px 6px 6px 1px black",
+              }}
+              className="p-2 w-1/6 px-4 bg-green-700 rounded-md text-white"
+            >
+              Save
+            </button>
+          </div>
         </div>
-      </div>
+      </Drawer>
     </div>
   );
 }
@@ -552,7 +577,10 @@ export function ChoiceAnswer({
               addNewChoice();
             }}
             className="bg-green-700 border-gray-200 rounded-md text-white w-210px text-13px"
-            style={{ backgroundColor: "royalblue " }}
+            style={{
+              backgroundColor: "oklch(0.627 0.194 149.214)",
+              boxShadow: "0px 6px 6px 1px black",
+            }}
           >
             Add a new choice
           </button>
@@ -599,7 +627,7 @@ export function Delay({ questionIndex, onChange, value }) {
   const handleChange = (e) => {
     const inputValue = e.target.value;
     if (inputValue !== "" && parseInt(inputValue) < 0) {
-      e.target.value = "0";
+      e.target.value = "5";
     }
     onChange(e);
   };
@@ -609,12 +637,10 @@ export function Delay({ questionIndex, onChange, value }) {
       style={{ height: "auto" }}
       className="flex items-center justify-center gap-4 w-full"
     >
-      <div className="text-[18px] font-bold whitespace-nowrap">
-        Delay(snd):<h4 className="text-red-700">*optional</h4>
-      </div>
+      <div className="text-[18px] font-bold whitespace-nowrap">Delay(snd):</div>
       <div className="flex items-center w-full">
         <input
-          min="0"
+          min="5"
           type="number"
           value={value}
           onChange={handleChange}

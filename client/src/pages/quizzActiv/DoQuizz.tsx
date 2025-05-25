@@ -12,6 +12,10 @@ import happyEmoji from "../../assets/happyEmoji.png";
 import verryHappyEmoji from "../../assets/verryHappyEmoji.png";
 import { useAuth } from "../../hooks/useAuth";
 import PauseCircleIcon from "@mui/icons-material/PauseCircle";
+import { ArrowCircleLeftOutlined } from "@mui/icons-material";
+import { ArrowCircleRightOutlined } from "@mui/icons-material";
+import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 
 function DoQuizz() {
   const [currentQuiz, setCurrentQuiz] = useState([]);
@@ -78,55 +82,53 @@ function DoQuizz() {
   }, [quizQuestions]);
 
   useEffect(() => {
-    if (timer == 0 && !isQuizEnded) {
-      if (
-        selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
-      ) {
+    if (
+      timer === 0 &&
+      !isQuizEnded &&
+      currentQuiz.typeOfTime == "time for any question"
+    ) {
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+
+      if (selectedChoice === null) {
         const updatedQuiz = { ...currentQuiz };
+        updatedQuiz.quizQuestions[currentQuestionIndex] = {
+          ...currentQuestion,
+          userAnswer: -1,
+        };
+        setIncorrectAnswer((prev) => prev + 1);
 
-        // Mettre à jour la réponse de la question actuelle
-        if (quizQuestions?.length > currentQuestionIndex) {
-          updatedQuiz.quizQuestions[currentQuestionIndex] = {
-            ...updatedQuiz.quizQuestions[currentQuestionIndex],
-            userAnswer: selectedChoice,
-          };
-        }
-
-        // Mettre à jour le state
         setCurrentQuiz(updatedQuiz);
-        setTotalAttempts(
-          totalAttempts + quizQuestions[currentQuestionIndex].marks
-        );
-        setCorrectAnswer(correctAnswer + 1);
-      } else {
+      }
+
+      if (selectedChoice !== null && currentQuestion.userAnswer === undefined) {
         const updatedQuiz = { ...currentQuiz };
+        updatedQuiz.quizQuestions[currentQuestionIndex] = {
+          ...currentQuestion,
+          userAnswer: selectedChoice,
+        };
 
-        // Mettre à jour la réponse de la question actuelle
-        if (quizQuestions?.length > currentQuestionIndex) {
-          updatedQuiz.quizQuestions[currentQuestionIndex] = {
-            ...updatedQuiz.quizQuestions[currentQuestionIndex],
-            userAnswer: selectedChoice,
-          };
+        if (selectedChoice === currentQuestion.correctAnswer) {
+          setTotalAttempts((prev) => prev + currentQuestion.marks);
+          setCorrectAnswer((prev) => prev + 1);
+        } else {
+          setIncorrectAnswer((prev) => prev + 1);
         }
 
-        // Mettre à jour le state
         setCurrentQuiz(updatedQuiz);
-        setIncorrectAnswer(incorrectAnswer + 1);
       }
-      setSelectedChoice(null);
 
-      // Si c'est la dernière question, terminer le quiz
-      if (currentQuestionIndex >= quizQuestions?.length - 1) {
-        setIsQuizEnded(true);
-        if (intervalRef.current !== null) {
-          clearInterval(intervalRef.current);
+      // Gestion de la progression automatique
+      const timeout = setTimeout(() => {
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+          const nextIndex = currentQuestionIndex + 1;
+          setCurrentQuestionIndex((prev) => prev + 1);
+          setSelectedChoice(quizQuestions[nextIndex]?.userAnswer ?? null);
+        } else {
+          setIsQuizEnded(true);
         }
-      } else {
-        // Sinon, passer à la question suivante
-        setTimeout(() => {
-          setCurrentQuestionIndex((current) => current + 1);
-        }, 1000);
-      }
+      }, 1000);
+
+      return () => clearTimeout(timeout);
     }
   }, [timer]);
 
@@ -167,53 +169,172 @@ function DoQuizz() {
     };
   }, [currentQuestionIndex, isQuizEnded]); // Réinitialiser le timer quand on change de question ou que le quiz se termine
 
-  function moveToNextQuestion() {
-    if (
-      selectedChoice == quizQuestions?.[currentQuestionIndex]?.correctAnswer
-    ) {
-      setTotalAttempts(
-        totalAttempts + quizQuestions[currentQuestionIndex].marks
-      );
-      const updatedQuiz = { ...currentQuiz };
+  function moveToPrevQuestion() {
+    if (currentQuestionIndex <= 0) return;
 
-      // Mettre à jour la réponse de la question actuelle
-      if (quizQuestions?.length > currentQuestionIndex) {
-        updatedQuiz.quizQuestions[currentQuestionIndex] = {
-          ...updatedQuiz.quizQuestions[currentQuestionIndex],
-          userAnswer: selectedChoice,
-        };
+    // Sauvegarder la réponse actuelle AVANT de changer de question
+    const currentQuestion = quizQuestions[currentQuestionIndex];
+    if (selectedChoice !== null) {
+      const updatedQuiz = { ...currentQuiz };
+      const previousAnswer = currentQuestion.userAnswer;
+
+      // Mettre à jour la réponse même si elle existait déjà
+      updatedQuiz.quizQuestions[currentQuestionIndex] = {
+        ...currentQuestion,
+        userAnswer: selectedChoice,
+      };
+
+      // Si la réponse existait déjà, ajuster le score
+      if (typeof previousAnswer === "number") {
+        // Retirer l'ancien score
+        if (previousAnswer === currentQuestion.correctAnswer) {
+          setTotalAttempts((prev) => prev - currentQuestion.marks);
+          setCorrectAnswer((prev) => prev - 1);
+        } else {
+          setIncorrectAnswer((prev) => prev - 1);
+        }
       }
 
-      // Mettre à jour le state
-      setCurrentQuiz(updatedQuiz);
-      setCorrectAnswer(correctAnswer + 1);
-    } else {
-      const updatedQuiz = { ...currentQuiz };
-
-      // Mettre à jour la réponse de la question actuelle
-      if (quizQuestions?.length > currentQuestionIndex) {
-        updatedQuiz.quizQuestions[currentQuestionIndex] = {
-          ...updatedQuiz.quizQuestions[currentQuestionIndex],
-          userAnswer: selectedChoice,
-        };
+      // Ajouter le nouveau score
+      if (selectedChoice === currentQuestion.correctAnswer) {
+        setTotalAttempts((prev) => prev + currentQuestion.marks);
+        setCorrectAnswer((prev) => prev + 1);
+      } else {
+        setIncorrectAnswer((prev) => prev + 1);
       }
 
-      // Mettre à jour le state
       setCurrentQuiz(updatedQuiz);
-      setIncorrectAnswer(incorrectAnswer + 1);
     }
 
-    if (currentQuestionIndex == quizQuestions?.length - 1) {
-      setTimer(0);
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
+    // Passer à la question précédente
+    const newIndex = currentQuestionIndex - 1;
+    setCurrentQuestionIndex(newIndex);
+
+    // Récupérer la réponse existante de la nouvelle question
+    setSelectedChoice(quizQuestions[newIndex]?.userAnswer ?? null);
+  }
+
+  function moveToNextQuestion() {
+    // Même logique de mise à jour que moveToPrevQuestion
+    const currentQuestion = quizQuestions[currentQuestionIndex];
+    if (selectedChoice !== null) {
+      const updatedQuiz = { ...currentQuiz };
+      const previousAnswer = currentQuestion.userAnswer;
+
+      updatedQuiz.quizQuestions[currentQuestionIndex] = {
+        ...currentQuestion,
+        userAnswer: selectedChoice,
+      };
+
+      if (typeof previousAnswer === "number") {
+        if (previousAnswer === currentQuestion.correctAnswer) {
+          setTotalAttempts((prev) => prev - currentQuestion.marks);
+          setCorrectAnswer((prev) => prev - 1);
+        } else {
+          setIncorrectAnswer((prev) => prev - 1);
+        }
       }
+
+      if (selectedChoice === currentQuestion.correctAnswer) {
+        setTotalAttempts((prev) => prev + currentQuestion.marks);
+        setCorrectAnswer((prev) => prev + 1);
+      } else {
+        setIncorrectAnswer((prev) => prev + 1);
+      }
+
+      setCurrentQuiz(updatedQuiz);
+    } else {
+      return toast.error("please select some choice");
+    }
+
+    // Gestion de la progression
+    const nextIndex = currentQuestionIndex + 1;
+    if (nextIndex >= quizQuestions.length) {
       setIsQuizEnded(true);
+      if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
-    setCurrentQuestionIndex((current) => current + 1);
-    setSelectedChoice(null);
+
+    setCurrentQuestionIndex(nextIndex);
+    setSelectedChoice(quizQuestions[nextIndex]?.userAnswer ?? null);
   }
+
+  // Modifier aussi la gestion du clic sur les réponses
+  function selectedChoiceFunction(choiceIndexClicked: number) {
+    // Mettre à jour immédiatement la réponse dans le state
+    const currentQuestion = quizQuestions[currentQuestionIndex];
+    const updatedQuiz = { ...currentQuiz };
+    const previousAnswer = currentQuestion.userAnswer;
+
+    updatedQuiz.quizQuestions[currentQuestionIndex] = {
+      ...currentQuestion,
+      userAnswer: choiceIndexClicked,
+    };
+
+    // Ajuster le score si la réponse existait déjà
+    if (typeof previousAnswer === "number") {
+      if (previousAnswer === currentQuestion.correctAnswer) {
+        setTotalAttempts((prev) => prev - currentQuestion.marks);
+        setCorrectAnswer((prev) => prev - 1);
+      } else {
+        setIncorrectAnswer((prev) => prev - 1);
+      }
+    }
+
+    // Ajouter le nouveau score
+    if (choiceIndexClicked === currentQuestion.correctAnswer) {
+      setTotalAttempts((prev) => prev + currentQuestion.marks);
+      setCorrectAnswer((prev) => prev + 1);
+    } else {
+      setIncorrectAnswer((prev) => prev + 1);
+    }
+
+    setCurrentQuiz(updatedQuiz);
+    setSelectedChoice(choiceIndexClicked);
+  }
+
+  useEffect(() => {
+    // Synchroniser les questions à chaque modification
+    if (currentQuiz?.quizQuestions) {
+      setQuizQuestions(currentQuiz.quizQuestions);
+    }
+  }, [currentQuiz]);
+
+  //gestion des touches du clavier
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isQuizEnded) return; // Bloquer si le quiz est terminé
+
+      if (e.key === "ArrowRight") {
+        e.preventDefault(); // Empêcher le comportement par défaut
+        if (
+          currentQuestionIndex < quizQuestions.length - 1 &&
+          selectedChoice !== null
+        ) {
+          moveToNextQuestion();
+        } else {
+          return toast.error("please select some choice");
+        }
+      }
+
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (
+          currentQuestionIndex > 0 &&
+          currentQuiz.typeOfTime === "global Time"
+        ) {
+          moveToPrevQuestion();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [currentQuestionIndex, quizQuestions, isQuizEnded, selectedChoice]); // Dépendances cruciales
+
   console.log({
     pointQuiz,
     totalAttempts,
@@ -334,10 +455,6 @@ function DoQuizz() {
     }
   }, []);
 
-  function selectedChoiceFunction(choieIndexClicked: number) {
-    setSelectedChoice(choieIndexClicked);
-  }
-
   // function handleNumberQuestion(currentQuestionIndex) {
   //   if (statusIsPending == "true") {
   //     return currentQuestionIndex + 1 + numberQuestion;
@@ -377,82 +494,128 @@ function DoQuizz() {
           </div>
           <div className="flex gap-2 text-bold text-[18px] items-center">
             <ShutterSpeedRoundedIcon className="text-green-700" />
-            <span>00:00:{parentTimer}</span>
+            <span>
+              00:00:
+              {currentQuiz.typeOfTime == "time for any question"
+                ? parentTimer
+                : "00"}
+            </span>
           </div>
         </div>
 
-        <div className="mt-10 flex items-center justify-center">
-          {quizQuestions && quizQuestions.length > 0 ? (
-            <form className="space-y-4 justify-center items-center">
-              <div className="flex justify-center items-center gap-2">
-                <div className="bg-green-500 text-white font-bold text-[20px] flex justify-center items-center rounded-md w-11 h-11">
-                  {currentQuestionIndex + 1}
+        <div className="mt-10 flex items-center justify-between">
+          {/* Flèche gauche */}
+          <div className="w-16 flex justify-center">
+            {currentQuiz.typeOfTime === "global Time" && (
+              <KeyboardDoubleArrowLeftIcon
+                onClick={
+                  currentQuestionIndex >= 1 ? moveToPrevQuestion : undefined
+                }
+                className={`cursor-pointer ${
+                  currentQuestionIndex >= 1
+                    ? "text-gray-600 hover:text-gray-800"
+                    : "text-gray-300 cursor-default"
+                }`}
+                style={{ fontSize: "40px" }}
+              />
+            )}
+          </div>
+
+          <div className="flex-1 max-w-3xl mx-4">
+            {quizQuestions && quizQuestions.length > 0 ? (
+              <form className="space-y-4 justify-center items-center">
+                <div className="flex justify-center items-center gap-2">
+                  <div className="bg-green-500 text-white font-bold text-[20px] flex justify-center items-center rounded-md w-11 h-11">
+                    {currentQuestionIndex + 1}
+                  </div>
+                  <p className="text-[24px] font-semibold font-mono">
+                    {quizQuestions[currentQuestionIndex].mainQuestion}
+                  </p>
                 </div>
-                <p className="text-[24px] font-semibold font-mono">
-                  {quizQuestions[currentQuestionIndex].mainQuestion}
-                </p>
-              </div>
 
-              <div className="mt-7 flex flex-col gap-2">
-                {quizQuestions[currentQuestionIndex].choices.map(
-                  (choice, indexChoice) => (
-                    <div
-                      key={indexChoice}
-                      onClick={() => {
-                        selectedChoiceFunction(indexChoice);
-                      }}
-                      className={`p-3 ml-11 w-10/12 border border-green-700 rounded-md text-[18px] font-serif transition-all select-none ${
-                        selectedChoice === indexChoice
-                          ? "bg-white text-black"
-                          : "bg-green-700 text-white hover:bg-white hover:text-black"
-                      }`}
-                    >
-                      {choice}
-                    </div>
-                  )
-                )}
-              </div>
-              <div className="flex justify-center mt-7">
-                <button
-                  className=" bg-gray-300 mb-2 mr-4"
-                  onClick={(e) => handleBreak(e)}
-                >
-                  <PauseCircleIcon
-                    className="text-red-500 animate-pulse"
-                    style={{
-                      height: "50px",
-                      width: "50px",
-                      animation: "pulse 10.5s infinite ease-in-out",
-                    }}
-                  />
-                </button>
-
-                {selectedChoice !== null && (
+                <div className="mt-7 flex flex-col gap-2">
+                  {quizQuestions[currentQuestionIndex].choices.map(
+                    (choice, indexChoice) => (
+                      <div
+                        key={indexChoice}
+                        onClick={() => {
+                          selectedChoiceFunction(indexChoice);
+                        }}
+                        className={`p-3 ml-11 w-10/12 border border-green-700 rounded-md text-[18px] font-serif transition-all select-none ${
+                          selectedChoice === indexChoice
+                            ? "bg-white text-black"
+                            : "bg-green-700 text-white hover:bg-white hover:text-black"
+                        }`}
+                      >
+                        {choice}
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="flex justify-center mt-7">
                   <button
-                    disabled={isQuizEnded ? true : false}
-                    style={{
-                      backgroundColor: "green",
-                      fontWeight: "bold",
-                      fontSize: "16px",
-                    }}
-                    className={`w-1/4 mb-3 bg-blue-500 text-[16px] font-bold text-white py-2 px-2 rounded-sm hover:bg-blue-600 transition duration-200 ${
-                      isQuizEnded ? "opacity-60 hidden" : "opacity-100"
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault(); // Empêche la soumission du formulaire
-                      moveToNextQuestion();
-                    }}
+                    className={`${
+                      currentQuestionIndex == quizQuestions.length - 1 &&
+                      selectedChoice !== null
+                        ? "hidden"
+                        : ""
+                    } bg-gray-300 mb-2 mr-4`}
+                    onClick={(e) => handleBreak(e)}
                   >
-                    {currentQuestionIndex == quizQuestions?.length - 1
-                      ? "Terminer"
-                      : "Suivant"}
+                    <PauseCircleIcon
+                      className={`text-red-500 animate-pulse`}
+                      style={{
+                        height: "50px",
+                        width: "50px",
+                        animation: "pulse 10.5s infinite ease-in-out",
+                      }}
+                    />
                   </button>
-                )}
-              </div>
-            </form>
-          ) : (
-            <p>Chargement des questions...</p>
-          )}
+
+                  {selectedChoice !== null && (
+                    <button
+                      disabled={isQuizEnded ? true : false}
+                      style={{
+                        backgroundColor: "green",
+                        fontWeight: "bold",
+                        fontSize: "16px",
+                      }}
+                      className={`w-1/4 mb-3 bg-blue-500 text-[16px] font-bold text-white py-2 px-2 rounded-sm hover:bg-blue-600 transition duration-200 ${
+                        isQuizEnded ? "opacity-60 hidden" : "opacity-100"
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault(); // Empêche la soumission du formulaire
+                        moveToNextQuestion();
+                      }}
+                    >
+                      {currentQuestionIndex == quizQuestions?.length - 1
+                        ? "Terminer"
+                        : "Suivant"}
+                    </button>
+                  )}
+                </div>
+              </form>
+            ) : (
+              <p>Chargement des questions...</p>
+            )}
+          </div>
+          {/* Flèche droite */}
+          <div className="w-16 flex justify-center">
+            {currentQuestionIndex < quizQuestions.length - 1 &&
+              currentQuiz.typeOfTime === "global Time" && (
+                <KeyboardDoubleArrowRightIcon
+                  onClick={
+                    selectedChoice !== null ? moveToNextQuestion : undefined
+                  }
+                  className={`cursor-pointer ${
+                    selectedChoice !== null
+                      ? "text-gray-600 hover:text-gray-800"
+                      : "text-gray-300 cursor-default"
+                  }`}
+                  style={{ fontSize: "40px" }}
+                />
+              )}
+          </div>
         </div>
         {isQuizEnded && (
           <ScorePoppop

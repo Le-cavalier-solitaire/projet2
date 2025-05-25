@@ -7,17 +7,21 @@ import { Theme, useTheme } from "@mui/material/styles";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
+import FormLabel from "@mui/material/FormLabel";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
   const names = [
-    {id:1, nameBranch:"Maintenance"},
-    {id:2, nameBranch:"Programmation"},
-    {id:3, nameBranch:"Bureautique"},
-    {id:4, nameBranch:"Administratoin et securité reseau"}
+    { id: 1, nameBranch: "Maintenance" },
+    { id: 2, nameBranch: "Programmation" },
+    { id: 3, nameBranch: "Bureautique" },
+    { id: 4, nameBranch: "Administratoin et securité reseau" },
   ];
 
   const theme = useTheme();
@@ -62,13 +66,17 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
     createAt: new Date(),
     startDate: "",
     endDate: "",
+    typeOfTime: "global Time",
+    // navigateQuestion: "no",
   });
+  // console.log(data.typeOfTime, data.navigateQuestion);
+
   function handleSubmit(e) {
     e.preventDefault();
     const quizData = {
       ...data,
       authorId: user.id,
-      branchId: BranchName
+      branchId: BranchName,
     };
 
     axios
@@ -84,6 +92,8 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
           createAt: new Date(),
           startDate: "",
           endDate: "",
+          typeOfTime: "global Time",
+          // navigateQuestion: "no",
         });
         closeModal();
       })
@@ -256,7 +266,7 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="m-1 w-2/1">
                 <InputLabel className="block text-sm font-medium text-gray-700 mb-1">
-                  Name
+                  Name branch
                 </InputLabel>
                 <Select
                   labelId="demo-multiple-name-label"
@@ -282,6 +292,73 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
                 </Select>
               </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left ">
+              <div className="m-1 w-2/1">
+                <FormLabel id="demo-row-controlled-radio-buttons-group">
+                  Manage Time
+                </FormLabel>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-controlled-radio-buttons-group"
+                  name="row-controlled-radio-buttons-group"
+                  value={data.typeOfTime}
+                  onChange={(e) => {
+                    setData({ ...data, typeOfTime: e.target.value })
+                    // const newValue = e.target.value;
+                    // setData((prev) => {
+                    //   const newData = { ...prev, typeOfTime: newValue };
+                    //   if (newValue === "time for any question") {
+                    //     delete newData.navigateQuestion; // Suppression cohérente
+                    //   } else {
+                    //     newData.navigateQuestion = prev.navigateQuestion || "no"; // Réinitialisation propre
+                    //   }
+                    //   return newData;
+                    // });
+                  }}
+                >
+                  {console.log(data)}
+                  <FormControlLabel
+                    value="global Time"
+                    control={<Radio />}
+                    label="Global Time"
+                  />
+                  <FormControlLabel
+                    value="time for any question"
+                    control={<Radio />}
+                    label="Time for any question"
+                  />
+                </RadioGroup>
+              </div>
+            </div>
+            {/* {data.typeOfTime == "global Time" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="m-1 w-2/1 text-left ">
+                  <FormLabel id="demo-row-controlled-radio-buttons-group">
+                    Navigate between questions?
+                  </FormLabel>
+                  <RadioGroup
+                    row
+                    aria-labelledby="demo-row-controlled-radio-buttons-group"
+                    name="row-controlled-radio-buttons-group"
+                    value={data.navigateQuestion}
+                    onChange={(e) =>
+                      setData({ ...data, navigateQuestion: e.target.value })
+                    }
+                  >
+                    <FormControlLabel
+                      value="yes"
+                      control={<Radio />}
+                      label="Yes"
+                    />
+                    <FormControlLabel
+                      value="no"
+                      control={<Radio />}
+                      label="No"
+                    />
+                  </RadioGroup>
+                </div>
+              </div>
+            )} */}
 
             <button
               onClick={(e) => handleSubmit(e)}

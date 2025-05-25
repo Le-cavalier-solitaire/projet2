@@ -288,13 +288,74 @@ server.post("/api/quiz", (req, res) => {
   const quizs = router.db.get("quiz");
   const newQuiz = { ...payload, id: uuidv4() };
   quizs.push(newQuiz).write();
-  res.status(201).json(payload);
+  res.status(201).json(newQuiz);
+});
+
+//methode pour supprimer un quiz donné
+server.delete("/api/deleteQuiz/:id", (req, res) => {
+  const quizID = req.params.id;
+
+  const quizs = router.db.get("quiz");
+
+  // Récupérer le tableau complet pour vérification
+  const quizsArray = quizs.value();
+
+  // Vérifier les IDs existants et leur type
+  const existingIds = quizsArray.map((u) => ({ id: u.id, type: typeof u.id }));
+
+  // Trouver l'index directement dans le tableau (pas dans la chaîne lowdb)
+  const quizIndex = quizsArray.findIndex((quiz) => quiz.id === quizID);
+
+  if (quizIndex == -1) {
+    return res
+      .status(404)
+      .json({ error: "Utilisateur non trouvé", id: quizID });
+  }
+
+  // Supprimer l'utilisateur spécifique en utilisant l'API lowdb
+  const removedQuiz = quizs.splice(quizIndex, 1).write();
+
+  // Vérifier le résultat
+  console.log("Utilisateur supprimé:", JSON.stringify(removedQuiz));
+  console.log("Utilisateurs après suppression:", JSON.stringify(quizs.value()));
+
+  res.status(200).json({ success: true, id: quizID, removed: removedQuiz });
+});
+
+//route pour update un quiz donné
+server.patch("/api/updateQuiz/:id", (req, res) => {
+  const newQuizData = req.body;
+  const quizID = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
+
+  const quizs = router.db.get("quiz");
+  const quizArray = quizs.value();
+
+  // Trouver l'utilisateur par ID
+  const quizIndex = quizArray.findIndex((quiz) => quiz.id === quizID);
+
+  if (quizIndex == -1) {
+    return res
+      .status(404)
+      .json({ error: "Utilisateur non trouvé", id: userID });
+  }
+
+  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
+  const currentQuiz = quizArray[quizIndex];
+  const updatedQuiz = { ...currentQuiz, ...newQuizData };
+
+  // Mettre à jour l'utilisateur dans l'objet lowdb
+  quizs.splice(quizIndex, 1, updatedQuiz).write();
+
+  // Vérifier la mise à jour
+  const afterUpdate = quizs.value()[quizIndex];
+
+  res.status(200).json({ success: true, quiz: updatedQuiz });
 });
 
 //route pour ajouter les questions dans un quiz donné
 server.put("/api/addQuestions/:id", (req, res) => {
-  const formQuestions = req.body;
-  console.log(formQuestions);
+  const { quizQuestions } = req.body;
+  console.log(quizQuestions);
   const quizId = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
   const quizs = router.db.get("quiz");
   const quizArray = quizs.value();
@@ -305,13 +366,13 @@ server.put("/api/addQuestions/:id", (req, res) => {
   }
 
   const currentQuiz = quizArray[quizIndex];
-  const updatedQuiz = { ...currentQuiz, ...formQuestions };
+  const updatedQuiz = { ...currentQuiz, quizQuestions };
   console.log(updatedQuiz);
 
   quizs.splice(quizIndex, 1, updatedQuiz).write();
   const afterUpdate = quizs.value()[quizIndex];
 
-  res.status(200).json({ success: true, quiz: updatedQuiz });
+  res.status(200).json(updatedQuiz);
 });
 
 //route pour ajouter les resultats d'un quiz
@@ -344,7 +405,7 @@ server.patch("/api/result/:userId/:quizId/", (req, res) => {
   }
 
   const currentResult = results[resultIndex];
-  
+
   const updatedResult = {
     ...currentResult,
     ...newresultData,

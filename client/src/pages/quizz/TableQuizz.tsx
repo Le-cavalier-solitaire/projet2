@@ -43,7 +43,7 @@ const TableQuizz = () => {
 
   const deleteUser = (id) => {
     axios
-      .delete(`http://localhost:3000/quiz/${id}`)
+      .delete(`http://localhost:3000/api/deleteQuiz/${id}`)
       .then(() => {
         setQuizs(quizs.filter((client) => client.id !== id));
         toast.success("Quiz supprimé avec succès");
@@ -110,21 +110,27 @@ const TableQuizz = () => {
           <tbody className="divide-y divide-gray-200">
             {quizs.map((quiz) => {
               return (
-                <tr key={quiz.id}>
-                  <td className="px-6 py-4">{quiz.name}</td>
-                  <td className="px-6 py-4">{quiz.description}</td>
-                  <td className="px-6 py-4">{quiz.authorId}</td>
-                  <td className="px-6 py-4">{quiz.branchId}</td>
-                  <td className="px-6 py-4">{quiz.createAt}</td>
-                  <td className="px-6 py-4">{quiz.startDate}</td>
-                  <td className="px-6 py-4">{quiz.endDate}</td>
+                <tr key={quiz?.id}>
+                  <td className="px-6 py-4">{quiz?.name}</td>
+                  <td className="px-6 py-4">{quiz?.description}</td>
+                  <td className="px-6 py-4">{quiz?.authorId}</td>
+                  <td className="px-6 py-4">
+                    {quiz?.branchId?.length > 0
+                      ? quiz.branchId?.join(", ")
+                      : "Aucune branche"}
+                  </td>
+                  <td className="px-6 py-4">{quiz?.createAt}</td>
+                  <td className="px-6 py-4">{quiz?.startDate}</td>
+                  <td className="px-6 py-4">{quiz?.endDate}</td>
                   <td className="px-6 py-4">
                     <div className="flex space-x-2">
-                      <EditQuizzModal
-                        quiz={quiz}
-                        quizs={quizs}
-                        setQuizs={setQuizs}
-                      />
+                      {quiz && (
+                        <EditQuizzModal
+                          quiz={quiz}
+                          quizs={quizs}
+                          setQuizs={setQuizs}
+                        />
+                      )}
 
                       <DetailsQuizModal
                         quiz={quiz}
@@ -144,8 +150,13 @@ const TableQuizz = () => {
                           <DeleteForever fontSize="medium" />
                         </button>
                       </Tooltip>
-
-                      <AddQuests quiz={quiz} />
+                      {quiz && (
+                        <AddQuests
+                          quiz={quiz}
+                          quizs={quizs}
+                          setQuizs={setQuizs}
+                        />
+                      )}
                     </div>
                   </td>
                 </tr>

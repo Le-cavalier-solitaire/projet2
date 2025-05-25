@@ -3,29 +3,78 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import EditIcon from "@mui/icons-material/Edit";
 import { Tooltip } from "@mui/material";
+import { Theme, useTheme } from "@mui/material/styles";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+
+interface Quiz {
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  branchId: string[];
+}
 
 const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
   const [listBranch, setListBranch] = useState([]);
   const [listAuthor, setListAuthor] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [BranchName, setBranchName] = useState<string[]>([]);
   const [data, setData] = useState({
     name: quiz.name,
     description: quiz.description,
     startDate: quiz.startDate,
     endDate: quiz.endDate,
-    branchId: "",
+    branchId: BranchName,
     createAt: quiz.createAt,
   });
+
+  const names = [
+    { id: 1, nameBranch: "Maintenance" },
+    { id: 2, nameBranch: "Programmation" },
+    { id: 3, nameBranch: "Bureautique" },
+    { id: 4, nameBranch: "Administratoin et securité reseau" },
+  ];
+  const theme = useTheme();
+
+  useEffect(() => {
+    setData((prev) => ({ ...prev, branchId: BranchName }));
+  }, [BranchName]);
+
+  const handleChange = (event: SelectChangeEvent<number[]>) => {
+    const { value } = event.target;
+    setBranchName(typeof value === "string" ? value.split(",") : value);
+  };
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
+  function getStyles(name: string, BranchName: string[], theme: Theme) {
+    return {
+      fontWeight: BranchName.includes(name)
+        ? theme.typography.fontWeightMedium
+        : theme.typography.fontWeightRegular,
+    };
+  }
 
   function handleSubmit(e) {
     e.preventDefault();
     axios
-      .patch(`http://localhost:3000/quiz/${quiz.id}`, { ...data })
+      .patch(`http://localhost:3000/api/updateQuiz/${quiz.id}`, { ...data })
       .then((res) => {
-        const editQuiz = quizs.map((client) =>
-          client.id === quiz.id ? (client = res.data) : client
+        const editQuiz = res.data.quiz;
+        const editQuizs = quizs.map((client) =>
+          client.id === quiz.id ? (client = editQuiz) : client
         );
-        setQuizs(editQuiz);
+        setQuizs(editQuizs);
         toast.success("Information modifié avec succès!");
         closeModal();
       })
@@ -68,6 +117,10 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
       closeModal();
     }
   };
+
+  if (!quiz) {
+    return <div>Chargement du quiz...</div>; // Ou un message d'erreur
+  }
 
   return (
     <div className="bg-green h-auto">
@@ -183,26 +236,32 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branche
-                </label>
-                <select
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) =>
-                    setData({ ...data, branchId: e.target.value })
-                  }
+              <div className="m-1 w-2/1">
+                <InputLabel className="block text-sm font-medium text-gray-700 mb-1">
+                  Name branch
+                </InputLabel>
+                <Select
+                  labelId="demo-multiple-name-label"
+                  id="demo-multiple-name"
+                  multiple
+                  aria-placeholder="Select Branch"
+                  value={BranchName}
+                  onChange={handleChange}
+                  input={<OutlinedInput label="Name" />}
+                  MenuProps={MenuProps}
+                  fullWidth
+                  className="w-full text-black"
                 >
-                  <option value="">Sélectionner une branche</option>
-                  {listBranch.map((branch) => {
-                    return (
-                      <option value={branch.id} key={branch.id}>
-                        {branch.name}
-                      </option>
-                    );
-                  })}
-                </select>
+                  {names.map((name) => (
+                    <MenuItem
+                      key={name.id}
+                      value={name.id}
+                      style={getStyles(name.nameBranch, BranchName, theme)}
+                    >
+                      {name.nameBranch}
+                    </MenuItem>
+                  ))}
+                </Select>
               </div>
             </div>
 
