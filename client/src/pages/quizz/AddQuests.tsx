@@ -379,14 +379,26 @@ function AddQuests({ quiz, quizs, setQuizs }) {
                   key={questionIndex}
                   className="border-3 ml-5 p-4 mt-4 border-green-600 border-opacity-50-rounded-md"
                 >
-                  <SingleQuestion
-                    questionIndex={questionIndex}
-                    ref={textAreaRefs.current[questionIndex]}
-                    value={singleQuestion.mainQuestion}
-                    onChange={(e) => {
-                      handleInputChange(questionIndex, e.target.value);
-                    }}
-                  />
+                  <div className="flex items-center gap-2 relative">
+                    <SingleQuestion
+                      questionIndex={questionIndex}
+                      ref={textAreaRefs.current[questionIndex]}
+                      value={singleQuestion.mainQuestion}
+                      onChange={(e) => {
+                        handleInputChange(questionIndex, e.target.value);
+                      }}
+                    />
+
+                    {questionIndex !== 0 && (
+                      <HighlightOffRoundedIcon
+                        className="top-2 absolute right-3 cursor-pointer"
+                        style={{ color: "red"}}
+                        onClick={() => {
+                          deleteQuestion(singleQuestion);
+                        }}
+                      />
+                    )}
+                  </div>
                   <ChoiceAnswer
                     questionIndex={questionIndex}
                     singleQuestion={singleQuestion}
@@ -398,15 +410,7 @@ function AddQuests({ quiz, quizs, setQuizs }) {
                     }}
                     prefixes={prefixes}
                   />
-                  {questionIndex !== 0 && (
-                    <HighlightOffRoundedIcon
-                      className="top-2 right-3 cursor-pointer"
-                      style={{ color: "red", marginTop: "5px" }}
-                      onClick={() => {
-                        deleteQuestion(singleQuestion);
-                      }}
-                    />
-                  )}
+
                   <CorrectAnswer
                     singleQuestion={singleQuestion}
                     onChangeCorrectAnswer={(text) => {
@@ -546,7 +550,10 @@ export function ChoiceAnswer({
       <div className="text-[18px] font-bold">Choices:</div>
       <div className="border-2 border-gray-500 rounded-md p-4 w-full">
         {choices.map((singleChoice, choiceIndex) => (
-          <div key={choiceIndex} className="flex gap-2 items-center mt-3">
+          <div
+            key={choiceIndex}
+            className="flex gap-2 items-center relative mt-3"
+          >
             <span>{alphabets[choiceIndex]}:</span>
             <input
               value={singleChoice.substring(prefixes[choiceIndex].length + 2)}
@@ -558,11 +565,11 @@ export function ChoiceAnswer({
                 );
               }}
               placeholder={`Add your ${positions[choiceIndex]} choice`}
-              className="border text-[18px] font-serif border-gray-500 p-2 w-full rounded-md outline-none"
+              className="border text-[18px] font-serif border-gray-500 p-2 w-full rounded-md outline-none pr-10"
             />
             {choiceIndex >= 2 && (
               <HighlightOffRoundedIcon
-                className="top-2 right-3 cursor-pointer"
+                className="top-2 absolute right-3 cursor-pointer"
                 style={{ color: "red", marginTop: "5px" }}
                 onClick={() => {
                   deleteChoiceFunction(choiceIndex);
