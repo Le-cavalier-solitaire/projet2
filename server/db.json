@@ -3,7 +3,7 @@
     {
       "id": "934f",
       "name": "Meka",
-      "surname": "Karel",
+      "surname": "Karelle",
       "mail": "karel@gmail.com",
       "password": "$2b$10$csNTSpK0.1reFG4K9SebK.qP/DbUY5R3nRpR5uERE/USortj8rHte",
       "confirm_password": "123",
@@ -43,19 +43,30 @@
       "mail": "loic@gmail.com",
       "telephone": "656525561",
       "role": "Student",
-      "brancnId": "",
+      "brancnId": "Programmation",
       "dob": "2025-04-30"
     },
     {
-      "id": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe2",
-      "name": "brayann",
-      "password": "$2b$10$EM6DIiWI02gCX4SIstBnguZSEY9LhbdX/Xudr8I9yzwIDSHnMbPeu",
-      "surname": "steve",
-      "mail": "loics@gmail.com",
-      "telephone": "656525561",
-      "role": "Student",
+      "id": "f9d10929-11e2-47f2-8bcb-59e07cd99749",
+      "name": "carole",
+      "password": "$2b$10$RHSaBhGt2xXSXVn5KN4a7uoWeym81Js1ZHUZr9pOX24ng8kte3CRO",
+      "surname": "lolo",
+      "mail": "lolo@gmaim.com",
+      "telephone": "654540909",
+      "role": "Administrateur",
       "brancnId": "",
-      "dob": "2025-04-30"
+      "dob": "2025-05-27"
+    },
+    {
+      "id": "831101c2-ecd6-492e-a8dd-b1be2bb8cf53",
+      "name": "brayann",
+      "password": "$2b$10$ki2WOYBnsiJXLW8C6JbtT.sPrLEmOozrk6Ahi0C43.R96AkagtmT2",
+      "surname": "steve",
+      "mail": "steve@gmail.com",
+      "telephone": "652520123",
+      "role": "Student",
+      "brancnId": "Administration Reseau",
+      "dob": "2025-05-27"
     }
   ],
   "quiz": [
@@ -65,7 +76,7 @@
       "description": "L'agricultute au Kmer",
       "authorId": "baa7",
       "branchId": [
-        2
+        "Marketing Digital"
       ],
       "createAt": "2025-04-25T20:32",
       "startDate": "2025-05-01T20:32",
@@ -131,8 +142,8 @@
       "description": "les bases de pythons",
       "authorId": "baa7",
       "branchId": [
-        4,
-        2
+        "Programmation",
+        "Administration Reseau"
       ],
       "createAt": "2025-04-30T23:11:30.155Z",
       "startDate": "2025-05-02T08:30",
@@ -172,10 +183,11 @@
       "description": "cet exercice vise à evaluer les connaissances de l'etudiant sur les différents raccourcis claviers",
       "authorId": "baa7",
       "branchId": [
-        1,
-        2,
-        3,
-        4
+        "Programmation",
+        "Bureautique",
+        "Trading",
+        "Administration Reseau",
+        "Marketing Digital"
       ],
       "createAt": "2025-05-18T23:28:21.137Z",
       "startDate": "2025-05-19T01:00",
@@ -251,10 +263,8 @@
       "description": "cet exercice vise à evaluer les connaissances de l'utilisateur sur la maitrise du clavier particulièrement sur les symboles",
       "authorId": "baa7",
       "branchId": [
-        1,
-        2,
-        3,
-        4
+        "Marketing Digital",
+        "Administration Reseau"
       ],
       "createAt": "2025-05-18T23:35:09.974Z",
       "startDate": "2025-05-19T01:30",
@@ -275,45 +285,6 @@
           "marks": 1
         }
       ]
-    }
-  ],
-  "produits": [
-    {
-      "id": 1,
-      "nom": "Ordinateur portable",
-      "prix": 899,
-      "stock": 15
-    },
-    {
-      "id": 2,
-      "nom": "Smartphone",
-      "prix": 499,
-      "stock": 25
-    },
-    {
-      "id": 3,
-      "nom": "Tablette",
-      "prix": 349,
-      "stock": 0
-    }
-  ],
-  "commandes": [
-    {
-      "id": 1,
-      "utilisateurId": 1,
-      "produits": [
-        1,
-        2
-      ],
-      "date": "2025-03-25"
-    },
-    {
-      "id": 2,
-      "utilisateurId": 2,
-      "produits": [
-        3
-      ],
-      "date": "2025-03-28"
     }
   ],
   "results": [
@@ -364,6 +335,28 @@
       "score": "7/7",
       "percent": 100,
       "feedback": "Acquis"
+    }
+  ],
+  "branch": [
+    {
+      "name": "Marketing Digital",
+      "id": "7254b45e-b715-4128-9ae8-8ede9fd082d3"
+    },
+    {
+      "name": "Programmation",
+      "id": "870c7885-5cb8-4477-bf49-e8d84042e13e"
+    },
+    {
+      "name": "Bureautique",
+      "id": "fec3088e-6e05-46e3-8765-8a57ce975fbe"
+    },
+    {
+      "name": "Administration Reseau",
+      "id": "d345abfe-a27e-4ac7-a9a5-087733584f33"
+    },
+    {
+      "name": "Trading",
+      "id": "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
     }
   ]
 }

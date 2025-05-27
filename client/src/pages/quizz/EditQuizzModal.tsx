@@ -28,15 +28,9 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
     startDate: quiz.startDate,
     endDate: quiz.endDate,
     branchId: BranchName,
-    createAt: quiz.createAt,
   });
 
-  const names = [
-    { id: 1, nameBranch: "Maintenance" },
-    { id: 2, nameBranch: "Programmation" },
-    { id: 3, nameBranch: "Bureautique" },
-    { id: 4, nameBranch: "Administratoin et securité reseau" },
-  ];
+  const [names, setNameOfBranch] = useState([{}]);
   const theme = useTheme();
 
   useEffect(() => {
@@ -76,6 +70,13 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
         );
         setQuizs(editQuizs);
         toast.success("Information modifié avec succès!");
+        setData({
+          name: "",
+          description: "",
+          startDate: "",
+          endDate: "",
+          branchId: [],
+        });
         closeModal();
       })
       .catch((err) => {
@@ -87,9 +88,9 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
   // Gestion de la touche Échap
 
   function getListBranch() {
-    axios("http://localhost:3000/branch?_sort=name&_order=desc")
+    axios("http://localhost:3000/api/branchs")
       .then((res) => {
-        setListBranch(res.data);
+        setNameOfBranch(res.data);
       })
       .catch((error) => {
         toast.error("Unable to get databranch");
@@ -255,10 +256,10 @@ const EditQuizzModal = ({ quiz, quizs, setQuizs }) => {
                   {names.map((name) => (
                     <MenuItem
                       key={name.id}
-                      value={name.id}
-                      style={getStyles(name.nameBranch, BranchName, theme)}
+                      value={name.name}
+                      style={getStyles(name.name, BranchName, theme)}
                     >
-                      {name.nameBranch}
+                      {name.name}
                     </MenuItem>
                   ))}
                 </Select>

@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
     {
       icon: CloseFullscreenIcon,
       text: "Branch List",
-      autorised: "Teacher",
+      autorised: "Administrateur",
       path: "branch",
       status: false,
     },

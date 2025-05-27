@@ -8,6 +8,7 @@ interface User {
   surname: string;
   mail: string;
   role: string;
+  brancnId: string;
 }
 
 interface DecodedToken {

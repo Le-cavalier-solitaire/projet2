@@ -135,7 +135,7 @@ server.post("/api/user", async (req, res) => {
     dob: payload.dob,
   };
   users.push(userData).write();
-  res.status(201).json(payload);
+  res.status(201).json(userData);
 });
 
 //route pour supprimer un user specifique
@@ -199,15 +199,116 @@ server.patch("/api/updateUser/:id", (req, res) => {
   res.status(200).json({ success: true, user: updatedUser });
 });
 
-// route pour recupérer les quizs
-server.get("/api/quiz", (req, res) => {
+//Route pour obtenir les branches
+server.get("/api/branchs", (req, res) => {
   try {
-    const quizs = router.db.get("quiz").value();
+    const branchs = router.db.get("branch").value();
 
-    if (!quizs || quizs.length === 0) {
+    if (!branchs || branchs.length === 0) {
+      console.log("Aucune branche trouvé dans la base de données");
     }
 
-    res.json(quizs || []);
+    res.json(branchs || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des branches:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des branches",
+    });
+  }
+});
+
+//methode POST branch
+server.post("/api/branch", async (req, res) => {
+  const newBranch = req.body;
+  const branchs = router.db.get("branch");
+  const branchData = {
+    ...newBranch,
+    id: uuidv4(),
+  };
+  branchs.push(branchData).write();
+  res.status(201).json(branchData);
+});
+
+//route pour supprimer une branche specifique
+server.delete("/api/deleteBranch/:id", (req, res) => {
+  const branchID = req.params.id;
+
+  const branchs = router.db.get("branch");
+
+  // Récupérer le tableau complet pour vérification
+  const branchsArray = branchs.value();
+
+  // Vérifier les IDs existants et leur type
+  const existingIds = branchsArray.map((u) => ({
+    id: u.id,
+    type: typeof u.id,
+  }));
+
+  // Trouver l'index directement dans le tableau (pas dans la chaîne lowdb)
+  const branchIndex = branchsArray.findIndex(
+    (branch) => branch.id === branchID
+  );
+
+  if (branchIndex == -1) {
+    return res.status(404).json({ error: "branche non trouvée", id: branchID });
+  }
+
+  // Supprimer l'utilisateur spécifique en utilisant l'API lowdb
+  const removedBranch = branchs.splice(branchIndex, 1).write();
+
+  // Vérifier le résultat
+  console.log("Utilisateur supprimé:", JSON.stringify(removedBranch));
+  console.log(
+    "Utilisateurs après suppression:",
+    JSON.stringify(branchs.value())
+  );
+
+  res.status(200).json({ success: true, id: branchID, removed: removedBranch });
+});
+
+//route pour mettre à jour les données d'une branche spécifique
+server.patch("/api/updatebranch/:id", (req, res) => {
+  const newBranchData = req.body;
+  const branchId = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
+
+  const branchs = router.db.get("branch");
+  const branchsArray = branchs.value();
+
+  // Trouver l'utilisateur par ID
+  const branchIndex = branchsArray.findIndex(
+    (branch) => branch.id === branchId
+  );
+
+  if (branchIndex == -1) {
+    return res.status(404).json({ error: "branche non trouvée", id: branchId });
+  }
+
+  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
+  const currentBranch = branchsArray[branchIndex];
+  const updatedBrach = { ...currentBranch, ...newBranchData };
+
+  // Mettre à jour l'utilisateur dans l'objet lowdb
+  branchs.splice(branchIndex, 1, updatedBrach).write();
+
+  // Vérifier la mise à jour
+  const afterUpdate = branchs.value()[branchIndex];
+
+  res.status(200).json({ success: true, branch: updatedBrach });
+});
+
+// route pour recupérer les quizs en fonction d'une branche
+server.get("/api/quiz/:userBranch", (req, res) => {
+  try {
+    const branchUser = req.params.userBranch;
+    const quizs = router.db.get("quiz").value();
+    const filteredQuizs = quizs.filter((quiz) =>
+      quiz.branchId.includes(branchUser)
+    );
+
+    if (!filteredQuizs || quizs.length === 0) {
+    }
+
+    res.json(filteredQuizs || []);
   } catch (error) {
     res.status(500).json({
       error: "Erreur serveur lors de la récupération des utilisateurs",
@@ -286,7 +387,7 @@ server.get("/api/quiz/authorId/:userId", (req, res) => {
 server.post("/api/quiz", (req, res) => {
   const payload = req.body;
   const quizs = router.db.get("quiz");
-  const newQuiz = { ...payload, id: uuidv4() };
+  const newQuiz = { ...payload, id: uuidv4(), create_At: new Date() };
   quizs.push(newQuiz).write();
   res.status(201).json(newQuiz);
 });

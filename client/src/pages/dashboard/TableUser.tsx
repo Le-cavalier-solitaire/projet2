@@ -4,6 +4,8 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import EditUserModal from "./EditUserModal";
 import toast from "react-hot-toast";
+import { DeleteForever } from "@mui/icons-material";
+import { Tooltip } from "@mui/material";
 
 interface User {
   id: number;
@@ -22,15 +24,10 @@ const TableUser = () => {
   function getusers() {
     axios("http://localhost:3000/api/users")
       .then((res) => {
-        console.log("Réponse API utilisateurs:", res.data);
         setUsers(res.data);
       })
       .catch((error) => {
-        console.error(
-          "Erreur lors de la récupération des utilisateurs:",
-          error
-        );
-        alert("Unable to get user");
+        toast.error("Unable to get user");
       });
   }
 
@@ -39,19 +36,13 @@ const TableUser = () => {
   }, []);
 
   const deleteUser = (id: number) => {
-    console.log("Tentative de suppression de l'utilisateur avec ID:", id);
     axios
       .delete(`http://localhost:3000/api/deleteUser/${id}`)
       .then((response) => {
-        console.log("Réponse de suppression:", response.data);
-        // Mettre à jour l'état des utilisateurs en filtrant l'utilisateur supprimé
         setUsers(users.filter((user) => user.id !== id));
         toast.success("Utilisateur supprimé avec succès");
-        // Optionnel: rafraîchir la liste complète
-        // getusers();
       })
       .catch((error) => {
-        console.error("Erreur lors de la suppression:", error);
         alert("Unable to delete User");
       });
   };
@@ -63,15 +54,6 @@ const TableUser = () => {
         <h1 className="text-2xl font-bold">Gestion des utilisateurs</h1>
 
         <RegistrationModal users={users} setUsers={setUsers} />
-
-        <button
-          style={{ background: "blue" }}
-          type="button"
-          onClick={getusers}
-          className="bg-blue-500 ml-3 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Refresh
-        </button>
       </div>
 
       {/* Users Table */}
@@ -117,12 +99,19 @@ const TableUser = () => {
                         setUsers={setUsers}
                       />
 
-                      <button
-                        onClick={() => deleteUser(user.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        Supprimer
-                      </button>
+                      <Tooltip title="Delete user">
+                        <button
+                          style={{
+                            backgroundColor: "oklch(0.505 0.213 27.518)",
+                            borderRadius: "5px",
+                            boxShadow: "0px 6px 6px black",
+                          }}
+                          onClick={() => deleteUser(user.id)}
+                          className="text-white"
+                        >
+                          <DeleteForever fontSize="medium" />
+                        </button>
+                      </Tooltip>
                     </div>
                   </td>
                 </tr>

@@ -17,12 +17,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-  const names = [
-    { id: 1, nameBranch: "Maintenance" },
-    { id: 2, nameBranch: "Programmation" },
-    { id: 3, nameBranch: "Bureautique" },
-    { id: 4, nameBranch: "Administratoin et securité reseau" },
-  ];
+  const [names, setNameOfBranch] = useState([{}]);
 
   const theme = useTheme();
   const [BranchName, setBranchName] = useState<string[]>([]);
@@ -63,7 +58,6 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
     description: "",
     authorId: user?.id,
     branchId: BranchName,
-    createAt: new Date(),
     startDate: "",
     endDate: "",
     typeOfTime: "global Time",
@@ -89,7 +83,6 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
           description: "",
           authorId: user.id,
           branchId: [],
-          createAt: new Date(),
           startDate: "",
           endDate: "",
           typeOfTime: "global Time",
@@ -98,7 +91,6 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
         closeModal();
       })
       .catch((err) => {
-        console.log(err);
         toast.error("une erreur est survenue");
       });
   }
@@ -106,9 +98,9 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
   // Gestion de la touche Échap
 
   function getListBranch() {
-    axios("http://localhost:3000/branch?_sort=name&_order=desc")
+    axios("http://localhost:3000/api/branchs")
       .then((res) => {
-        setListBranch(res.data);
+        setNameOfBranch(res.data);
       })
       .catch((error) => {
         toast.error("Unable to get data");
@@ -283,10 +275,10 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
                   {names.map((name) => (
                     <MenuItem
                       key={name.id}
-                      value={name.id}
-                      style={getStyles(name.nameBranch, BranchName, theme)}
+                      value={name.name}
+                      style={getStyles(name.name, BranchName, theme)}
                     >
-                      {name.nameBranch}
+                      {name.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -303,7 +295,7 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
                   name="row-controlled-radio-buttons-group"
                   value={data.typeOfTime}
                   onChange={(e) => {
-                    setData({ ...data, typeOfTime: e.target.value })
+                    setData({ ...data, typeOfTime: e.target.value });
                     // const newValue = e.target.value;
                     // setData((prev) => {
                     //   const newData = { ...prev, typeOfTime: newValue };

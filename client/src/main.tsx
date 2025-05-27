@@ -16,6 +16,7 @@ import { Toaster } from "react-hot-toast";
 import QuizzList from "./pages/quizz/QuizzList.tsx";
 import MyQuizz from "./pages/quizzActiv/MyQuizz.tsx";
 import DoQuizz from "./pages/quizzActiv/DoQuizz.tsx";
+import BranchList from "./pages/branch/BranchList.tsx";
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("token");
@@ -47,6 +48,14 @@ const App = () => {
       path: "/userlist",
       element: isAuthenticated() ? (
         <UserDash />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+    {
+      path: "/branch",
+      element: isAuthenticated() ? (
+        <BranchList />
       ) : (
         <Navigate to="/login" replace />
       ),

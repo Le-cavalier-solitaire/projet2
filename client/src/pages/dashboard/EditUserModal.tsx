@@ -1,6 +1,9 @@
+import { Tooltip } from "@mui/material";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import EditIcon from "@mui/icons-material/Edit";
+
 
 const EditUserModal = ({ user, users, setUsers }) => {
   const [listBranch, setListBranch] = useState([]);
@@ -48,7 +51,7 @@ const EditUserModal = ({ user, users, setUsers }) => {
   // Gestion de la touche Échap
 
   function getListBranch() {
-    axios("http://localhost:3000/branch?_sort=name&_order=desc")
+    axios("http://localhost:3000/api/branchs")
       .then((res) => {
         setListBranch(res.data);
       })
@@ -83,14 +86,25 @@ const EditUserModal = ({ user, users, setUsers }) => {
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
 
-      <button onClick={openModal} className="text-blue-500 hover:text-red-700">
-        Edit
-      </button>
+      <Tooltip title="Edit quiz">
+        <button
+          style={{
+            backgroundColor: "oklch(0.623 0.214 259.815)",
+            borderRadius: "5px",
+            boxShadow: "0px 6px 6px black",
+          }}
+          onClick={openModal}
+          className="text-white"
+        >
+          <EditIcon fontSize="medium" />
+        </button>
+      </Tooltip>
 
       {/* Overlay du modal */}
       <div
+      style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
         onClick={handleBackdropClick}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
+        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center ${
           isOpen ? "visible" : "hidden"
         }`}
       >
@@ -228,7 +242,7 @@ const EditUserModal = ({ user, users, setUsers }) => {
                   <option value="">Sélectionner une branche</option>
                   {listBranch.map((branch) => {
                     return (
-                      <option value={branch.id} key={branch.id}>
+                      <option value={branch.name} key={branch.id}>
                         {branch.name}
                       </option>
                     );
@@ -237,28 +251,13 @@ const EditUserModal = ({ user, users, setUsers }) => {
               </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="terms"
-                required
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label className="ml-2 text-sm text-gray-600">
-                J'accepte les
-                <a href="#" className="text-blue-600 hover:underline">
-                  conditions d'utilisation
-                </a>
-              </label>
-            </div>
-
             <button
               onClick={(e) => handleSubmit(e)}
               style={{ backgroundColor: "green" }}
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Create Account
+              Edit Information
             </button>
           </form>
         </div>

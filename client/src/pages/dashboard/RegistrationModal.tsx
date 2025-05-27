@@ -59,11 +59,11 @@ const RegistrationModal = ({ users, setUsers }) => {
   // Gestion de la touche Échap
 
   function getListBranch() {
-    axios("http://localhost:3000/branch?_sort=name&_order=desc")
+    axios("http://localhost:3000/api/branchs")
       .then((res) => {
         setListBranch(res.data);
       })
-      .catch((error) => {
+      .catch((err) => {
         toast.error("Unable to get data");
       });
   }
@@ -95,15 +95,16 @@ const RegistrationModal = ({ users, setUsers }) => {
       {/* Bouton d'ouverture */}
       <button
         onClick={openModal}
-        style={{ background: "green" }}
+        style={{ background: "green", boxShadow: "3px 5px 5px 1px black" }}
         className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
       >
-        Ouvrir le formulaire
+        Add User
       </button>
 
       {/* Overlay du modal */}
       <div
         onClick={handleBackdropClick}
+        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
         className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
           isOpen ? "visible" : "hidden"
         }`}
@@ -276,7 +277,7 @@ const RegistrationModal = ({ users, setUsers }) => {
                   <option value="">Sélectionner une branche</option>
                   {listBranch.map((branch) => {
                     return (
-                      <option value={branch.id} key={branch.id}>
+                      <option value={branch.name} key={branch.id}>
                         {branch.name}
                       </option>
                     );
