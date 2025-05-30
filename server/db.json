@@ -10,7 +10,9 @@
       "telephone": "652200629",
       "role": "Parent",
       "brancnId": "",
-      "dob": "2003-07-22"
+      "dob": "2003-07-22",
+      "verificationCode": "",
+      "verified": true
     },
     {
       "id": "baa7",
@@ -22,7 +24,9 @@
       "telephone": "56565656",
       "role": "Teacher",
       "brancnId": "",
-      "dob": "2001-12-02"
+      "dob": "2001-12-02",
+      "verificationCode": "",
+      "verified": true
     },
     {
       "id": "67c4d876-48c7-41d7-ace8-32733744461c",
@@ -33,7 +37,9 @@
       "telephone": "6525223232",
       "role": "Administrateur",
       "brancnId": "",
-      "dob": "2025-04-29"
+      "dob": "2025-04-29",
+      "verificationCode": "",
+      "verified": true
     },
     {
       "id": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
@@ -44,7 +50,9 @@
       "telephone": "656525561",
       "role": "Student",
       "brancnId": "Programmation",
-      "dob": "2025-04-30"
+      "dob": "2025-04-30",
+      "verificationCode": "",
+      "verified": true
     },
     {
       "id": "f9d10929-11e2-47f2-8bcb-59e07cd99749",
@@ -55,7 +63,9 @@
       "telephone": "654540909",
       "role": "Administrateur",
       "brancnId": "",
-      "dob": "2025-05-27"
+      "dob": "2025-05-27",
+      "verificationCode": "",
+      "verified": true
     },
     {
       "id": "831101c2-ecd6-492e-a8dd-b1be2bb8cf53",
@@ -66,7 +76,35 @@
       "telephone": "652520123",
       "role": "Student",
       "brancnId": "Administration Reseau",
-      "dob": "2025-05-27"
+      "dob": "2025-05-27",
+      "verificationCode": "",
+      "verified": true
+    },
+    {
+      "id": "9f90d647-6845-4a3a-a625-7b7944a14b62",
+      "name": "lili",
+      "password": "$2b$10$bgIEHFLM5ia8.QvM07PKGuB7HR3sFGDDNZ.2nbH9m7jC9CYDhTG6W",
+      "surname": "lolo",
+      "mail": "suzannekenmoe7@gmail.com",
+      "telephone": "",
+      "role": "",
+      "brancnId": "",
+      "dob": "",
+      "verificationCode": "",
+      "verified": true
+    },
+    {
+      "id": "656cec63-abbd-453e-861e-aa7cdfce0d5d",
+      "name": "toto2",
+      "password": "$2b$10$tK78bmTwYWc0MGimZBWe3.YMHtaAmBvt6P/DjhBLexI5oZxVNQKsq",
+      "surname": "toto1",
+      "mail": "djkarel92@gmail.com",
+      "telephone": "654585487",
+      "role": "Student",
+      "brancnId": "Trading",
+      "dob": "2025-05-30",
+      "verificationCode": "",
+      "verified": true
     }
   ],
   "quiz": [

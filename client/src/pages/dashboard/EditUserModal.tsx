@@ -14,7 +14,6 @@ const EditUserModal = ({ user, users, setUsers }) => {
   const [data, setData] = useState({
     name: user.name,
     surname: user.surname,
-    mail: user.mail,
     telephone: user.telephone,
     role: user.role,
     brancnId: "",
@@ -192,20 +191,6 @@ const EditUserModal = ({ user, users, setUsers }) => {
                   value={data.telephone}
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="exemple@email.com"
-                onChange={(e) => setData({ ...data, mail: e.target.value })}
-                value={data.mail}
-              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

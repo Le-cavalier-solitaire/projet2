@@ -1,0 +1,8 @@
+const { Resend } = require("resend");
+if (!process.env.RESEND_API_KEY) {
+  throw new Error(
+    "RESEND_API_KEY n'est pas défini dans les variables d'environnement"
+  );
+}
+const resend = new Resend(process.env.RESEND_API_KEY);
+module.exports = { resend };

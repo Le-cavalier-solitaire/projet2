@@ -1,13 +1,29 @@
+const dotenv = require("dotenv");
+const path = require("path");
+dotenv.config({ path: path.join(__dirname, ".env") });
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jsonServer = require("json-server");
+
 const server = jsonServer.create();
-const path = require("path");
 const { error } = require("console");
 const router = jsonServer.router(path.join(__dirname, "db.json"));
 const middlewares = jsonServer.defaults();
 const port = 3000;
+const { resend } = require("./src/lib/resend");
+
+// Génère un code à 6 caractères
+const generateToken = () =>
+  Math.random().toString(36).substring(2, 8).toUpperCase();
+
+const getEmailTemplate = (validationLink) => `
+<div>
+    <h1>Validation de compte</h1>
+    <p>Cliquez sur le lien ci-dessous pour valider votre compte :</p>
+    <a href="${validationLink}">Valider mon compte</a>
+  </div>
+`;
 
 // Utiliser les middlewares par défaut (logger, static, cors et no-cache)
 server.use(middlewares);
@@ -47,7 +63,7 @@ server.post("/api/login", async (req, res) => {
 
   // Cherche l'utilisateur dans "db.json"
   const users = router.db.get("users").value();
-  const user = users.find((u) => u.mail === email);
+  const user = users.find((u) => u.mail === email && u.verified === true);
 
   console.log("Utilisateur trouvé:", user); // Debug
 
@@ -86,8 +102,9 @@ server.get("/api/users", (req, res) => {
     if (!users || users.length === 0) {
       console.log("Aucun utilisateur trouvé dans la base de données");
     }
+    const usersArray = users.filter((user)=>user.verified == true)
 
-    res.json(users || []);
+    res.json(usersArray || []);
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs:", error);
     res.status(500).json({
@@ -123,6 +140,11 @@ server.post("/api/user", async (req, res) => {
   const users = router.db.get("users");
   const password = payload.password;
   const passwordHash = await bcrypt.hash(password, 10);
+  const email = payload.mail;
+  const verificationCode = generateToken();
+  const token = jwt.sign({ email, code: verificationCode }, JWT_SECRET, {
+    expiresIn: "1h",
+  });
   const userData = {
     id: uuidv4(),
     name: payload.name,
@@ -133,9 +155,69 @@ server.post("/api/user", async (req, res) => {
     role: payload.role,
     brancnId: payload.brancnId,
     dob: payload.dob,
+    verificationCode,
+    verified: false,
   };
   users.push(userData).write();
+  const getEmailTemplate = (validationLink) => `
+  <div>
+      <h1>Validation de compte</h1>
+      <p>Cliquez sur le lien ci-dessous pour valider votre compte :</p>
+      <a href="${validationLink}">Valider mon compte</a>
+      <p>Si le lien ci-dessus ne fonctionne pas, copiez le lien ci dessous dans votre navigateur</p>
+      <p> ${validationLink}</p>
+    </div>
+  `;
+  const sendEmail = async (email, validationLink) => {
+    try {
+      const data = await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: email,
+        // email,
+        subject: "Validate Account",
+        html: getEmailTemplate(validationLink),
+      });
+      console.log("Email sent successfully:", data);
+      return true;
+    } catch (error) {
+      console.error("Error sending email:", error);
+      return false;
+    }
+  };
+  // Appelez sendEmail après la création de l'utilisateur
+  const emailSent = await sendEmail(
+    email,
+    `http://localhost:3000/api/verifyAccount?token=${token}`
+  );
+  if (!emailSent) {
+    console.warn("Email could not be sent");
+  }
   res.status(201).json(userData);
+});
+
+// Route de vérification
+server.get("/api/verifyAccount", (req, res) => {
+  try {
+    const { token } = req.query;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const users = router.db.get("users");
+    const user = users.find(
+      (u) => u.mail === decoded.email && u.verificationCode === decoded.code
+    );
+
+    if (user) {
+      user.verified = true;
+      users
+        .find((u) => u.mail === decoded.email)
+        .assign({ verified: true, verificationCode: "" })
+        .write();
+      return res.redirect("http://localhost:3000/verification-success");
+    }
+
+    return res.redirect("http://localhost:3000/verification-failed");
+  } catch (error) {
+    res.redirect("http://localhost:3000/verification-failed");
+  }
 });
 
 //route pour supprimer un user specifique
