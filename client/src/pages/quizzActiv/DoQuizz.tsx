@@ -16,6 +16,7 @@ import { ArrowCircleLeftOutlined } from "@mui/icons-material";
 import { ArrowCircleRightOutlined } from "@mui/icons-material";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
+import { v4 as uuidv4 } from "uuid";
 
 function DoQuizz() {
   const [currentQuiz, setCurrentQuiz] = useState([]);
@@ -391,7 +392,9 @@ function DoQuizz() {
         axios
           .get(`http://localhost:3000/api/quiz/id/${params.id}`)
           .then((res) => {
-            setCurrentQuiz(res.data);
+            const quiz = res.data
+            const { id, ...quizSansId } = quiz;
+            setCurrentQuiz({...quizSansId, id: uuidv4()});
             setQuizQuestions(res.data.quizQuestions);
           })
           .catch((error) => {

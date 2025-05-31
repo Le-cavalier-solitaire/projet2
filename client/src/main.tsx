@@ -17,6 +17,7 @@ import QuizzList from "./pages/quizz/QuizzList.tsx";
 import MyQuizz from "./pages/quizzActiv/MyQuizz.tsx";
 import DoQuizz from "./pages/quizzActiv/DoQuizz.tsx";
 import BranchList from "./pages/branch/BranchList.tsx";
+import ResultList from "./pages/result/ResultList.tsx";
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("token");
@@ -80,6 +81,14 @@ const App = () => {
       path: "/quizStart/:id/:status/:userId",
       element: isAuthenticated() ? (
         <DoQuizz />
+      ) : (
+        <Navigate to="/login" replace />
+      ),
+    },
+    {
+      path: "/result",
+      element: isAuthenticated() ? (
+        <ResultList />
       ) : (
         <Navigate to="/login" replace />
       ),

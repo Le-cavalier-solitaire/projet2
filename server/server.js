@@ -102,7 +102,7 @@ server.get("/api/users", (req, res) => {
     if (!users || users.length === 0) {
       console.log("Aucun utilisateur trouvé dans la base de données");
     }
-    const usersArray = users.filter((user)=>user.verified == true)
+    const usersArray = users.filter((user) => user.verified == true);
 
     res.json(usersArray || []);
   } catch (error) {
@@ -563,8 +563,9 @@ server.post("/api/result", (req, res) => {
   try {
     const currentResult = req.body;
     const results = router.db("result.body").value();
-    results.push(currentResult).write();
-    res.status(201).json(currentResult);
+    const newQUIZ = { ...currentResult, id: uuidv4() };
+    results.push(newQUIZ).write();
+    res.status(201).json(newQUIZ);
   } catch (error) {
     console.error("Erreur lors de la récupération des quizs:", error);
     res.status(500).json({
@@ -616,6 +617,28 @@ server.get("/api/results/quizId/:quizId", (req, res) => {
   }
 
   res.json(quizResults);
+});
+
+//route pour un obtenir les resultats d'un user grace à son id
+server.get("/api/results/:userId", (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const results = router.db.get("results").value();console.log(results)
+    const userResults = results.filter(
+      (result) => result.studentId == userId && result.status == "complete"
+    );
+console.log("user truver", userId)
+    if (!userResults || userResults.length === 0) {
+      console.log("Aucun resultat trouvé dans la base de données");
+    }
+
+    res.json(userResults || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des resultats:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des resultats",
+    });
+  }
 });
 
 //route pour recuperer un resultat avec les filtres userId et quizId
