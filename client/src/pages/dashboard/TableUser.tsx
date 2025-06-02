@@ -65,7 +65,7 @@ const TableUser = () => {
                 "Nom",
                 "Prenom",
                 "Rôle",
-                "Branch",
+                // "Branch",
                 "Birthday",
                 "Email",
                 "phone",
@@ -87,7 +87,7 @@ const TableUser = () => {
                   <td className="px-6 py-4">{user.name}</td>
                   <td className="px-6 py-4">{user.surname}</td>
                   <td className="px-6 py-4">{user.role}</td>
-                  <td className="px-6 py-4">{user.brancnId}</td>
+                  {/* <td className="px-6 py-4">{user.brancnId}</td> */}
                   <td className="px-6 py-4">{user.dob}</td>
                   <td className="px-6 py-4">{user.mail}</td>
                   <td className="px-6 py-4">{user.telephone}</td>

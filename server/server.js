@@ -134,6 +134,27 @@ server.get("/api/user/mail/:email", (req, res) => {
   }
 });
 
+//route pour un obtenir les users de role student
+server.get("/api/userStudents", (req, res) => {
+  try {
+    const users = router.db.get("users").value();
+    const userStudentArray = users.filter((user) => user.role == "Student");
+    console.log("Utilisateur récupéré:", userStudentArray ? userStudentArray.length : 0);
+
+    if (!userStudentArray || userStudentArray.length === 0) {
+      console.log("Aucun utilisateur trouvé dans la base de données");
+    }
+    const StudentData = userStudentArray.map((user)=> user.password? delete user.password : user)
+
+    res.json(StudentData || []);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des utilisateurs",
+    });
+  }
+});
+
 //methode POST user
 server.post("/api/user", async (req, res) => {
   const payload = req.body;

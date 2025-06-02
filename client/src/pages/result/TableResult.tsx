@@ -88,7 +88,7 @@ export default function TableResult() {
           {/* Carte de performance (1/3) */}
           <div className="bg-white p-6 rounded-2xl shadow-md flex flex-col justify-between h-full lg:col-span-1">
             <h3 className="text-xl font-semibold mb-6 text-purple-700">
-              Performance de l'étudiant
+              Performance mensuelle de l'étudiant
             </h3>
             <div className="h-64 bg-gray-100 rounded-lg p-4 flex items-center justify-center">
               <i className="fas fa-chart-area text-5xl text-gray-300"></i>

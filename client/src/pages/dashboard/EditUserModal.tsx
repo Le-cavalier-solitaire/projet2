@@ -19,6 +19,7 @@ const EditUserModal = ({ user, users, setUsers }) => {
     brancnId: "",
     dob: user.dob,
   });
+  console.log(data)
   function handleSubmit(e) {
     e.preventDefault();
     console.log("Envoi des données pour mise à jour:", data);
@@ -227,7 +228,7 @@ const EditUserModal = ({ user, users, setUsers }) => {
                   <option value="">Sélectionner une branche</option>
                   {listBranch.map((branch) => {
                     return (
-                      <option value={branch.name} key={branch.id}>
+                      <option value={branch.id} key={branch.id}>
                         {branch.name}
                       </option>
                     );

@@ -275,7 +275,7 @@ const RegistrationQuizzModal = ({ quizs, setQuizs }) => {
                   {names.map((name) => (
                     <MenuItem
                       key={name.id}
-                      value={name.name}
+                      value={name.id}
                       style={getStyles(name.name, BranchName, theme)}
                     >
                       {name.name}

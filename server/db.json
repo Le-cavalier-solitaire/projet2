@@ -44,7 +44,6 @@
     {
       "id": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
       "name": "Junior",
-      "password": "$2b$10$EM6DIiWI02gCX4SIstBnguZSEY9LhbdX/Xudr8I9yzwIDSHnMbPeu",
       "surname": "loic",
       "mail": "loic@gmail.com",
       "telephone": "656525561",
@@ -70,7 +69,6 @@
     {
       "id": "831101c2-ecd6-492e-a8dd-b1be2bb8cf53",
       "name": "brayann",
-      "password": "$2b$10$ki2WOYBnsiJXLW8C6JbtT.sPrLEmOozrk6Ahi0C43.R96AkagtmT2",
       "surname": "steve",
       "mail": "steve@gmail.com",
       "telephone": "652520123",
@@ -90,19 +88,6 @@
       "role": "",
       "brancnId": "",
       "dob": "",
-      "verificationCode": "",
-      "verified": true
-    },
-    {
-      "id": "656cec63-abbd-453e-861e-aa7cdfce0d5d",
-      "name": "toto2",
-      "password": "$2b$10$tK78bmTwYWc0MGimZBWe3.YMHtaAmBvt6P/DjhBLexI5oZxVNQKsq",
-      "surname": "toto1",
-      "mail": "djkarel92@gmail.com",
-      "telephone": "654585487",
-      "role": "Student",
-      "brancnId": "Trading",
-      "dob": "2025-05-30",
       "verificationCode": "",
       "verified": true
     }
