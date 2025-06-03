@@ -291,6 +291,12 @@ server.patch("/api/updateUser/:id", (req, res) => {
 
   // Récupérer l'utilisateur actuel et fusionner les nouvelles données
   const currentUser = usersArray[userIndex];
+  if(currentUser.role == "Student"){
+    delete currentUser.brancnId
+  }
+  if(currentUser.role == "Parent"){
+    delete currentUser.studentArrayId
+  }
   const updatedUser = { ...currentUser, ...newUserData };
 
   // Mettre à jour l'utilisateur dans l'objet lowdb

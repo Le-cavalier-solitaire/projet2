@@ -8,11 +8,9 @@
       "mail": "bobo@gmail.com",
       "telephone": "6525223232",
       "role": "Administrateur",
-      "brancnId": "870c7885-5cb8-4477-bf49-e8d84042e13e",
       "dob": "2025-04-29",
       "verificationCode": "",
-      "verified": true,
-      "studentArrayId": []
+      "verified": true
     },
     {
       "id": "9974713b-0e3a-47fa-a395-2e3fa76dfd41",
@@ -21,44 +19,40 @@
       "mail": "djkarl92@gmail.com",
       "telephone": "645787898",
       "role": "Student",
-      "brancnId": "870c7885-5cb8-4477-bf49-e8d84042e13e",
       "dob": "2025-05-26",
       "verificationCode": "",
       "verified": true,
-      "studentArrayId": [
-        "9974713b-0e3a-47fa-a395-2e3fa76dfd41"
-      ]
+      "brancnId": "7254b45e-b715-4128-9ae8-8ede9fd082d3"
     },
     {
       "id": "cd5e0600-7f66-4818-9d44-bb0ea99ad773",
       "name": "juju",
-      "password": "$2b$10$DqAVrOcbcTLhSQLCQFefSeZiCdMBIWvlVAtHwjYkqiNYEjGn2eStK",
       "surname": "karel",
       "mail": "123@gmail.com",
       "telephone": "654123201",
-      "role": "Parent",
+      "role": "Student",
       "dob": "2025-05-30",
-      "verificationCode": "TLC2VU",
-      "verified": false
+      "verificationCode": "",
+      "verified": true,
+      "brancnId": "fec3088e-6e05-46e3-8765-8a57ce975fbe"
     },
     {
       "id": "b7263b60-d76e-435e-aaa6-2fb47deb4ca1",
       "name": "karl",
-      "password": "$2b$10$qAjolWGhyuOEHfWGWX3MpuuF6W7vfQSMSYZJwfETaoQfG9.Moep2e",
       "surname": "junior",
       "mail": "djkarel92@gmail.com",
       "telephone": "654789865",
-      "role": "Parent",
+      "role": "Student",
       "dob": "2025-05-30",
-      "verificationCode": "UVO2TL",
-      "verified": false
+      "verificationCode": "",
+      "verified": true,
+      "brancnId": "870c7885-5cb8-4477-bf49-e8d84042e13e"
     },
     {
       "name": "bono",
       "surname": "karl",
       "mail": "djkarel@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
+      "password": "$2b$10$qAjolWGhyuOEHfWGWX3MpuuF6W7vfQSMSYZJwfETaoQfG9.Moep2e",
       "telephone": "645789825",
       "role": "Parent",
       "dob": "2025-06-01",
@@ -86,8 +80,7 @@
       "name": "Roi1212",
       "surname": "Toto",
       "mail": "toto2@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "652987563",
       "role": "Parent",
       "dob": "2025-05-31",
@@ -103,15 +96,10 @@
       "name": "Roi1212",
       "surname": "Toto3",
       "mail": "toto3@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "652987563",
       "role": "Administrateur",
       "dob": "2025-05-31",
-      "studentArrayId": [
-        "9974713b-0e3a-47fa-a395-2e3fa76dfd41",
-        "dbabf395-0433-4413-a199-8c2fe64d861f"
-      ],
       "id": "62ddf419-b0a1-414a-b128-08b3061a251b",
       "verificationCode": "",
       "verified": true
@@ -120,8 +108,7 @@
       "name": "Belmaine",
       "surname": "tiff",
       "mail": "teacher@gmail.com",
-      "password": "123",
-      "confirm_password": "123",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "625123245",
       "role": "Teacher",
       "dob": "2025-05-30",
@@ -132,14 +119,14 @@
     {
       "name": "Lafontaine",
       "surname": "Duroi",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "mail": "toto4@gmail.com",
       "telephone": "698785478",
       "role": "Teacher",
       "dob": "2025-05-31",
       "id": "70582361-bd83-45a8-9d82-1d5d71ba0481",
       "verificationCode": "",
-      "verified": true,
-      "brancnId": "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
+      "verified": true
     }
   ],
   "quiz": [
