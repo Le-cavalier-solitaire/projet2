@@ -139,12 +139,17 @@ server.get("/api/userStudents", (req, res) => {
   try {
     const users = router.db.get("users").value();
     const userStudentArray = users.filter((user) => user.role == "Student");
-    console.log("Utilisateur récupéré:", userStudentArray ? userStudentArray.length : 0);
+    console.log(
+      "Utilisateur récupéré:",
+      userStudentArray ? userStudentArray.length : 0
+    );
 
     if (!userStudentArray || userStudentArray.length === 0) {
       console.log("Aucun utilisateur trouvé dans la base de données");
     }
-    const StudentData = userStudentArray.map((user)=> user.password? delete user.password : user)
+    const StudentData = userStudentArray.map((user) =>
+      user.password ? delete user.password : user
+    );
 
     res.json(StudentData || []);
   } catch (error) {
@@ -167,19 +172,14 @@ server.post("/api/user", async (req, res) => {
     expiresIn: "1h",
   });
   const userData = {
-    id: uuidv4(),
-    name: payload.name,
+    ...payload,
     password: passwordHash,
-    surname: payload.surname,
-    mail: payload.mail,
-    telephone: payload.telephone,
-    role: payload.role,
-    brancnId: payload.brancnId,
-    dob: payload.dob,
+    id: uuidv4(),
     verificationCode,
     verified: false,
   };
-  users.push(userData).write();
+  const { confirm_password, ...newUserData } = userData;
+  users.push(newUserData).write();
   const getEmailTemplate = (validationLink) => `
   <div>
       <h1>Validation de compte</h1>
@@ -644,11 +644,12 @@ server.get("/api/results/quizId/:quizId", (req, res) => {
 server.get("/api/results/:userId", (req, res) => {
   try {
     const userId = req.params.userId;
-    const results = router.db.get("results").value();console.log(results)
+    const results = router.db.get("results").value();
+    console.log(results);
     const userResults = results.filter(
       (result) => result.studentId == userId && result.status == "complete"
     );
-console.log("user truver", userId)
+    console.log("user truver", userId);
     if (!userResults || userResults.length === 0) {
       console.log("Aucun resultat trouvé dans la base de données");
     }

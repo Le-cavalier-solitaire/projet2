@@ -9,6 +9,8 @@ const RegistrationModal = ({ users, setUsers }) => {
   const [isOpen, setIsOpen] = useState(false);
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
   const [selectedIdOfStudent, setSelectedIdOfStudent] = useState([]);
+  const [selectedIdBranch, setSelectedIdBranch] = useState("");
+  const [selectedNameBranch, setSelectedNameBranch] = useState("");
 
   const [data, setData] = useState({
     name: "",
@@ -18,13 +20,21 @@ const RegistrationModal = ({ users, setUsers }) => {
     confirm_password: "",
     telephone: "",
     role: "",
-    brancnId: "",
+    brancnId: selectedIdBranch,
     dob: "",
     studentArrayId: selectedIdOfStudent,
   });
-  console.log(selectedIdOfStudent);
+  console.log(data);
   const [studentDataArrat, setStudentDataAray] = useState([]);
   const [selectedNameOfStudent, setSelectedNameOfStudent] = useState([]);
+
+  useEffect(() => {
+    setData((prev) => ({ ...prev, studentArrayId: selectedIdOfStudent }));
+  }, [selectedIdOfStudent]);
+
+  useEffect(() => {
+    setData((prev) => ({ ...prev, brancnId: selectedIdBranch }));
+  }, [selectedIdBranch]);
 
   function getStudentDAta() {
     axios("http://localhost:3000/api/userStudents")
@@ -54,7 +64,14 @@ const RegistrationModal = ({ users, setUsers }) => {
             axios
               .post("http://localhost:3000/api/user", { ...data })
               .then((res) => {
+                const newUser = res.data;
                 setUsers([...users, res.data]);
+                // if (newUser.role === "Student") {
+                //   setStudentDataAray((prevStudents) => [
+                //     ...prevStudents,
+                //     newUser,
+                //   ]);
+                // }
                 toast.success("Compte créer avec succès!");
                 setData({
                   name: "",
@@ -266,15 +283,34 @@ const RegistrationModal = ({ users, setUsers }) => {
               </div>
             </div>
 
-            <div className={` ${data.role == "Student" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "" }`}>
+            <div
+              className={` ${data.role == "Student" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : ""}`}
+            >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Rôle
                 </label>
                 <select
                   required
-                  className={`px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${data.role !== "Student" ? "w-full": "w-full"}`}
-                  onChange={(e) => setData({ ...data, role: e.target.value })}
+                  className={`px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${data.role !== "Student" ? "w-full" : "w-full"}`}
+                  onChange={(e) => {
+                    // setData({ ...data, role: e.target.value })
+                    const newValue = e.target.value;
+                    setData((prev) => {
+                      const newData = { ...prev, role: newValue };
+                      if (newValue === "Student") {
+                        delete newData.studentArrayId; // Suppression cohérente
+                        newData.brancnId = selectedIdBranch;
+                      } else if (newValue === "Parent") {
+                        delete newData.brancnId; // Suppression cohérente
+                        newData.studentArrayId = selectedIdOfStudent;
+                      } else {
+                        delete newData.studentArrayId; // Suppression cohérente
+                        delete newData.brancnId; // Suppression cohérente
+                      }
+                      return newData;
+                    });
+                  }}
                 >
                   <option value="">Sélectionner une branche</option>
                   {roles.map((role) => {
@@ -287,55 +323,50 @@ const RegistrationModal = ({ users, setUsers }) => {
                 </select>
               </div>
               {data.role == "Student" && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Branche
-                  </label>
-                  <select
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onChange={(e) =>
-                      setData({ ...data, brancnId: e.target.value })
-                    }
-                  >
-                    <option value="">Sélectionner une branche</option>
-                    {listBranch.map((branch) => {
-                      return (
-                        <option value={branch.id} key={branch.id}>
-                          {branch.name}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </div>
+                <Autocomplete
+                  disablePortal
+                  options={listBranch}
+                  getOptionLabel={(option) => option.name}
+                  value={selectedNameBranch}
+                  onChange={(event, newBranch) => {
+                    setSelectedNameBranch(newBranch);
+                    setSelectedIdBranch(newBranch ? newBranch.id : null);
+                  }}
+                  sx={{ marginTop: 2 }}
+                  renderInput={(params) => (
+                    <TextField {...params} label="Branch" />
+                  )}
+                />
               )}
             </div>
 
             <div className="">
-              {data.role == "Parent" &&(<div>
-                <Autocomplete
-                  multiple
-                  limitTags={2}
-                  id="multiple-limit-tags"
-                  options={studentDataArrat}
-                  getOptionLabel={(option) =>
-                    option.name + " " + option.surname
-                  }
-                  value={selectedNameOfStudent}
-                  onChange={(event, newValue) => {
-                    setSelectedNameOfStudent(newValue);
-                    setSelectedIdOfStudent(newValue.map((item) => item.id));
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      label="Name Of Your Chidren"
-                      placeholder="Favorites"
-                    />
-                  )}
-                  sx={{ }}
-                />
-              </div>)}
+              {data.role == "Parent" && (
+                <div>
+                  <Autocomplete
+                    multiple
+                    limitTags={2}
+                    id="multiple-limit-tags"
+                    options={studentDataArrat}
+                    getOptionLabel={(option) =>
+                      option.name + " " + option.surname
+                    }
+                    value={selectedNameOfStudent}
+                    onChange={(event, newValue) => {
+                      setSelectedNameOfStudent(newValue);
+                      setSelectedIdOfStudent(newValue.map((item) => item.id));
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Name Of Your Chidren"
+                        placeholder="Favorites"
+                      />
+                    )}
+                    sx={{}}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center">
