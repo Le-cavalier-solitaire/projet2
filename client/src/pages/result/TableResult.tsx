@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
 import DetailsResultDraw from "./DetailsResultDraw";
+import toast from "react-hot-toast";
+import DetailsQuizModal from "../quizz/DetailsQuizModal";
+import { Link } from "react-router-dom";
+import TeacherViewResultDetails from "./TeacherViewResultDetails";
 // import DetailsResultDraw from "./DetailsResultDraw";
 
 // Définir le type des résultats utilisateur
@@ -19,12 +23,55 @@ interface UserResult {
   name: string;
   score: number;
   percent: number;
+  feedback: string;
   quizQuestions: Question[];
 }
 
 export default function TableResult() {
   const { user, isLoading } = useAuth();
   const [resultOfUSer, setResultOfUSer] = useState<UserResult[]>([]);
+  const [quizs, setQuizs] = useState([]);
+
+  const [branchs, setBranch] = useState([]);
+
+  function getQuiz() {
+    if (!user?.id) {
+      console.log("Pas d'ID utilisateur disponible");
+      return;
+    }
+
+    console.log("Récupération des quizs pour l'utilisateur:", user.id);
+
+    axios(`http://localhost:3000/api/quiz/authorId/${user.id}`)
+      .then((res) => {
+        console.log("Quizs reçus:", res.data);
+        setQuizs(res.data);
+      })
+      .catch((error) => {
+        console.error("Erreur lors de la récupération des quizs:", error);
+        toast.error("Impossible de récupérer les quizs");
+      });
+  }
+
+  useEffect(() => {
+    if (user?.id && user?.role == "Teacher") {
+      getQuiz();
+    }
+  }, [user?.id]);
+
+  function getBranch() {
+    axios("http://localhost:3000/api/branchs")
+      .then((res) => {
+        setBranch(res.data);
+      })
+      .catch((error) => {
+        toast.error("Unable to get branch");
+      });
+  }
+
+  useEffect(() => {
+    getBranch();
+  }, []);
 
   // Récupérer les résultats et le statut du quiz avec meilleure gestion des erreurs
   useEffect(() => {
@@ -107,6 +154,7 @@ export default function TableResult() {
                     <th className="pb-4">Matière</th>
                     <th className="pb-4">Note</th>
                     <th className="pb-4">percent</th>
+                    <th className="pb-4">Feedback</th>
                     <th className="pb-4">Voir mes choix</th>
                   </tr>
                 </thead>
@@ -116,9 +164,7 @@ export default function TableResult() {
                       key={index}
                       className="border-b font-semibold hover:bg-purple-50 transition text-[16px]"
                     >
-                      <td className="py-3 text-gray-700">
-                        {result.name}
-                      </td>
+                      <td className="py-3 text-gray-700">{result.name}</td>
                       <td>
                         <span className="text-green-800 px-3 py-1 rounded font-semibold">
                           {result.score}
@@ -129,13 +175,70 @@ export default function TableResult() {
                           {result.percent}%
                         </span>
                       </td>
-                      <td className="py-3 text-gray-500"><DetailsResultDraw result={result} /></td>
+                      <td>
+                        <span className="text-green-800 px-3 py-1 rounded font-semibold">
+                          {result.feedback}
+                        </span>
+                      </td>
+                      <td className="py-3 text-gray-500">
+                        <DetailsResultDraw result={result} />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {user?.role == "Teacher" && (
+        <div className="bg-white rounded shadow overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 font-extrabold">
+              <tr>
+                {[
+                  "Name",
+                  "Description",
+                  "Create_At",
+                  "Start_Date",
+                  "End_Date",
+                  "Actions",
+                ].map((header, index) => (
+                  <th
+                    key={index}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {quizs.map((quiz) => {
+                return (
+                  <tr key={quiz?.id}>
+                    <td className="px-6 py-4">{quiz?.name}</td>
+                    <td className="px-6 py-4">{quiz?.description}</td>
+                    <td className="px-6 py-4">{quiz?.createAt}</td>
+                    <td className="px-6 py-4">{quiz?.startDate}</td>
+                    <td className="px-6 py-4">{quiz?.endDate}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex space-x-2">
+                        <Link to={"/TeacherViewResult"} />
+                        <TeacherViewResultDetails
+                          quiz={quiz}
+                          user={user}
+                          // quizs={quizs}
+                          // setQuizs={setQuizs}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </main>

@@ -132,7 +132,7 @@ const DetailsResultDraw = ({ result }: { result: UserResult }) => {
                             />
                           </div>
                         )}
-                        {q.userAnswer === oIndex &&
+                      {q.userAnswer === oIndex &&
                         q.correctAnswer !== q.userAnswer && (
                           <div className="ml-auto flex items-center">
                             <img

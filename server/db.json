@@ -17,6 +17,7 @@
       "name": "Lamertume",
       "surname": "toto",
       "mail": "djkarl92@gmail.com",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "645787898",
       "role": "Student",
       "dob": "2025-05-26",
@@ -29,6 +30,7 @@
       "name": "juju",
       "surname": "karel",
       "mail": "123@gmail.com",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "654123201",
       "role": "Student",
       "dob": "2025-05-30",
@@ -41,6 +43,7 @@
       "name": "karl",
       "surname": "junior",
       "mail": "djkarel92@gmail.com",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "654789865",
       "role": "Student",
       "dob": "2025-05-30",
@@ -56,9 +59,7 @@
       "telephone": "645789825",
       "role": "Parent",
       "dob": "2025-06-01",
-      "studentArrayId": [
-        "9974713b-0e3a-47fa-a395-2e3fa76dfd41"
-      ],
+      "studentArrayId": ["9974713b-0e3a-47fa-a395-2e3fa76dfd41"],
       "id": "240cd407-6b77-4493-a3dd-2ad4c5f3e7f7",
       "verificationCode": "",
       "verified": true
@@ -67,7 +68,7 @@
       "name": "Lagloire",
       "surname": "toto",
       "mail": "toto@gmail.com",
-      "confirm_password": "123",
+      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "652321452",
       "role": "Student",
       "dob": "2025-06-01",
@@ -134,24 +135,18 @@
       "id": "88bd2a92-7e87-481f-8168-e9156bfcc904",
       "name": "L'agricultute Kmer1",
       "description": "L'agricultute au Kmer",
-      "authorId": "baa7",
-      "branchId": [
-        "Marketing Digital"
-      ],
+      "authorId": "70582361-bd83-45a8-9d82-1d5d71ba0481",
+      "branchId": ["7254b45e-b715-4128-9ae8-8ede9fd082d3"],
       "createAt": "2025-04-25T20:32",
       "startDate": "2025-05-01T20:32",
-      "endDate": "2025-05-30T20:32",
+      "endDate": "2025-06-05T20:32",
       "typeOfTime": "global Time",
       "quizQuestions": [
         {
           "quizId": 1212,
           "id": "88bd2a92-7e87-481f-8168-e9156bfcc901",
           "mainQuestion": "la periode de la moisson au camer c'est la quelle?",
-          "choices": [
-            "A. juin",
-            "B. septembre",
-            "C. mai"
-          ],
+          "choices": ["A. juin", "B. septembre", "C. mai"],
           "correctAnswer": 0,
           "time": 15,
           "marks": 2
@@ -160,11 +155,7 @@
           "quizId": 1212,
           "id": "ec940569-8e8f-47eb-beda-b2eca0714db4",
           "mainQuestion": "c'est quoi ta couleur preférée?",
-          "choices": [
-            "A. rouge",
-            "B. violet",
-            "C. rose"
-          ],
+          "choices": ["A. rouge", "B. violet", "C. rose"],
           "correctAnswer": 1,
           "time": 6,
           "marks": 3
@@ -173,11 +164,7 @@
           "quizId": 1212,
           "id": "ec940569-8e8f-47eb-beda-b2eca0714db447",
           "mainQuestion": "c'est quoi le premier mot q'un bébé prononce toujours?",
-          "choices": [
-            "A. mama",
-            "B. papa",
-            "C. tantine"
-          ],
+          "choices": ["A. mama", "B. papa", "C. tantine"],
           "correctAnswer": 1,
           "time": 6,
           "marks": 3
@@ -186,11 +173,7 @@
           "quizId": 1212,
           "id": "ec940569-8e8f-47eb-beda-b2eca0714d25",
           "mainQuestion": "c'est quoi ton plat preférée?",
-          "choices": [
-            "A. rouge",
-            "B. violet",
-            "C. rose"
-          ],
+          "choices": ["A. rouge", "B. violet", "C. rose"],
           "correctAnswer": 1,
           "time": 6,
           "marks": 3
@@ -200,14 +183,14 @@
     {
       "name": "Le langage python",
       "description": "les bases de pythons",
-      "authorId": "baa7",
+      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
       "branchId": [
-        "Programmation",
-        "Administration Reseau"
+        "870c7885-5cb8-4477-bf49-e8d84042e13e",
+        "d345abfe-a27e-4ac7-a9a5-087733584f33"
       ],
       "createAt": "2025-04-30T23:11:30.155Z",
       "startDate": "2025-05-02T08:30",
-      "endDate": "2025-06-01T20:30",
+      "endDate": "2025-06-05T20:30",
       "id": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
       "typeOfTime": "global Time",
       "quizQuestions": [
@@ -215,11 +198,7 @@
           "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
           "id": "7689bcd3-d3df-487e-a91f-45e0543ab6e5",
           "mainQuestion": "c'est quoi l'extension d'un fichier python?",
-          "choices": [
-            "A. .spies",
-            "B. spi",
-            "C. spy"
-          ],
+          "choices": ["A. .spies", "B. spi", "C. spy"],
           "correctAnswer": 2,
           "time": 15,
           "marks": 1
@@ -228,10 +207,7 @@
           "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
           "id": "83eaf54b-23ba-4ebb-95e5-58bd9e3f1231",
           "mainQuestion": "quell librerie python est utilisée pour la programmation web et mobile?",
-          "choices": [
-            "A. django",
-            "B. php"
-          ],
+          "choices": ["A. django", "B. php"],
           "correctAnswer": 0,
           "time": 0,
           "marks": 4
@@ -241,17 +217,17 @@
     {
       "name": "les raccourcis claviers",
       "description": "cet exercice vise à evaluer les connaissances de l'etudiant sur les différents raccourcis claviers",
-      "authorId": "baa7",
+      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
       "branchId": [
-        "Programmation",
-        "Bureautique",
-        "Trading",
-        "Administration Reseau",
-        "Marketing Digital"
+        "7254b45e-b715-4128-9ae8-8ede9fd082d3",
+        "870c7885-5cb8-4477-bf49-e8d84042e13e",
+        "fec3088e-6e05-46e3-8765-8a57ce975fbe",
+        "d345abfe-a27e-4ac7-a9a5-087733584f33",
+        "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
       ],
       "createAt": "2025-05-18T23:28:21.137Z",
       "startDate": "2025-05-19T01:00",
-      "endDate": "2025-06-01T15:30",
+      "endDate": "2025-06-05T15:30",
       "typeOfTime": "time for any question",
       "id": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
       "quizQuestions": [
@@ -259,10 +235,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "30960daa-3c07-4cda-a23e-b8f2484b2dbc",
           "mainQuestion": "la combinaison pour créer un nouveau dossier",
-          "choices": [
-            "A. ctrl + alt +n",
-            "B. ctrl +shift + n"
-          ],
+          "choices": ["A. ctrl + alt +n", "B. ctrl +shift + n"],
           "correctAnswer": 1,
           "time": 10,
           "marks": 2
@@ -271,10 +244,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "149fa02d-5e90-4110-bd5c-d0a0a0c02444",
           "mainQuestion": "la combinaison pour ouvrir l'explorateur de  fichier📂 ",
-          "choices": [
-            "A. Wind+ e",
-            "B. wind + Alt + e "
-          ],
+          "choices": ["A. Wind+ e", "B. wind + Alt + e "],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2
@@ -283,11 +253,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "2dd66548-cae5-468e-8bb0-a36eff168bab",
           "mainQuestion": "combinaison pour faire une recherche rapide",
-          "choices": [
-            "A.  wind + r",
-            "B. shift + r",
-            "C. ctrl + r"
-          ],
+          "choices": ["A.  wind + r", "B. shift + r", "C. ctrl + r"],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2
@@ -296,10 +262,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "d19563e6-92a2-47e5-bdfc-1c9d1392f028",
           "mainQuestion": "combinaison pour revenir à un état antérieur de mon document word ou autre",
-          "choices": [
-            "A.  ctrl + z",
-            "B. xtrl + y"
-          ],
+          "choices": ["A.  ctrl + z", "B. xtrl + y"],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2
@@ -308,10 +271,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "bfe89fba-249e-4d98-b3f5-803945af5c57",
           "mainQuestion": "combinaison pour revenir à un état avancé de mon document word ou autre",
-          "choices": [
-            "A. ctrl + z",
-            "B.  ctrl + y"
-          ],
+          "choices": ["A. ctrl + z", "B.  ctrl + y"],
           "correctAnswer": 1,
           "time": 10,
           "marks": 2
@@ -321,14 +281,17 @@
     {
       "name": "les touches de symboles",
       "description": "cet exercice vise à evaluer les connaissances de l'utilisateur sur la maitrise du clavier particulièrement sur les symboles",
-      "authorId": "baa7",
+      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
       "branchId": [
-        "Marketing Digital",
-        "Administration Reseau"
+        "7254b45e-b715-4128-9ae8-8ede9fd082d3",
+        "870c7885-5cb8-4477-bf49-e8d84042e13e",
+        "fec3088e-6e05-46e3-8765-8a57ce975fbe",
+        "d345abfe-a27e-4ac7-a9a5-087733584f33",
+        "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
       ],
       "createAt": "2025-05-18T23:35:09.974Z",
       "startDate": "2025-05-19T01:30",
-      "endDate": "2025-05-20T15:30",
+      "endDate": "2025-06-05T15:30",
       "typeOfTime": "time for any question",
       "id": "be2e7520-4548-4058-96cb-521c7a9f02bd",
       "quizQuestions": [
@@ -336,10 +299,7 @@
           "quizId": "be2e7520-4548-4058-96cb-521c7a9f02bd",
           "id": "405fbc8e-41a8-4461-90a8-b7dbe308faf9",
           "mainQuestion": "zzzz",
-          "choices": [
-            "A. eze",
-            "B. zzzz"
-          ],
+          "choices": ["A. eze", "B. zzzz"],
           "correctAnswer": 1,
           "time": 5,
           "marks": 1
@@ -349,157 +309,126 @@
   ],
   "results": [
     {
-      "studentId": "831101c2-ecd6-492e-a8dd-b1be2bb8cf53",
-      "score": "5/5",
+      "studentId": "dbabf395-0433-4413-a199-8c2fe64d861f",
+      "score": "6/10",
+      "percent": 60,
+      "feedback": "En cours d'acquisition",
+      "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+      "name": "les raccourcis claviers",
+      "description": "cet exercice vise à evaluer les connaissances de l'etudiant sur les différents raccourcis claviers",
+      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
+      "branchId": [
+        "7254b45e-b715-4128-9ae8-8ede9fd082d3",
+        "870c7885-5cb8-4477-bf49-e8d84042e13e",
+        "fec3088e-6e05-46e3-8765-8a57ce975fbe",
+        "d345abfe-a27e-4ac7-a9a5-087733584f33",
+        "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
+      ],
+      "createAt": "2025-05-18T23:28:21.137Z",
+      "startDate": "2025-05-19T01:00",
+      "endDate": "2025-06-05T15:30",
+      "typeOfTime": "time for any question",
+      "quizQuestions": [
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "30960daa-3c07-4cda-a23e-b8f2484b2dbc",
+          "mainQuestion": "la combinaison pour créer un nouveau dossier",
+          "choices": ["A. ctrl + alt +n", "B. ctrl +shift + n"],
+          "correctAnswer": 1,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "149fa02d-5e90-4110-bd5c-d0a0a0c02444",
+          "mainQuestion": "la combinaison pour ouvrir l'explorateur de  fichier📂 ",
+          "choices": ["A. Wind+ e", "B. wind + Alt + e "],
+          "correctAnswer": 0,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "2dd66548-cae5-468e-8bb0-a36eff168bab",
+          "mainQuestion": "combinaison pour faire une recherche rapide",
+          "choices": ["A.  wind + r", "B. shift + r", "C. ctrl + r"],
+          "correctAnswer": 0,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "d19563e6-92a2-47e5-bdfc-1c9d1392f028",
+          "mainQuestion": "combinaison pour revenir à un état antérieur de mon document word ou autre",
+          "choices": ["A.  ctrl + z", "B. xtrl + y"],
+          "correctAnswer": 0,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "bfe89fba-249e-4d98-b3f5-803945af5c57",
+          "mainQuestion": "combinaison pour revenir à un état avancé de mon document word ou autre",
+          "choices": ["A. ctrl + z", "B.  ctrl + y"],
+          "correctAnswer": 1,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        }
+      ],
+      "id": "538e5a22-7aa9-4a2b-8189-1af6238dd2d3",
+      "status": "complete"
+    },
+    {
+      "studentId": "9974713b-0e3a-47fa-a395-2e3fa76dfd41",
+      "score": "10/10",
       "percent": 100,
       "feedback": "Acquis",
-      "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-      "name": "Le langage python",
-      "description": "les bases de pythons",
-      "authorId": "baa7",
-      "branchId": [
-        "Programmation",
-        "Administration Reseau"
-      ],
-      "createAt": "2025-04-30T23:11:30.155Z",
-      "startDate": "2025-05-02T08:30",
-      "endDate": "2025-06-01T20:30",
-      "typeOfTime": "global Time",
-      "quizQuestions": [
-        {
-          "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-          "id": "7689bcd3-d3df-487e-a91f-45e0543ab6e5",
-          "mainQuestion": "c'est quoi l'extension d'un fichier python?",
-          "choices": [
-            "A. .spies",
-            "B. spi",
-            "C. spy"
-          ],
-          "correctAnswer": 2,
-          "time": 15,
-          "marks": 1,
-          "userAnswer": 2
-        },
-        {
-          "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-          "id": "83eaf54b-23ba-4ebb-95e5-58bd9e3f1231",
-          "mainQuestion": "quell librerie python est utilisée pour la programmation web et mobile?",
-          "choices": [
-            "A. django",
-            "B. php"
-          ],
-          "correctAnswer": 0,
-          "time": 0,
-          "marks": 4,
-          "userAnswer": 0
-        }
-      ],
-      "status": "complete",
-      "id": 1
-    },
-    {
-      "studentId": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
-      "score": "4/5",
-      "percent": 80,
-      "feedback": "En cours d'acquisition",
-      "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-      "name": "Le langage python",
-      "description": "les bases de pythons",
-      "authorId": "baa7",
-      "branchId": [
-        "Programmation",
-        "Administration Reseau"
-      ],
-      "createAt": "2025-04-30T23:11:30.155Z",
-      "startDate": "2025-05-02T08:30",
-      "endDate": "2025-06-01T20:30",
-      "typeOfTime": "global Time",
-      "quizQuestions": [
-        {
-          "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-          "id": "7689bcd3-d3df-487e-a91f-45e0543ab6e5",
-          "mainQuestion": "c'est quoi l'extension d'un fichier python?",
-          "choices": [
-            "A. .spies",
-            "B. spi",
-            "C. spy"
-          ],
-          "correctAnswer": 2,
-          "time": 15,
-          "marks": 1,
-          "userAnswer": 1
-        },
-        {
-          "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-          "id": "83eaf54b-23ba-4ebb-95e5-58bd9e3f1231",
-          "mainQuestion": "quell librerie python est utilisée pour la programmation web et mobile?",
-          "choices": [
-            "A. django",
-            "B. php"
-          ],
-          "correctAnswer": 0,
-          "time": 0,
-          "marks": 4,
-          "userAnswer": 0
-        }
-      ],
-      "status": "complete",
-      "id": 2
-    },
-    {
-      "studentId": "831101c2-ecd6-492e-a8dd-b1be2bb8cf53",
-      "status": "complete",
       "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
       "name": "les raccourcis claviers",
       "description": "cet exercice vise à evaluer les connaissances de l'etudiant sur les différents raccourcis claviers",
-      "authorId": "baa7",
+      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
       "branchId": [
-        "Programmation",
-        "Bureautique",
-        "Trading",
-        "Administration Reseau",
-        "Marketing Digital"
+        "7254b45e-b715-4128-9ae8-8ede9fd082d3",
+        "870c7885-5cb8-4477-bf49-e8d84042e13e",
+        "fec3088e-6e05-46e3-8765-8a57ce975fbe",
+        "d345abfe-a27e-4ac7-a9a5-087733584f33",
+        "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
       ],
       "createAt": "2025-05-18T23:28:21.137Z",
       "startDate": "2025-05-19T01:00",
-      "endDate": "2025-06-01T15:30",
+      "endDate": "2025-06-05T15:30",
       "typeOfTime": "time for any question",
       "quizQuestions": [
         {
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "30960daa-3c07-4cda-a23e-b8f2484b2dbc",
           "mainQuestion": "la combinaison pour créer un nouveau dossier",
-          "choices": [
-            "A. ctrl + alt +n",
-            "B. ctrl +shift + n"
-          ],
+          "choices": ["A. ctrl + alt +n", "B. ctrl +shift + n"],
           "correctAnswer": 1,
-          "time": 10,
-          "marks": 2,
-          "userAnswer": 0
-        },
-        {
-          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
-          "id": "149fa02d-5e90-4110-bd5c-d0a0a0c02444",
-          "mainQuestion": "la combinaison pour ouvrir l'explorateur de  fichier📂 ",
-          "choices": [
-            "A. Wind+ e",
-            "B. wind + Alt + e "
-          ],
-          "correctAnswer": 0,
           "time": 10,
           "marks": 2,
           "userAnswer": 1
         },
         {
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "149fa02d-5e90-4110-bd5c-d0a0a0c02444",
+          "mainQuestion": "la combinaison pour ouvrir l'explorateur de  fichier📂 ",
+          "choices": ["A. Wind+ e", "B. wind + Alt + e "],
+          "correctAnswer": 0,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "2dd66548-cae5-468e-8bb0-a36eff168bab",
           "mainQuestion": "combinaison pour faire une recherche rapide",
-          "choices": [
-            "A.  wind + r",
-            "B. shift + r",
-            "C. ctrl + r"
-          ],
+          "choices": ["A.  wind + r", "B. shift + r", "C. ctrl + r"],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2,
@@ -509,10 +438,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "d19563e6-92a2-47e5-bdfc-1c9d1392f028",
           "mainQuestion": "combinaison pour revenir à un état antérieur de mon document word ou autre",
-          "choices": [
-            "A.  ctrl + z",
-            "B. xtrl + y"
-          ],
+          "choices": ["A.  ctrl + z", "B. xtrl + y"],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2,
@@ -522,77 +448,62 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "bfe89fba-249e-4d98-b3f5-803945af5c57",
           "mainQuestion": "combinaison pour revenir à un état avancé de mon document word ou autre",
-          "choices": [
-            "A. ctrl + z",
-            "B.  ctrl + y"
-          ],
+          "choices": ["A. ctrl + z", "B.  ctrl + y"],
           "correctAnswer": 1,
           "time": 10,
           "marks": 2,
           "userAnswer": 1
         }
       ],
-      "id": 3,
-      "score": "6/10",
-      "percent": 60,
-      "feedback": "En cours d'acquisition"
+      "id": "74de90fd-5a8b-40d5-9115-ba85daa9ea64",
+      "status": "complete"
     },
     {
-      "studentId": "c4e45ae9-6320-46f4-a4d3-5222ffe1bfe1",
-      "score": "6/10",
-      "percent": 60,
-      "feedback": "En cours d'acquisition",
+      "studentId": "b7263b60-d76e-435e-aaa6-2fb47deb4ca1",
+      "score": "10/10",
+      "percent": 100,
+      "feedback": "Acquis",
       "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
       "name": "les raccourcis claviers",
       "description": "cet exercice vise à evaluer les connaissances de l'etudiant sur les différents raccourcis claviers",
-      "authorId": "baa7",
+      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
       "branchId": [
-        "Programmation",
-        "Bureautique",
-        "Trading",
-        "Administration Reseau",
-        "Marketing Digital"
+        "7254b45e-b715-4128-9ae8-8ede9fd082d3",
+        "870c7885-5cb8-4477-bf49-e8d84042e13e",
+        "fec3088e-6e05-46e3-8765-8a57ce975fbe",
+        "d345abfe-a27e-4ac7-a9a5-087733584f33",
+        "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
       ],
       "createAt": "2025-05-18T23:28:21.137Z",
       "startDate": "2025-05-19T01:00",
-      "endDate": "2025-06-01T15:30",
+      "endDate": "2025-06-05T15:30",
       "typeOfTime": "time for any question",
       "quizQuestions": [
         {
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "30960daa-3c07-4cda-a23e-b8f2484b2dbc",
           "mainQuestion": "la combinaison pour créer un nouveau dossier",
-          "choices": [
-            "A. ctrl + alt +n",
-            "B. ctrl +shift + n"
-          ],
+          "choices": ["A. ctrl + alt +n", "B. ctrl +shift + n"],
           "correctAnswer": 1,
-          "time": 10,
-          "marks": 2,
-          "userAnswer": 0
-        },
-        {
-          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
-          "id": "149fa02d-5e90-4110-bd5c-d0a0a0c02444",
-          "mainQuestion": "la combinaison pour ouvrir l'explorateur de  fichier📂 ",
-          "choices": [
-            "A. Wind+ e",
-            "B. wind + Alt + e "
-          ],
-          "correctAnswer": 0,
           "time": 10,
           "marks": 2,
           "userAnswer": 1
         },
         {
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
+          "id": "149fa02d-5e90-4110-bd5c-d0a0a0c02444",
+          "mainQuestion": "la combinaison pour ouvrir l'explorateur de  fichier📂 ",
+          "choices": ["A. Wind+ e", "B. wind + Alt + e "],
+          "correctAnswer": 0,
+          "time": 10,
+          "marks": 2,
+          "userAnswer": 0
+        },
+        {
+          "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "2dd66548-cae5-468e-8bb0-a36eff168bab",
           "mainQuestion": "combinaison pour faire une recherche rapide",
-          "choices": [
-            "A.  wind + r",
-            "B. shift + r",
-            "C. ctrl + r"
-          ],
+          "choices": ["A.  wind + r", "B. shift + r", "C. ctrl + r"],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2,
@@ -602,10 +513,7 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "d19563e6-92a2-47e5-bdfc-1c9d1392f028",
           "mainQuestion": "combinaison pour revenir à un état antérieur de mon document word ou autre",
-          "choices": [
-            "A.  ctrl + z",
-            "B. xtrl + y"
-          ],
+          "choices": ["A.  ctrl + z", "B. xtrl + y"],
           "correctAnswer": 0,
           "time": 10,
           "marks": 2,
@@ -615,17 +523,14 @@
           "quizId": "63258ade-9a2a-47b7-b626-b9b990b5ecb1",
           "id": "bfe89fba-249e-4d98-b3f5-803945af5c57",
           "mainQuestion": "combinaison pour revenir à un état avancé de mon document word ou autre",
-          "choices": [
-            "A. ctrl + z",
-            "B.  ctrl + y"
-          ],
+          "choices": ["A. ctrl + z", "B.  ctrl + y"],
           "correctAnswer": 1,
           "time": 10,
           "marks": 2,
           "userAnswer": 1
         }
       ],
-      "id": "91fc571b-b465-4227-84f8-c073b25e664c",
+      "id": "cafe7623-faeb-4cd8-a544-75c2e7176828",
       "status": "complete"
     }
   ],

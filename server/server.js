@@ -291,11 +291,11 @@ server.patch("/api/updateUser/:id", (req, res) => {
 
   // Récupérer l'utilisateur actuel et fusionner les nouvelles données
   const currentUser = usersArray[userIndex];
-  if(currentUser.role == "Student"){
-    delete currentUser.brancnId
+  if (currentUser.role == "Student") {
+    delete currentUser.brancnId;
   }
-  if(currentUser.role == "Parent"){
-    delete currentUser.studentArrayId
+  if (currentUser.role == "Parent") {
+    delete currentUser.studentArrayId;
   }
   const updatedUser = { ...currentUser, ...newUserData };
 
@@ -667,6 +667,43 @@ server.get("/api/results/:userId", (req, res) => {
       error: "Erreur serveur lors de la récupération des resultats",
     });
   }
+});
+
+//route pour avoir les resultats d'un quiz donné combiné aux noms des users correspondant à chaque resultat via le authorId
+server.get("/api/results/quizId/authorId/:quizId/:authorId", (req, res) => {
+  const { quizId, authorId } = req.params;
+  console.log("Recherche de tous les résultats pour le quiz:", quizId);
+  const results = router.db.get("results").value();
+  const users = router.db.get("users").value();
+
+  const quizResults = results.filter((result) => result.quizId === quizId);
+  console.log("Résultats trouvés:", quizResults.length);
+
+  // Créer un Map des résultats groupés par studentId
+  const resultsByStudentId = quizResults.reduce((acc, result) => {
+    if (!acc[result.studentId]) {
+      acc[result.studentId] = [];
+    }
+    acc[result.studentId].push(result);
+    return acc;
+  }, {});
+
+  // Combiner avec les users
+  const combinedData = users
+    .filter((user) => resultsByStudentId[user.id])
+    .map((user) => ({
+      ...user,
+      quizResults: resultsByStudentId[user.id] || [],
+    }));
+
+  if (combinedData.length === 0) {
+    return res
+      .status(404)
+      .json({ message: "Aucun résultat trouvé pour ce quiz" });
+  }
+
+  res.json(combinedData);
+  console.log(combinedData);
 });
 
 //route pour recuperer un resultat avec les filtres userId et quizId
