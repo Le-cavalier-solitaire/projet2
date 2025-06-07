@@ -9,6 +9,7 @@ interface User {
   mail: string;
   role: string;
   brancnId: string;
+  studentArrayId: string[] | [];
 }
 
 interface DecodedToken {

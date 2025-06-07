@@ -676,7 +676,9 @@ server.get("/api/results/quizId/authorId/:quizId/:authorId", (req, res) => {
   const results = router.db.get("results").value();
   const users = router.db.get("users").value();
 
-  const quizResults = results.filter((result) => result.quizId === quizId);
+  const quizResults = results.filter(
+    (result) => result.quizId === quizId && result.authorId === authorId
+  );
   console.log("Résultats trouvés:", quizResults.length);
 
   // Créer un Map des résultats groupés par studentId
@@ -704,6 +706,78 @@ server.get("/api/results/quizId/authorId/:quizId/:authorId", (req, res) => {
 
   res.json(combinedData);
   console.log(combinedData);
+});
+
+// Route pour afficher les résultats des students dans les comptes des parents
+server.get("/api/results/parentId/:parentId", (req, res) => {
+  const { parentId } = req.params;
+  const results = router.db.get("results").value();
+  const users = router.db.get("users").value();
+
+  // Trouver le parent
+  const parentUser = users.find((user) => user.id == parentId);
+
+  if (!parentUser) {
+    return res.status(404).json({ message: "Parent non trouvé" });
+  }
+
+  console.log("parent trouvé:", parentId);
+
+  // Vérifier si le parent a des étudiants associés
+  if (!parentUser.studentArrayId || parentUser.studentArrayId.length === 0) {
+    return res
+      .status(404)
+      .json({ message: "Aucun étudiant associé à ce parent" });
+  }
+
+  // Récupérer tous les résultats des étudiants du parent
+  let quizResults = [];
+  parentUser.studentArrayId.forEach((studentId) => {
+    const studentResults = results.filter(
+      (result) => result.studentId === studentId && result.status === "complete"
+    );
+    quizResults = quizResults.concat(studentResults);
+  });
+
+  console.log("Nombre de résultats trouvés:", quizResults.length);
+
+  // Créer un objet pour regrouper les résultats par studentId
+  const resultsByStudentId = {};
+  quizResults.forEach((result) => {
+    if (!resultsByStudentId[result.studentId]) {
+      resultsByStudentId[result.studentId] = [];
+    }
+    resultsByStudentId[result.studentId].push(result);
+  });
+
+  // Combiner avec les informations des users (étudiants)
+  const combinedDataStudent = [];
+  parentUser.studentArrayId.forEach((studentId) => {
+    const student = users.find((user) => user.id === studentId);
+    if (student) {
+      combinedDataStudent.push({
+        student: {
+          id: student.id,
+          name: student.name,
+          surname: student.surname,
+          telephone: student.telephone,
+          // Ajoutez d'autres champs si nécessaire
+        },
+        quizResults: resultsByStudentId[studentId] || [],
+      });
+    }
+  });
+
+  if (combinedDataStudent.length === 0) {
+    return res
+      .status(404)
+      .json({
+        message: "Aucun résultat trouvé pour les étudiants de ce parent",
+      });
+  }
+
+  res.json(combinedDataStudent);
+  console.log(combinedDataStudent);
 });
 
 //route pour recuperer un resultat avec les filtres userId et quizId

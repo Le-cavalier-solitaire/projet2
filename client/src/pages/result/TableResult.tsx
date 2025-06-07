@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import DetailsQuizModal from "../quizz/DetailsQuizModal";
 import { Link } from "react-router-dom";
 import TeacherViewResultDetails from "./TeacherViewResultDetails";
+import ParentViewResultDetails from "./ParentViewResultDetails";
 // import DetailsResultDraw from "./DetailsResultDraw";
 
 // Définir le type des résultats utilisateur
@@ -31,7 +32,7 @@ export default function TableResult() {
   const { user, isLoading } = useAuth();
   const [resultOfUSer, setResultOfUSer] = useState<UserResult[]>([]);
   const [quizs, setQuizs] = useState([]);
-
+  const [resultStudentForParent, setResultStudentForParent] = useState([]);
   const [branchs, setBranch] = useState([]);
 
   function getQuiz() {
@@ -72,6 +73,35 @@ export default function TableResult() {
   useEffect(() => {
     getBranch();
   }, []);
+
+  useEffect(() => {
+    const getResultForParent = () => {
+      if (!user?.id) return;
+      if (user.role == "Parent") {
+        axios
+          .get(`http://localhost:3000/api/results/parentId/${user.id}`)
+          .then((res) => {
+            setResultStudentForParent(res.data);
+          })
+          .catch((error) => {
+            if (error.response?.status === 404) {
+              console.error(
+                "Erreur lors de la vérification du statut du quiz:",
+                error
+              );
+            } else {
+              console.error(
+                "Erreur lors de la vérification du statut du quiz:",
+                error
+              );
+            }
+            return null;
+          });
+      }
+    };
+    getResultForParent();
+  }, [user?.id]);
+  console.log(resultStudentForParent)
 
   // Récupérer les résultats et le statut du quiz avec meilleure gestion des erreurs
   useEffect(() => {
@@ -241,6 +271,86 @@ export default function TableResult() {
           </table>
         </div>
       )}
+
+      {user?.role == "Parent" && (
+        <div className="bg-white rounded shadow overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 font-extrabold">
+              <tr>
+                {["Name", "Surname", "Branch", "Phone_Number", "Actions"].map(
+                  (header, index) => (
+                    <th
+                      key={index}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                    >
+                      {header}
+                    </th>
+                  )
+                )}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {resultStudentForParent.map((result) => {
+                return (
+                  <tr key={result?.id}>
+                    <td className="px-6 py-4">{result.student.name}</td>
+                    <td className="px-6 py-4">{result.student.surname}</td>
+                    <td className="px-6 py-4">{}</td>
+                    <td className="px-6 py-4">{result.student.telephone}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex space-x-2">
+                        <Link to={"/TeacherViewResult"} />
+                        <ParentViewResultDetails
+                          quizs={result.quizResults}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+{user?.role == "Administrateur" &&(
+  <div className="bg-white rounded shadow overflow-x-auto">
+        <table
+          className="w-full justify-center items-center"
+          style={{ minWidth: "750px" }}
+        >
+          <thead className="bg-white-50">
+            <tr>
+              {["Nom", "Actions"].map((header, index) => (
+                <th
+                  key={index}
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {branchs.map((branch) => {
+              return (
+                <tr key={branch.id} className="border-b font-semibold hover:bg-purple-50 transition text-[16px]">
+                  <td className="px-6 py-4 font-mono font-semibold text-[18px]">
+                    {branch.name}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center items-center space-x-2">
+                      
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+)}
+
     </main>
   );
 }
