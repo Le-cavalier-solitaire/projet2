@@ -1,34 +1,22 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
 import "../App.css";
 import toast from "react-hot-toast";
 import RegistrationBranchModal from "./RegistrationBranchModal";
 import EditBranchModal from "./EditBranchModal";
-import branchIcon from "../../assets/branchIcon.png";
-import trash from "../../assets/trash.png";
 import { Tooltip } from "@mui/material";
 import { DeleteForever } from "@mui/icons-material";
+import { useGetBranchs } from "../../hooks";
+import { BASE_URL } from "../../api";
 
 const TableBranch = () => {
-  const [branchs, setBranch] = useState([]);
 
-  function getBranch() {
-    axios("http://localhost:3000/api/branchs")
-      .then((res) => {
-        setBranch(res.data);
-      })
-      .catch((error) => {
-        toast.error("Unable to get branch");
-      });
-  }
+  const {branchs,setBranch}=useGetBranchs()
 
-  useEffect(() => {
-    getBranch();
-  }, []);
+
 
   const deleteBranch = (id:number) => {
     axios
-      .delete(`http://localhost:3000/api/deleteBranch/${id}`)
+      .delete(`${BASE_URL}/api/deleteBranch/${id}`)
       .then(() => {
         setBranch(branchs.filter((branch) => branch.id !== id));
         toast.success("branch has already delete");

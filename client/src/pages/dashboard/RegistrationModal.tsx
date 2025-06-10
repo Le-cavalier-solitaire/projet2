@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
+import { useGetBranchs } from "../../hooks";
 
 const RegistrationModal = ({ users, setUsers }) => {
-  const [listBranch, setListBranch] = useState([]);
+    const {branchs}=useGetBranchs()
+
   const [isOpen, setIsOpen] = useState(false);
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
   const [selectedIdOfStudent, setSelectedIdOfStudent] = useState([]);
@@ -98,17 +100,17 @@ const RegistrationModal = ({ users, setUsers }) => {
 
   // Gestion de la touche Échap
 
-  function getListBranch() {
-    axios("http://localhost:3000/api/branchs")
-      .then((res) => {
-        setListBranch(res.data);
-      })
-      .catch((err) => {
-        toast.error("Unable to get data");
-      });
-  }
+  // function getbranchs() {
+  //   axios("http://localhost:3000/api/branchs")
+  //     .then((res) => {
+  //       setBranch(res.data);
+  //     })
+  //     .catch((err) => {
+  //       toast.error("Unable to get data");
+  //     });
+  // }
 
-  useEffect(getListBranch, []);
+  // useEffect(getbranchs, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -325,7 +327,7 @@ const RegistrationModal = ({ users, setUsers }) => {
               {data.role == "Student" && (
                 <Autocomplete
                   disablePortal
-                  options={listBranch}
+                  options={branchs}
                   getOptionLabel={(option) => option.name}
                   value={selectedNameBranch}
                   onChange={(event, newBranch) => {

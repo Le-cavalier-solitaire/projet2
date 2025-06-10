@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import RegistrationModal from "./RegistrationModal";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import EditUserModal from "./EditUserModal";
 import toast from "react-hot-toast";
-import { DeleteForever } from "@mui/icons-material";
-import { Tooltip } from "@mui/material";
+import { DeleteButton } from "../../components";
 
 interface User {
   id: number;
@@ -98,20 +96,7 @@ const TableUser = () => {
                         users={users}
                         setUsers={setUsers}
                       />
-
-                      <Tooltip title="Delete user">
-                        <button
-                          style={{
-                            backgroundColor: "oklch(0.505 0.213 27.518)",
-                            borderRadius: "5px",
-                            boxShadow: "0px 6px 6px black",
-                          }}
-                          onClick={() => deleteUser(user.id)}
-                          className="text-white"
-                        >
-                          <DeleteForever fontSize="medium" />
-                        </button>
-                      </Tooltip>
+                      <DeleteButton  onClick={() => deleteUser(user.id)}/>
                     </div>
                   </td>
                 </tr>

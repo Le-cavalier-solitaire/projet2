@@ -1,23 +1,10 @@
 {
   "users": [
     {
-      "id": "67c4d876-48c7-41d7-ace8-32733744461c",
-      "name": "calibre12",
-      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
-      "surname": "bobo",
-      "mail": "bobo@gmail.com",
-      "telephone": "6525223232",
-      "role": "Administrateur",
-      "dob": "2025-04-29",
-      "verificationCode": "",
-      "verified": true
-    },
-    {
       "id": "9974713b-0e3a-47fa-a395-2e3fa76dfd41",
       "name": "Lamertume",
       "surname": "toto",
       "mail": "djkarl92@gmail.com",
-      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "645787898",
       "role": "Student",
       "dob": "2025-05-26",
@@ -26,24 +13,10 @@
       "brancnId": "7254b45e-b715-4128-9ae8-8ede9fd082d3"
     },
     {
-      "id": "cd5e0600-7f66-4818-9d44-bb0ea99ad773",
-      "name": "juju",
-      "surname": "karel",
-      "mail": "123@gmail.com",
-      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
-      "telephone": "654123201",
-      "role": "Student",
-      "dob": "2025-05-30",
-      "verificationCode": "",
-      "verified": true,
-      "brancnId": "fec3088e-6e05-46e3-8765-8a57ce975fbe"
-    },
-    {
       "id": "b7263b60-d76e-435e-aaa6-2fb47deb4ca1",
       "name": "karl",
       "surname": "junior",
       "mail": "djkarel92@gmail.com",
-      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "654789865",
       "role": "Student",
       "dob": "2025-05-30",
@@ -70,7 +43,6 @@
       "name": "Lagloire",
       "surname": "toto",
       "mail": "toto@gmail.com",
-      "password": "$2b$10$0IlaciwktXVmhUKX3PTpXOb2iIbiWbHaesh1yFY/spRxQY6JMezuO",
       "telephone": "652321452",
       "role": "Student",
       "dob": "2025-06-01",
@@ -197,47 +169,6 @@
           "correctAnswer": 1,
           "time": 6,
           "marks": 3
-        }
-      ]
-    },
-    {
-      "name": "Le langage python",
-      "description": "les bases de pythons",
-      "authorId": "b9311b70-668c-4be8-8755-4d4df4f41e5a",
-      "branchId": [
-        "870c7885-5cb8-4477-bf49-e8d84042e13e",
-        "d345abfe-a27e-4ac7-a9a5-087733584f33"
-      ],
-      "createAt": "2025-04-30T23:11:30.155Z",
-      "startDate": "2025-05-02T08:30",
-      "endDate": "2025-06-08T20:30",
-      "id": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-      "typeOfTime": "global Time",
-      "quizQuestions": [
-        {
-          "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-          "id": "7689bcd3-d3df-487e-a91f-45e0543ab6e5",
-          "mainQuestion": "c'est quoi l'extension d'un fichier python?",
-          "choices": [
-            "A. .spies",
-            "B. spi",
-            "C. spy"
-          ],
-          "correctAnswer": 2,
-          "time": 15,
-          "marks": 1
-        },
-        {
-          "quizId": "d823a9d0-1230-4e7d-844c-6e59b69c1ee1",
-          "id": "83eaf54b-23ba-4ebb-95e5-58bd9e3f1231",
-          "mainQuestion": "quell librerie python est utilisée pour la programmation web et mobile?",
-          "choices": [
-            "A. django",
-            "B. php"
-          ],
-          "correctAnswer": 0,
-          "time": 0,
-          "marks": 4
         }
       ]
     },
@@ -697,6 +628,10 @@
     {
       "name": "Trading",
       "id": "c367eba1-736e-4d4a-97d1-0b4f7128fee3"
+    },
+    {
+      "name": "Trading",
+      "id": "9deebf82-3877-49af-8ecc-d78e607750f0"
     }
   ]
 }
