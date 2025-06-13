@@ -1,22 +1,38 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Tooltip } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+import { EditButton } from "../../components";
+import { UseControlModal } from "../../hooks";
+import { BASE_URL } from "../../api";
 
+interface Branch {
+  name: string;
+  id: string;
+}
 
-const EditBranchModal = ({ branch, branchs, setBranch }) => {
-  const [isOpen, setIsOpen] = useState(false);
+type BranchComponentProps = {
+  branch: Branch;
+  branchs: Branch[];
+  setBranch: (newBranches: Branch[]) => void;
+};
+
+const EditBranchModal = ({
+  branch,
+  branchs,
+  setBranch,
+}: BranchComponentProps) => {
+  const { isOpen, setIsOpen, openModal, handleBackdropClick, closeModal } =
+    UseControlModal();
   const [data, setData] = useState({
     name: branch.name,
   });
 
-  function handleSubmit(e) {
+  function handleSubmit(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.preventDefault();
     axios
-      .patch(`http://localhost:3000/api/updatebranch/${branch.id}`, { ...data })
+      .patch(`${BASE_URL}/api/updatebranch/${branch.id}`, { ...data })
       .then((res) => {
-        const branchUpdate = res.data.branch
+        const branchUpdate = res.data.branch;
         const editQuiz = branchs.map((client) =>
           client.id === branch.id ? (client = branchUpdate) : client
         );
@@ -30,44 +46,11 @@ const EditBranchModal = ({ branch, branchs, setBranch }) => {
       });
   }
 
-  // Gestion de la touche Échap
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        closeModal();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  };
-
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-      <Tooltip title="Edit branch">
-        <button
-          style={{
-            backgroundColor: "oklch(0.623 0.214 259.815)",
-            borderRadius: "5px",
-            boxShadow: "0px 6px 6px black",
-          }}
-          onClick={openModal}
-          className="text-white"
-        >
-          <EditIcon fontSize="medium" />
-        </button>
-      </Tooltip>
+
+      <EditButton onClick={openModal} text="Edit branch" />
 
       {/* Overlay du modal */}
       <div

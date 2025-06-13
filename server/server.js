@@ -12,18 +12,11 @@ const router = jsonServer.router(path.join(__dirname, "db.json"));
 const middlewares = jsonServer.defaults();
 const port = 3000;
 const { resend } = require("./src/lib/resend");
+const { create } = require("domain");
 
 // Génère un code à 6 caractères
 const generateToken = () =>
   Math.random().toString(36).substring(2, 8).toUpperCase();
-
-const getEmailTemplate = (validationLink) => `
-<div>
-    <h1>Validation de compte</h1>
-    <p>Cliquez sur le lien ci-dessous pour valider votre compte :</p>
-    <a href="${validationLink}">Valider mon compte</a>
-  </div>
-`;
 
 // Utiliser les middlewares par défaut (logger, static, cors et no-cache)
 server.use(middlewares);
@@ -63,7 +56,7 @@ server.post("/api/login", async (req, res) => {
 
   // Cherche l'utilisateur dans "db.json"
   const users = router.db.get("users").value();
-  const user = users.find((u) => u.mail === email && u.verified === true);
+  const user = users.find((u) => u.mail === email);
 
   console.log("Utilisateur trouvé:", user); // Debug
 
@@ -96,15 +89,36 @@ server.get("/api/profile", authenticateToken, (req, res) => {
 // Exemple 1: Route pour obtenir les utilisateurs
 server.get("/api/users", (req, res) => {
   try {
-    const users = router.db.get("users").value();
+    const { page = 1, pageSize = 5, gender, role } = req.query;
+
+    let users = router.db.get("users").value();
     console.log("Utilisateurs récupérés:", users ? users.length : 0);
 
     if (!users || users.length === 0) {
       console.log("Aucun utilisateur trouvé dans la base de données");
     }
-    const usersArray = users.filter((user) => user.verified == true);
 
-    res.json(usersArray || []);
+    // Filtrage par genre
+    if (gender) {
+      const genders = gender.split(",");
+      users = users.filter((user) => genders.includes(user.sexe));
+    }
+
+    // Filtrage par rôle (si vous voulez aussi filtrer côté serveur)
+    if (role) {
+      const roles = role.split(",");
+      users = users.filter((user) => roles.includes(user.role));
+    }
+
+    // Pagination
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const paginatedUsers = users.slice(start, end);
+
+    res.json({
+      users: paginatedUsers,
+      totalCount: users.length,
+    });
   } catch (error) {
     console.error("Erreur lors de la récupération des utilisateurs:", error);
     res.status(500).json({
@@ -113,12 +127,15 @@ server.get("/api/users", (req, res) => {
   }
 });
 
-//route pour un obtenir un user grace à l'email
-server.get("/api/user/mail/:email", (req, res) => {
+//route pour un obtenir un user grace à l'email et telephone
+server.get("/api/user/mail/:email/:phone", (req, res) => {
   try {
     const userEmail = req.params.email;
+    const userPhone = req.params.phone;
     const users = router.db.get("users").value();
-    const userData = users.find((user) => user.mail == userEmail);
+    const userData = users.find(
+      (user) => user.mail == userEmail || user.telephone == userPhone
+    );
     console.log("Utilisateur récupéré:", userData ? userData.length : 0);
 
     if (!userData || userData.length === 0) {
@@ -164,36 +181,34 @@ server.get("/api/userStudents", (req, res) => {
 server.post("/api/user", async (req, res) => {
   const payload = req.body;
   const users = router.db.get("users");
-  const password = payload.password;
-  const passwordHash = await bcrypt.hash(password, 10);
   const email = payload.mail;
   const verificationCode = generateToken();
-  const token = jwt.sign({ email, code: verificationCode }, JWT_SECRET, {
-    expiresIn: "1h",
-  });
+  const passwordHash = await bcrypt.hash(verificationCode, 10);
+  // const token = jwt.sign({ email, code: verificationCode }, JWT_SECRET, {
+  //   expiresIn: "1h",
+  // });
   const userData = {
     ...payload,
     password: passwordHash,
     id: uuidv4(),
     verificationCode,
-    verified: false,
   };
   const { confirm_password, ...newUserData } = userData;
   users.push(newUserData).write();
   const getEmailTemplate = (validationLink) => `
   <div>
-      <h1>Validation de compte</h1>
-      <p>Cliquez sur le lien ci-dessous pour valider votre compte :</p>
-      <a href="${validationLink}">Valider mon compte</a>
-      <p>Si le lien ci-dessus ne fonctionne pas, copiez le lien ci dessous dans votre navigateur</p>
-      <p> ${validationLink}</p>
+      <h1>Bienvenu à CabInfo ☺!</h1>
+      <p>ci-dessous vous avez votre code de connexion à votre compte:</p>
+      <p>${verificationCode}</p>
+      <a href="${validationLink}">Me connecter</a>
+      <p>pour plus de securité, veuillez mettre à jour votre mot de passe dans votre compte</p>
     </div>
   `;
   const sendEmail = async (email, validationLink) => {
     try {
       const data = await resend.emails.send({
         from: "onboarding@resend.dev",
-        to: email,
+        to: "djkarel92@gmail.com",
         // email,
         subject: "Validate Account",
         html: getEmailTemplate(validationLink),
@@ -206,10 +221,7 @@ server.post("/api/user", async (req, res) => {
     }
   };
   // Appelez sendEmail après la création de l'utilisateur
-  const emailSent = await sendEmail(
-    email,
-    `http://localhost:3000/api/verifyAccount?token=${token}`
-  );
+  const emailSent = await sendEmail(email, `http://localhost:5173/login`);
   if (!emailSent) {
     console.warn("Email could not be sent");
   }
@@ -333,6 +345,7 @@ server.post("/api/branch", async (req, res) => {
   const branchData = {
     ...newBranch,
     id: uuidv4(),
+    create_at: new Date().toISOString(),
   };
   branchs.push(branchData).write();
   res.status(201).json(branchData);
@@ -769,11 +782,9 @@ server.get("/api/results/parentId/:parentId", (req, res) => {
   });
 
   if (combinedDataStudent.length === 0) {
-    return res
-      .status(404)
-      .json({
-        message: "Aucun résultat trouvé pour les étudiants de ce parent",
-      });
+    return res.status(404).json({
+      message: "Aucun résultat trouvé pour les étudiants de ce parent",
+    });
   }
 
   res.json(combinedDataStudent);

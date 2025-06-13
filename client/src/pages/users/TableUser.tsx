@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { SearchOutlined } from "@ant-design/icons";
 import type {
   GetProp,
@@ -15,20 +15,28 @@ import type {
 } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
 import axios from "axios";
+import RegistrationModal from "../../components/user/RegistrationModal";
+import EditUserModal from "../../components/user/EditUserModal";
 import toast from "react-hot-toast";
 import { DeleteButton } from "../../components";
 import { BASE_URL } from "../../api";
-import { useGetBranchs } from "../../hooks";
-import EditBranchModal from "../../components/branch/EditBranchModal";
-import RegistrationBranchModal from "../../components/branch/RegistrationBranchModal";
 
-interface BranchType {
-  name: string;
+interface UserType {
   id: string;
-  create_at: string;
+  key: string;
+  name: string;
+  surname: string;
+  mail: string;
+  telephone: string;
+  role: "Student" | "Parent" | "Teacher" | "Administrateur";
+  dob: string;
+  brancnId?: string;
+  studentArrayId?: string[];
+  sexe: "male" | "female";
+  adresse: string;
 }
 
-type DataIndex = keyof BranchType;
+type DataIndex = keyof UserType;
 type TableRowSelection<T> = TableProps<T>["rowSelection"];
 type TableParams = {
   pagination?: TablePaginationConfig;
@@ -37,14 +45,14 @@ type TableParams = {
   filters?: Record<string, any>;
 };
 
-const TableBranch: React.FC = () => {
+const TableUser: React.FC = () => {
   // States pour la recherche
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
 
   // States pour la pagination/tri
-  const { branchs, setBranch, isLoading } = useGetBranchs();
+  const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
@@ -74,7 +82,7 @@ const TableBranch: React.FC = () => {
 
   const getColumnSearchProps = (
     dataIndex: DataIndex
-  ): TableColumnType<BranchType> => ({
+  ): TableColumnType<UserType> => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -164,7 +172,7 @@ const TableBranch: React.FC = () => {
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
-  const rowSelection: TableRowSelection<BranchType> = {
+  const rowSelection: TableRowSelection<UserType> = {
     selectedRowKeys,
     onChange: onSelectChange,
     selections: [
@@ -194,44 +202,69 @@ const TableBranch: React.FC = () => {
     ],
   };
 
-  //fonction pour supprimer une branch
-  const deleteBranch = (id: string) => {
+  //fonction pour supprimer un user
+  const deleteUser = (id: string) => {
     axios
-      .delete(`${BASE_URL}/api/deleteBranch/${id}`)
-      .then(() => {
-        setBranch(branchs.filter((branch: BranchType) => branch.id !== id));
-        toast.success("branch has already delete");
+      .delete(`${BASE_URL}/api/deleteUser/${id}`)
+      .then((response) => {
+        setUsers(users.filter((user) => user.id !== id));
+        toast.success("Utilisateur supprimé avec succès");
       })
       .catch((error) => {
-        toast.error("Unable to delete branch");
+        alert("Unable to delete User");
       });
   };
 
-  // Formatage des données avec useMemo (optimisation)
-  const formattedbranchs = useMemo(() => {
-    return branchs.map((branch) => ({
-      ...branch,
-      key: branch.id,
-    }));
-  }, [branchs]);
-
-  // Supprimez l'ancien formatage dans fetchbranchs (devenu inutile)
-  const fetchbranchs = async () => {
+  // Fonction pour récupérer les données depuis l'API
+  const fetchUsers = async () => {
+    setLoading(true);
     try {
+      const { current, pageSize } = tableParams.pagination || {};
+      const { sexe, role } = tableParams.filters || {};
+
+      // Construire les paramètres de requête
+      const params = {
+        page: current,
+        pageSize,
+        ...(sexe && { gender: sexe.join(",") }), // Envoie les filtres genre
+        ...(role && { role: role.join(",") }), // Et les rôles si besoin
+      };
+
+      const response = await axios(`${BASE_URL}/api/users`, {
+        params,
+      });
+
+      const data = response.data.users;
+
+      console.log(data);
+
+      // Formater les données avec une clé unique
+      const formattedUsers = data.map((user: any) => ({
+        ...user,
+        key: user.id, // Utilisation de l'id comme clé
+      }));
+
+      setUsers(formattedUsers);
+      setLoading(false);
       setTableParams({
         ...tableParams,
         pagination: {
           ...tableParams.pagination,
-          total: branchs.length, // Utilise branchs directement
+          total: response.data.totalCount || data.length,
         },
       });
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error fetching users:", error);
+      setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchUsers();
+  }, [JSON.stringify(tableParams)]);
+
   // Gestion du changement de table (tri, pagination, filtres)
-  const handleTableChange: TableProps<BranchType>["onChange"] = (
+  const handleTableChange: TableProps<UserType>["onChange"] = (
     pagination,
     filters,
     sorter
@@ -239,8 +272,8 @@ const TableBranch: React.FC = () => {
     setTableParams({
       pagination,
       filters,
-      sortField: (sorter as SorterResult<BranchType>).field as string,
-      sortOrder: (sorter as SorterResult<BranchType>).order,
+      sortField: (sorter as SorterResult<UserType>).field as string,
+      sortOrder: (sorter as SorterResult<UserType>).order,
     });
 
     // Reset la sélection si la page change
@@ -250,23 +283,85 @@ const TableBranch: React.FC = () => {
   };
 
   // Configuration des colonnes
-  const columns: TableColumnsType<BranchType> = [
+  const columns: TableColumnsType<UserType> = [
     {
       title: "Nom",
       dataIndex: "name",
       key: "name",
-      width: "65%",
+      width: "15%",
       ...getColumnSearchProps("name"),
       sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text, record) => `${text}`,
+      render: (text, record) => `${text} ${record.surname}`,
     },
     {
-      title: "Create Date",
-      dataIndex: "create_at",
-      key: "create_at",
-      width: "35%",
-      sorter: (a, b) =>
-        new Date(a.create_at).getTime() - new Date(b.create_at).getTime(),
+      title: "Email",
+      dataIndex: "mail",
+      key: "mail",
+      width: "20%",
+      ...getColumnSearchProps("mail"),
+    },
+    {
+      title: "Sexe",
+      dataIndex: "sexe",
+      key: "sexe",
+      width: "15%",
+      filters: [
+        { text: "Male", value: "Male" },
+        { text: "Female", value: "Female" },
+      ],
+    },
+    {
+      title: "Address",
+      dataIndex: "adresse",
+      key: "adresse",
+      width: "20%",
+      ...getColumnSearchProps("adresse"),
+    },
+    {
+      title: "Téléphone",
+      dataIndex: "telephone",
+      key: "telephone",
+      width: "15%",
+      ...getColumnSearchProps("telephone"),
+    },
+    {
+      title: "Rôle",
+      dataIndex: "role",
+      key: "role",
+      width: "15%",
+      filters: [
+        { text: "Étudiant", value: "Student" },
+        { text: "Parent", value: "Parent" },
+        { text: "Enseignant", value: "Teacher" },
+        { text: "Administrateur", value: "Administrateur" },
+      ],
+      render: (role: UserType["role"]) => {
+        let color = "";
+        switch (role) {
+          case "Student":
+            color = "green";
+            break;
+          case "Parent":
+            color = "blue";
+            break;
+          case "Teacher":
+            color = "orange";
+            break;
+          case "Administrateur":
+            color = "red";
+            break;
+          default:
+            color = "gray";
+        }
+        return <Tag color={color}>{role}</Tag>;
+      },
+    },
+    {
+      title: "Date de naissance",
+      dataIndex: "dob",
+      key: "dob",
+      width: "15%",
+      sorter: (a, b) => new Date(a.dob).getTime() - new Date(b.dob).getTime(),
     },
     {
       title: "Actions",
@@ -275,14 +370,10 @@ const TableBranch: React.FC = () => {
       render: (_, record) => (
         <Space size="small">
           {/* Modal d'édition */}
-          <EditBranchModal
-            branch={record}
-            branchs={branchs}
-            setBranch={setBranch}
-          />
+          <EditUserModal user={record} users={users} setUsers={setUsers} />
           <DeleteButton
-            onClick={() => deleteBranch(record.id)}
-            text="Delete branch"
+            onClick={() => deleteUser(record.id)}
+            text="Delete user"
           />
         </Space>
       ),
@@ -292,9 +383,9 @@ const TableBranch: React.FC = () => {
   return (
     <main className="ml-6 p-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Manage branchs</h1>
+        <h1 className="text-2xl font-bold">Manage Users</h1>
 
-        <RegistrationBranchModal branchs={branchs} setBranch={setBranch} />
+        <RegistrationModal users={users} setUsers={setUsers} />
       </div>
 
       <Table
@@ -302,9 +393,9 @@ const TableBranch: React.FC = () => {
         rowSelection={rowSelection}
         columns={columns}
         rowKey="id"
-        dataSource={formattedbranchs}
+        dataSource={users}
         pagination={tableParams.pagination}
-        loading={isLoading}
+        loading={loading}
         onChange={handleTableChange}
         style={{ margin: "16px", zIndex: 1 }}
         // scroll={{ x: true }}
@@ -313,4 +404,4 @@ const TableBranch: React.FC = () => {
   );
 };
 
-export default TableBranch;
+export default TableUser;

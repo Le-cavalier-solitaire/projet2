@@ -1,23 +1,19 @@
-import { StrictMode, useState } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import Login from "./pages/login/Login.tsx";
-import RegistrationModal from "./pages/dashboard/RegistrationModal.tsx";
 import Dashboard from "./pages/dashboard/Dashboard.tsx";
-import UserDash from "./pages/dashboard/UserDash.tsx";
-import EditModal from "./pages/dashboard/EditModal.tsx";
 import { Toaster } from "react-hot-toast";
-import QuizzList from "./pages/quizz/QuizzList.tsx";
-import MyQuizz from "./pages/quizzActiv/MyQuizz.tsx";
 import DoQuizz from "./pages/quizzActiv/DoQuizz.tsx";
-import BranchList from "./pages/branch/BranchList.tsx";
-import ResultList from "./pages/result/ResultList.tsx";
+import { Layout } from "./components/layout/Layout.tsx";
+import TableBranch from "./pages/branch/TableBranch.tsx";
+import TableResult from "./pages/result/TableResult.tsx";
+import TableQuizz from "./pages/quizz/TableQuizz.tsx";
+import QuizArea from "./pages/quizzActiv/QuizArea.tsx";
+import TableUser from "./pages/users/TableUser.tsx";
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("token");
@@ -26,79 +22,94 @@ const isAuthenticated = () => {
 };
 
 const App = () => {
-  const [users, setUsers] = useState([]);
-
-  const router = createBrowserRouter([
-    {
-      path: "/login",
-      element: isAuthenticated() ? <Navigate to="/" replace /> : <Login />,
-    },
-    {
-      path: "/registration",
-      element: <RegistrationModal users={users} setUsers={setUsers} />,
-    },
-    {
-      path: "/",
-      element: isAuthenticated() ? (
-        <Dashboard />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-    {
-      path: "/userlist",
-      element: isAuthenticated() ? (
-        <UserDash />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-    {
-      path: "/branch",
-      element: isAuthenticated() ? (
-        <BranchList />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-    {
-      path: "/quizzList",
-      element: isAuthenticated() ? (
-        <QuizzList />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-    {
-      path: "/MyQuizz",
-      element: isAuthenticated() ? (
-        <MyQuizz />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-    {
-      path: "/quizStart/:id/:status/:userId",
-      element: isAuthenticated() ? (
-        <DoQuizz />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-    {
-      path: "/result",
-      element: isAuthenticated() ? (
-        <ResultList />
-      ) : (
-        <Navigate to="/login" replace />
-      ),
-    },
-  ]);
-
   return (
     <StrictMode>
       <Toaster />
-      <RouterProvider router={router} />
+      <Router>
+        <Routes>
+          {/* Route avec layout (Sidebar + Header) */}
+          <Route element={<Layout />}>
+            <Route
+              path="/result"
+              element={
+                isAuthenticated() ? (
+                  <TableResult />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/branch"
+              element={
+                isAuthenticated() ? (
+                  <TableBranch />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/quizzList"
+              element={
+                isAuthenticated() ? (
+                  <TableQuizz />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/quizStart/:id/:status/:userId"
+              element={
+                isAuthenticated() ? (
+                  <DoQuizz />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/MyQuizz"
+              element={
+                isAuthenticated() ? (
+                  <QuizArea />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/userList"
+              element={
+                isAuthenticated() ? (
+                  <TableUser />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/"
+              element={
+                isAuthenticated() ? (
+                  <Dashboard />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            {/* ... autres routes */}
+          </Route>
+          {/* Routes sans layout (login, etc.) */}
+          <Route
+            path="/login"
+            element={
+              isAuthenticated() ? <Navigate to="/" replace /> : <Login />
+            }
+          />
+        </Routes>
+      </Router>
     </StrictMode>
   );
 };

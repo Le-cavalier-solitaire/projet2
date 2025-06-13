@@ -1,10 +1,9 @@
-// App.tsx
+import { Outlet } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import Header from "./Header";
+import { useState } from "react";
 
-import { useEffect, useState } from "react";
-import Sidebar from "../dashboard/Sidebar";
-import MyQuizzDashMainContent from "./MyQuizzDashMainContent-";
-
-const MyQuizz = () => {
+export const Layout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
@@ -18,11 +17,14 @@ const MyQuizz = () => {
           <i className="fas fa-bars"></i>
         </button>
       </div>
-
       <Sidebar isOpen={isSidebarOpen} />
-
-      <MyQuizzDashMainContent />
+      <main className="flex-1 md:ml-64">
+        <Header />
+        <Outlet /> {/* Ici s'afficheront les pages */}
+      </main>
+      <div className="main-content">
+        <div className="content-area"></div>
+      </div>
     </div>
   );
 };
-export default MyQuizz;

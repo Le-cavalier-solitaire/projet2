@@ -2,17 +2,42 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import plus from "../../assets/plus.png";
+import { UseControlModal } from "../../hooks";
+import { BASE_URL } from "../../api";
 
-const RegistrationBranchModal = ({ branchs, setBranch }) => {
-  const [isOpen, setIsOpen] = useState(false);
+interface Branch {
+  name: string;
+  id: string;
+}
 
+type BranchComponentProps = {
+  branchs: Branch[];
+  setBranch: (newBranches: Branch[]) => void;
+};
+
+const RegistrationBranchModal = ({
+  branchs,
+  setBranch,
+}: BranchComponentProps) => {
+  const { isOpen, setIsOpen, openModal, handleBackdropClick, closeModal } =
+    UseControlModal();
   const [data, setData] = useState({
     name: "",
   });
   function handleSubmit(e) {
     e.preventDefault();
+    if (!data.name || data.name.trim() === "") {
+      toast.error("Le nom de la branche est requis");
+      return;
+    }
+    const branchExisting = branchs.find((branch) => branch.name == data.name);
+    console.log(branchExisting);
+    if (branchExisting) {
+      toast.error("Une branche de ce nom existe déjà");
+      return;
+    }
     axios
-      .post("http://localhost:3000/api/branch", { ...data })
+      .post(`${BASE_URL}/api/branch`, { ...data })
       .then((res) => {
         setBranch([...branchs, res.data]);
         toast.success("branch added successfully");
@@ -26,28 +51,6 @@ const RegistrationBranchModal = ({ branchs, setBranch }) => {
         toast.error("une erreur est survenue");
       });
   }
-
-  // Gestion de la touche Échap
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
-        closeModal();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  };
 
   return (
     <div className="bg-green h-auto">
@@ -109,7 +112,9 @@ const RegistrationBranchModal = ({ branchs, setBranch }) => {
                   type="text"
                   required
                   className="w-[400px] px-3 py-2 ext-black border-2 font-mono text-[18px] border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
+                  onChange={(e) =>
+                    setData({ ...data, name: e.target.value.toUpperCase() })
+                  }
                   value={data.name}
                 />
               </div>

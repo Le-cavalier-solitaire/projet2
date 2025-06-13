@@ -3,32 +3,71 @@ import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import { useGetBranchs } from "../../hooks";
+import { EditButton } from "../../components";
+import {
+  UseControlModal,
+  useGetBranchs,
+  useGetStudentDataArray,
+} from "../../hooks";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
+import FormLabel from "@mui/material/FormLabel";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { BASE_URL } from "../../api";
 
-const RegistrationModal = ({ users, setUsers }) => {
-    const {branchs}=useGetBranchs()
+interface User {
+  id: number;
+  name: string;
+  surname: string;
+  role: string;
+  brancnId?: string;
+  dob: string;
+  mail: string;
+  telephone: string;
+  studentArrayId?: string[];
+  sexe: string;
+  adresse: string;
+}
 
-  const [isOpen, setIsOpen] = useState(false);
+type UserComponentProps = {
+  user: User;
+  users: User[];
+  setUsers: (newUsers: User[]) => void;
+};
+
+const EditUserModal = ({ user, users, setUsers }: UserComponentProps) => {
+  const { branchs } = useGetBranchs();
+  const { studentDataArrat } = useGetStudentDataArray();
+  console.log(branchs);
+  const { isOpen, setIsOpen, openModal, handleBackdropClick, closeModal } =
+    UseControlModal();
   const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  const [selectedIdOfStudent, setSelectedIdOfStudent] = useState([]);
-  const [selectedIdBranch, setSelectedIdBranch] = useState("");
-  const [selectedNameBranch, setSelectedNameBranch] = useState("");
+  console.log(user);
+
+  const [selectedNameOfStudent, setSelectedNameOfStudent] = useState(
+    studentDataArrat.filter((student) =>
+      user.studentArrayId?.includes(student.id)
+    ) || []
+  );
+  const [selectedIdOfStudent, setSelectedIdOfStudent] = useState(
+    user.studentArrayId || []
+  );
+  const [selectedIdBranch, setSelectedIdBranch] = useState(user.brancnId);
+  const [selectedNameBranch, setSelectedNameBranch] = useState(
+    branchs.find((b) => b?.id === user.brancnId) || null
+  );
 
   const [data, setData] = useState({
-    name: "",
-    surname: "",
-    mail: "",
-    password: "",
-    confirm_password: "",
-    telephone: "",
-    role: "",
+    name: user.name,
+    surname: user.surname,
+    telephone: user.telephone,
+    role: user.role,
     brancnId: selectedIdBranch,
-    dob: "",
     studentArrayId: selectedIdOfStudent,
+    sexe: user.sexe,
+    adresse: user.adresse,
+    dob: user.dob,
   });
-  console.log(data);
-  const [studentDataArrat, setStudentDataAray] = useState([]);
-  const [selectedNameOfStudent, setSelectedNameOfStudent] = useState([]);
 
   useEffect(() => {
     setData((prev) => ({ ...prev, studentArrayId: selectedIdOfStudent }));
@@ -38,116 +77,48 @@ const RegistrationModal = ({ users, setUsers }) => {
     setData((prev) => ({ ...prev, brancnId: selectedIdBranch }));
   }, [selectedIdBranch]);
 
-  function getStudentDAta() {
-    axios("http://localhost:3000/api/userStudents")
-      .then((res) => {
-        setStudentDataAray(res.data);
-      })
-      .catch((error) => {
-        toast.error("Unable to get user");
-      });
-  }
-
-  useEffect(() => {
-    getStudentDAta();
-  }, []);
-
   function handleSubmit(e) {
     e.preventDefault();
-    if (data.password !== data.confirm_password) {
-      toast.error("les mots de passes ne correspondent pas");
-    } else {
-      axios
-        .get(`http://localhost:3000/api/user/mail/${data.mail}`)
-        .then((res) => {
-          if (res.data && res.data.mail === data.mail) {
-            toast.error("compte existant dejà");
-          } else {
-            axios
-              .post("http://localhost:3000/api/user", { ...data })
-              .then((res) => {
-                const newUser = res.data;
-                setUsers([...users, res.data]);
-                // if (newUser.role === "Student") {
-                //   setStudentDataAray((prevStudents) => [
-                //     ...prevStudents,
-                //     newUser,
-                //   ]);
-                // }
-                toast.success("Compte créer avec succès!");
-                setData({
-                  name: "",
-                  surname: "",
-                  mail: "",
-                  password: "",
-                  confirm_password: "",
-                  telephone: "",
-                  role: "",
-                  brancnId: "",
-                  dob: "",
-                  studentArrayId: [],
-                });
-                closeModal();
-              })
-              .catch((err) => {
-                console.log(err);
-                toast.error("une erreur est survenue");
-              });
-          }
-        });
-    }
-  }
+    console.log("Envoi des données pour mise à jour:", data);
 
-  // Gestion de la touche Échap
+    axios
+      .patch(`${BASE_URL}/api/updateUser/${user.id}`, { ...data })
+      .then((response) => {
+        console.log("Réponse de mise à jour:", response.data);
 
-  // function getbranchs() {
-  //   axios("http://localhost:3000/api/branchs")
-  //     .then((res) => {
-  //       setBranch(res.data);
-  //     })
-  //     .catch((err) => {
-  //       toast.error("Unable to get data");
-  //     });
-  // }
+        // Extraire l'utilisateur mis à jour de la réponse
+        const updatedUser = response.data.user;
 
-  // useEffect(getbranchs, []);
+        // Mettre à jour le tableau users en remplaçant l'ancien utilisateur par le nouveau
+        const updatedUsers = users.map((client) =>
+          client.id === user.id ? updatedUser : client
+        );
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && isOpen) {
+        console.log("Tableau users mis à jour:", updatedUsers);
+        setUsers(updatedUsers);
+        // if (newUser.role === "Student") {
+        //   setStudentDataAray((prevStudents) => [...prevStudents, newUser]);
+        // }
+        toast.success("Information modifiée avec succès!");
         closeModal();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
-  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  };
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la mise à jour:", err);
+        toast.error("Une erreur est survenue lors de la mise à jour");
+      });
+  }
 
   return (
     <div className="bg-green h-auto">
       {/* Bouton d'ouverture */}
-      <button
-        onClick={openModal}
-        style={{ background: "green", boxShadow: "3px 5px 5px 1px black" }}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
-      >
-        Add User
-      </button>
+
+      <EditButton onClick={openModal} text="Edit user" />
 
       {/* Overlay du modal */}
       <div
+        style={{ backgroundColor: "rgba(0,0,0,0.6)", zIndex: 1050 }}
         onClick={handleBackdropClick}
-        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
+        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center ${
           isOpen ? "visible" : "hidden"
         }`}
       >
@@ -155,7 +126,7 @@ const RegistrationModal = ({ users, setUsers }) => {
         <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Edit</h2>
             <button
               onClick={closeModal}
               className="text-gray-400 hover:text-gray-600"
@@ -206,6 +177,24 @@ const RegistrationModal = ({ users, setUsers }) => {
               </div>
             </div>
 
+            <div className="">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Yaounde, Nlonkak Rue 106"
+                  onChange={(e) =>
+                    setData({ ...data, adresse: e.target.value })
+                  }
+                  value={data.adresse}
+                />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -233,54 +222,6 @@ const RegistrationModal = ({ users, setUsers }) => {
                     setData({ ...data, telephone: e.target.value })
                   }
                   value={data.telephone}
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="exemple@email.com"
-                onChange={(e) => setData({ ...data, mail: e.target.value })}
-                value={data.mail}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mot de passe
-                </label>
-
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  onChange={(e) =>
-                    setData({ ...data, password: e.target.value })
-                  }
-                  value={data.password}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmation
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="••••••••"
-                  onChange={(e) =>
-                    setData({ ...data, confirm_password: e.target.value })
-                  }
-                  value={data.confirm_password}
                 />
               </div>
             </div>
@@ -332,7 +273,8 @@ const RegistrationModal = ({ users, setUsers }) => {
                   value={selectedNameBranch}
                   onChange={(event, newBranch) => {
                     setSelectedNameBranch(newBranch);
-                    setSelectedIdBranch(newBranch ? newBranch.id : null);
+                    const newBranchId = newBranch ? newBranch.id : "";
+                    setSelectedIdBranch(newBranchId);
                   }}
                   sx={{ marginTop: 2 }}
                   renderInput={(params) => (
@@ -356,7 +298,8 @@ const RegistrationModal = ({ users, setUsers }) => {
                     value={selectedNameOfStudent}
                     onChange={(event, newValue) => {
                       setSelectedNameOfStudent(newValue);
-                      setSelectedIdOfStudent(newValue.map((item) => item.id));
+                      const newStudentIds = newValue.map((item) => item.id);
+                      setSelectedIdOfStudent(newStudentIds);
                     }}
                     renderInput={(params) => (
                       <TextField
@@ -371,19 +314,32 @@ const RegistrationModal = ({ users, setUsers }) => {
               )}
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="terms"
-                required
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label className="ml-2 text-sm text-gray-600">
-                J'accepte les
-                <a href="#" className="text-blue-600 hover:underline">
-                  conditions d'utilisation
-                </a>
-              </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left ">
+              <div className="m-1 w-2/1">
+                <FormLabel id="demo-row-controlled-radio-buttons-group">
+                  Sexe
+                </FormLabel>
+                <RadioGroup
+                  row
+                  aria-labelledby="demo-row-controlled-radio-buttons-group"
+                  name="row-controlled-radio-buttons-group"
+                  value={data.sexe}
+                  onChange={(e) => {
+                    setData({ ...data, sexe: e.target.value });
+                  }}
+                >
+                  <FormControlLabel
+                    value="Male"
+                    control={<Radio />}
+                    label="Male"
+                  />
+                  <FormControlLabel
+                    value="Female"
+                    control={<Radio />}
+                    label="Female"
+                  />
+                </RadioGroup>
+              </div>
             </div>
 
             <button
@@ -392,7 +348,7 @@ const RegistrationModal = ({ users, setUsers }) => {
               type="submit"
               className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
             >
-              Create Account
+              Edit Information
             </button>
           </form>
         </div>
@@ -401,4 +357,4 @@ const RegistrationModal = ({ users, setUsers }) => {
   );
 };
 
-export default RegistrationModal;
+export default EditUserModal;
