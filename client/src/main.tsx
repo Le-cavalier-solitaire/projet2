@@ -1,117 +1,150 @@
-import { StrictMode } from "react";
+import { JSX, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Navigate } from "react-router-dom";
-
-import Login from "./pages/login/Login.tsx";
-import Dashboard from "./pages/dashboard/Dashboard.tsx";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./pages/login/Login";
+import Dashboard from "./pages/dashboard/Dashboard";
 import { Toaster } from "react-hot-toast";
-import DoQuizz from "./pages/quizzActiv/DoQuizz.tsx";
-import { Layout } from "./components/layout/Layout.tsx";
-import TableBranch from "./pages/branch/TableBranch.tsx";
-import TableResult from "./pages/result/TableResult.tsx";
-import TableQuizz from "./pages/quizz/TableQuizz.tsx";
-import QuizArea from "./pages/quizzActiv/QuizArea.tsx";
-import TableUser from "./pages/users/TableUser.tsx";
+import DoQuizz from "./pages/quizzActiv/DoQuizz";
+import { Layouts } from "./components/layout/Layout";
+import TableBranch from "./pages/branch/TableBranch";
+import TableResult from "./pages/result/TableResult";
+import TableQuizz from "./pages/quizz/TableQuizz";
+import QuizArea from "./pages/quizzActiv/QuizArea";
+import TableUser from "./pages/users/TableUser";
+import RegistrationModal from "./components/user/RegistrationModal";
+import { Provider } from "react-redux";
+import { store } from "./store";
+import RegistrationBranch from "./components/branch/RegistrationBranchModal";
+import { ResetPasswordForm } from "./components/user/ResetPasswordForm";
 
 const isAuthenticated = () => {
   const token = localStorage.getItem("token");
-  console.log("Vérification de l'authentification, token:", token);
-  return token !== null && token !== undefined && token !== "";
+  return !!token;
 };
 
-const App = () => {
-  return (
-    <StrictMode>
+// Composant pour protéger les routes privées
+const PrivateRoute = ({ children }: { children: JSX.Element }) =>
+  isAuthenticated() ? children : <Navigate to="/login" replace />;
+
+const App = () => (
+  <StrictMode>
+    <Provider store={store}>
       <Toaster />
       <Router>
         <Routes>
-          {/* Route avec layout (Sidebar + Header) */}
-          <Route element={<Layout />}>
+          {/* Routes avec layout */}
+          <Route element={<Layouts />}>
             <Route
               path="/result"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
                   <TableResult />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
             <Route
-              path="/branch"
+              path="/addUser"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
+                  <RegistrationModal />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/addBranch"
+              element={
+                <PrivateRoute>
+                  <RegistrationBranch />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/branchList"
+              element={
+                <PrivateRoute>
                   <TableBranch />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
             <Route
               path="/quizzList"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
                   <TableQuizz />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
             <Route
               path="/quizStart/:id/:status/:userId"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
                   <DoQuizz />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
             <Route
               path="/MyQuizz"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
                   <QuizArea />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
             <Route
-              path="/userList"
+              path="/userList/:role"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
                   <TableUser />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
             <Route
               path="/"
               element={
-                isAuthenticated() ? (
+                <PrivateRoute>
                   <Dashboard />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                </PrivateRoute>
               }
             />
-            {/* ... autres routes */}
           </Route>
-          {/* Routes sans layout (login, etc.) */}
+          {/* Route login sans layout */}
           <Route
             path="/login"
             element={
               isAuthenticated() ? <Navigate to="/" replace /> : <Login />
             }
           />
+          <Route
+            path="/resetPassword"
+            element={
+              isAuthenticated() ? (
+                <Navigate to="/" replace />
+              ) : (
+                <ResetPasswordForm />
+              )
+            }
+          />
+          {/* Route 404 */}
+          <Route
+            path="*"
+            element={
+              <div style={{ textAlign: "center", marginTop: "2rem" }}>
+                404 - Page non trouvée
+              </div>
+            }
+          />
         </Routes>
       </Router>
-    </StrictMode>
-  );
-};
+    </Provider>
+  </StrictMode>
+);
 
 createRoot(document.getElementById("root")!).render(<App />);

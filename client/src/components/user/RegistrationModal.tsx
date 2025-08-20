@@ -1,369 +1,438 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import "../../assets/registrationuser.css";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
-import {
-  UseControlModal,
-  useGetBranchs,
-  useGetStudentDataArray,
-} from "../../hooks";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormLabel from "@mui/material/FormLabel";
-import FormControlLabel from "@mui/material/FormControlLabel";
+import { useGetStudentDataArray } from "../../hooks";
 import { BASE_URL } from "../../api";
+import { useForm } from "react-hook-form";
+import { Button, Cascader, DatePicker, Form, Input, Select } from "antd";
+import {
+  useAddUserMutation,
+  useGetStudentsUsersQuery,
+  useLazyCheckExistingUserQuery,
+} from "../../slice/UsersApi";
+import { useGetAllBranchsQuery } from "../../slice/BranchApi";
 
 interface User {
   id: number;
   name: string;
   surname: string;
   role: string;
-  brancnId?: string;
-  dob: string;
-  mail: string;
-  telephone: string;
+  branch?: string;
+  birthday: string;
+  email: string;
+  phone: string;
   studentArrayId?: string[];
-  sexe: string;
-  adresse: string;
+  gender: string;
+  residence: string[];
+  prefix: string;
 }
 type UserComponentProps = {
   users: User[];
   setUsers: () => void;
 };
+interface Branch {
+  id: string;
+  name: string;
+  create_at: string;
+}
+const { Option } = Select;
 
-const RegistrationModal = ({ users, setUsers }) => {
-  const { branchs } = useGetBranchs();
-  const { studentDataArrat } = useGetStudentDataArray();
+interface DataNodeType {
+  value: string;
+  label: string;
+  children?: DataNodeType[];
+}
 
-  const { isOpen, setIsOpen, openModal, handleBackdropClick, closeModal } =
-    UseControlModal();
-  const roles = ["Student", "Administrateur", "Teacher", "Parent"];
-  const [selectedIdOfStudent, setSelectedIdOfStudent] = useState([]);
-  const [selectedIdBranch, setSelectedIdBranch] = useState("");
-  const [selectedNameBranch, setSelectedNameBranch] = useState("");
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
+};
 
-  const [data, setData] = useState({
-    name: "",
-    surname: "",
-    mail: "",
-    telephone: "",
-    role: "",
-    brancnId: selectedIdBranch,
-    dob: "",
-    studentArrayId: selectedIdOfStudent,
-    sexe: "Male",
-    adresse: "",
-  });
-  const [selectedNameOfStudent, setSelectedNameOfStudent] = useState([]);
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 8,
+    },
+  },
+};
 
-  useEffect(() => {
-    setData((prev) => ({ ...prev, studentArrayId: selectedIdOfStudent }));
-  }, [selectedIdOfStudent]);
+const { RangePicker } = DatePicker;
+const config = {
+  rules: [
+    { type: "object" as const, required: true, message: "Please select time!" },
+  ],
+};
 
-  useEffect(() => {
-    setData((prev) => ({ ...prev, brancnId: selectedIdBranch }));
-  }, [selectedIdBranch]);
+const RegistrationModal = () => {
+  const {
+    // handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm();
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    axios
-      .get(`${BASE_URL}/api/user/mail/${data.mail}/${data.telephone}`)
-      .then((res) => {
-        if (res.data && res.data.mail === data.mail) {
-          toast.error("compte existant dejà");
-        } else if (res.data && res.data.telephone === data.telephone) {
-          toast.error("Numéro de telephone dejà enregistré");
-        } else {
-          axios
-            .post(`${BASE_URL}/api/user`, { ...data })
-            .then((res) => {
-              const newUser = res.data;
-              setUsers([...users, res.data]);
-              toast.success("Compte créer avec succès!");
-              setData({
-                name: "",
-                surname: "",
-                mail: "",
-                telephone: "",
-                role: "",
-                brancnId: "",
-                dob: "",
-                studentArrayId: [],
-                sexe: "Male",
-                adresse: "",
-              });
-              closeModal();
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("une erreur est survenue");
-            });
+  const [form] = Form.useForm();
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [checkExistingUser] = useLazyCheckExistingUserQuery();
+  const [createUser] = useAddUserMutation();
+
+  const onFinish = async (values: any) => {
+    const formData = {
+      ...values,
+      ...(selectedRole === "Student" && { brancnId: selectedBranch?.id }),
+      ...(selectedRole === "Parent" && {
+        studentArrayId: selectedStudents.map((s) => s.id),
+      }),
+    };
+    console.log("Received values of form: ", values);
+    try {
+      // 1. Vérification de l'existence de l'email/téléphone
+      const checkResult = await checkExistingUser({
+        email: values.email,
+        telephone: values.phone,
+      }).unwrap();
+
+      if (checkResult.exists) {
+        if (checkResult.existingField === "email") {
+          toast.error("Cet email est déjà utilisé");
+          form.setFields([{ name: "email", errors: ["Email déjà utilisé"] }]);
         }
-      });
-  }
+        if (checkResult.existingField === "phone") {
+          toast.error("Ce numéro de téléphone est déjà utilisé");
+          form.setFields([
+            { name: "phone", errors: ["Téléphone déjà utilisé"] },
+          ]);
+        }
+        return;
+      }
+
+      // 2. Envoi des données
+      const response = await createUser(values).unwrap();
+
+      toast.success("Utilisateur créé avec succès!");
+      form.resetFields();
+      setSelectedBranch(null);
+      setSelectedStudents([]);
+    } catch (error) {
+      console.error("Erreur lors de la création:", error);
+      toast.error("Une erreur est survenue lors de la création");
+    }
+  };
+
+  const prefixSelector = (
+    <Form.Item name="prefix" noStyle>
+      <Select style={{ width: 70 }}>
+        <Option value="237">+237</Option>
+      </Select>
+    </Form.Item>
+  );
+
+  const residences: CascaderProps<DataNodeType>["options"] = [
+    {
+      value: "Yaounde",
+      label: "Yaounde",
+      children: [
+        {
+          value: "Soa",
+          label: "Soa",
+          children: [
+            {
+              value: "Rue Hysacam",
+              label: "University",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      value: "Yaounde",
+      label: "Yaounde",
+      children: [
+        {
+          value: "Nlongkak",
+          label: "Nlongkak",
+          children: [
+            {
+              value: "Sous-prefecture",
+              label: "Service du gouverneur",
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const {
+    data: branchsData,
+    isLoading: isLoadingBranchs,
+    isError: isErrorBranchs,
+    error: branchsError,
+  } = useGetAllBranchsQuery();
+  const branchs = branchsData;
+
+  const {
+    data: studentUsersDAtas,
+    isLoading: isLoadingStudents,
+    isError: isErrorStudents,
+    error: studentsError,
+  } = useGetStudentsUsersQuery();
+  const studentDataArrat = studentUsersDAtas;
+  const roles = ["Student", "Administrateur", "Teacher", "Parent"];
+
+  if (isLoadingBranchs || isLoadingStudents) return <div>Loading...</div>;
+  if (isErrorBranchs || isErrorStudents) return <div>Error loading data</div>;
 
   return (
-    <div className="bg-green h-auto">
-      {/* Bouton d'ouverture */}
-      <button
-        onClick={openModal}
-        style={{ background: "green", boxShadow: "3px 5px 5px 1px black" }}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
-      >
-        Add User
-      </button>
-
-      {/* Overlay du modal */}
-      <div
-        onClick={handleBackdropClick}
-        style={{ backgroundColor: "rgba(0,0,0,0.6)", zIndex: 1050 }}
-        className={`fixed inset-0 bg-transparent-pink-500 bg-opacity-50 flex items-center justify-center ${
-          isOpen ? "visible" : "hidden"
-        }`}
-      >
-        {/* Contenu du modal */}
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4">
+    <div className=" h-full space-y-4">
+      {/* Contenu du modal */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4 borderstyle"
+          style={{
+            backgroundColor: "#f6f8fa",
+          }}
+        >
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">Create Account</h2>
-            <button
-              onClick={closeModal}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+            <h2 className="text-3xl font-bold text-gray-800">Create Account</h2>
           </div>
 
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Prénom
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) =>
-                    setData({ ...data, surname: e.target.value })
-                  }
-                  value={data.surname}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nom
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
-                  value={data.name}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="exemple@email.com"
-                  onChange={(e) => setData({ ...data, mail: e.target.value })}
-                  value={data.mail}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Yaounde, Nlonkak Rue 106"
-                  onChange={(e) =>
-                    setData({ ...data, adresse: e.target.value })
-                  }
-                  value={data.adresse}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date de naissance
-                </label>
-                <input
-                  type="date"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Birthday"
-                  onChange={(e) => setData({ ...data, dob: e.target.value })}
-                  value={data.dob}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Téléphone
-                </label>
-                <input
-                  type="tel"
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="phone Number"
-                  onChange={(e) =>
-                    setData({ ...data, telephone: e.target.value })
-                  }
-                  value={data.telephone}
-                />
-              </div>
-            </div>
-
-            <div
-              className={` ${data.role == "Student" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : ""}`}
+          <Form
+            {...formItemLayout}
+            form={form}
+            name="register"
+            onFinish={onFinish}
+            initialValues={{
+              residence: ["Yaounde", "Nlongkak", "Sous-prefecture"],
+              prefix: "237",
+            }}
+            style={{ maxWidth: 600 }}
+            scrollToFirstError
+            className="text-md font-medium text-gray-700"
+          >
+            <Form.Item
+              name="name"
+              label="Name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your name!",
+                  whitespace: true,
+                },
+              ]}
             >
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Rôle
-                </label>
-                <select
-                  required
-                  className={`px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${data.role !== "Student" ? "w-full" : "w-full"}`}
-                  onChange={(e) => {
-                    // setData({ ...data, role: e.target.value })
-                    const newValue = e.target.value;
-                    setData((prev) => {
-                      const newData = { ...prev, role: newValue };
-                      if (newValue === "Student") {
-                        delete newData.studentArrayId; // Suppression cohérente
-                        newData.brancnId = selectedIdBranch;
-                      } else if (newValue === "Parent") {
-                        delete newData.brancnId; // Suppression cohérente
-                        newData.studentArrayId = selectedIdOfStudent;
-                      } else {
-                        delete newData.studentArrayId; // Suppression cohérente
-                        delete newData.brancnId; // Suppression cohérente
-                      }
-                      return newData;
-                    });
-                  }}
-                >
-                  <option value="">Sélectionner une branche</option>
-                  {roles.map((role) => {
-                    return (
-                      <option value={role} key={role}>
-                        {role}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-              {data.role == "Student" && (
+              <Input className="uppercase" />
+            </Form.Item>
+
+            <Form.Item
+              name="surname"
+              label="Surname"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your surname!",
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="email"
+              label="E-mail"
+              rules={[
+                {
+                  type: "email",
+                  message: "The input is not valid E-mail!",
+                },
+                {
+                  required: true,
+                  message: "Please input your E-mail!",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="birthday"
+              label="Birthday"
+              {...config}
+              rules={[
+                {
+                  type: "date",
+                  message: "The input is not valid Date!",
+                },
+                {
+                  required: true,
+                  message: "Please input your birthDay!",
+                },
+              ]}
+            >
+              <DatePicker className="w-full" size="large" format="DD/MM/YYYY" />
+            </Form.Item>
+
+            <Form.Item
+              name="phone"
+              label="Phone Number"
+              rules={[
+                { required: true, message: "Please input your phone number!" },
+              ]}
+            >
+              <Input addonBefore={prefixSelector} style={{ width: "100%" }} />
+            </Form.Item>
+
+            <Form.Item
+              name="residence"
+              label="Habitual Residence"
+              rules={[
+                {
+                  type: "array",
+                  required: true,
+                  message: "Please select your habitual residence!",
+                },
+              ]}
+            >
+              <Cascader options={residences} />
+            </Form.Item>
+
+            <Form.Item
+              name="gender"
+              label="Gender"
+              rules={[{ required: true, message: "Please select gender!" }]}
+            >
+              <Select placeholder="select your gender">
+                <Option value="Male">Male</Option>
+                <Option value="Female">Female</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              name="role"
+              label="Role"
+              rules={[{ required: true, message: "Please select role!" }]}
+            >
+              <Select
+                placeholder="select your role"
+                onChange={(value) => {
+                  setSelectedRole(value);
+                  // Reset les sélections quand le rôle change
+                  setSelectedBranch(null);
+                  setSelectedStudents([]);
+                }}
+              >
+                <Select.Option value="">Sélectionner un rôle</Select.Option>
+                {roles.map((role) => (
+                  <Select.Option value={role} key={role}>
+                    {role}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            {/* Champ conditionnel pour Student */}
+            {selectedRole === "Student" && (
+              <Form.Item
+                label="Branche"
+                name="branch"
+                rules={[
+                  {
+                    required: true,
+                    message: "Veuillez sélectionner une branche",
+                  },
+                ]}
+              >
                 <Autocomplete
                   disablePortal
                   options={branchs}
                   getOptionLabel={(option) => option.name}
-                  value={selectedNameBranch}
+                  value={selectedBranch || null}
                   onChange={(event, newBranch) => {
-                    setSelectedNameBranch(newBranch);
-                    setSelectedIdBranch(newBranch ? newBranch.id : null);
+                    setSelectedBranch(newBranch);
+                    form.setFieldsValue({ branch: newBranch?.id || null });
                   }}
-                  sx={{ marginTop: 2 }}
+                  sx={{ marginTop: 0 }}
                   renderInput={(params) => (
-                    <TextField {...params} label="Branch" />
+                    <TextField
+                      {...params}
+                      size="small"
+                      label="Branch"
+                      variant="outlined"
+                    />
                   )}
                 />
-              )}
-            </div>
+              </Form.Item>
+            )}
 
-            <div className="">
-              {data.role == "Parent" && (
-                <div>
-                  <Autocomplete
-                    multiple
-                    limitTags={2}
-                    id="multiple-limit-tags"
-                    options={studentDataArrat}
-                    getOptionLabel={(option) =>
-                      option.name + " " + option.surname
-                    }
-                    value={selectedNameOfStudent}
-                    onChange={(event, newValue) => {
-                      setSelectedNameOfStudent(newValue);
-                      setSelectedIdOfStudent(newValue.map((item) => item.id));
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Name Of Your Chidren"
-                        placeholder="Favorites"
-                      />
-                    )}
-                    sx={{}}
-                  />
-                </div>
-              )}
-            </div>
+            {/* Champ conditionnel pour Parent */}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left ">
-              <div className="m-1 w-2/1">
-                <FormLabel id="demo-row-controlled-radio-buttons-group">
-                  Sexe
-                </FormLabel>
-                <RadioGroup
-                  row
-                  aria-labelledby="demo-row-controlled-radio-buttons-group"
-                  name="row-controlled-radio-buttons-group"
-                  value={data.sexe}
-                  onChange={(e) => {
-                    setData({ ...data, sexe: e.target.value });
+            {selectedRole === "Parent" && (
+              <Form.Item
+                label="Children"
+                name="children"
+                rules={[
+                  {
+                    required: true,
+                    message: "Veuillez sélectionner au moins un enfant",
+                  },
+                ]}
+              >
+                <Autocomplete
+                  multiple
+                  limitTags={2}
+                  id="multiple-limit-tags"
+                  options={studentDataArrat}
+                  getOptionLabel={(option) =>
+                    `${option.name} ${option.surname}`
+                  }
+                  value={selectedStudents || null}
+                  onChange={(event, newValue) => {
+                    setSelectedStudents(newValue);
+                    form.setFieldsValue({
+                      children: newValue.map((student) => student.id),
+                    });
                   }}
-                >
-                  <FormControlLabel
-                    value="Male"
-                    control={<Radio />}
-                    label="Male"
-                  />
-                  <FormControlLabel
-                    value="Female"
-                    control={<Radio />}
-                    label="Female"
-                  />
-                </RadioGroup>
-              </div>
-            </div>
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="children"
+                      variant="outlined"
+                      size="small"
+                    />
+                  )}
+                />
+              </Form.Item>
+            )}
 
-            <button
-              onClick={(e) => handleSubmit(e)}
-              style={{ backgroundColor: "green" }}
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
-            >
-              Create Account
-            </button>
-          </form>
+            <Form.Item {...tailFormItemLayout}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ width: "100%" }}
+                size="large"
+              >
+                Register
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
+        <div className="fontcustom"></div>
       </div>
     </div>
   );

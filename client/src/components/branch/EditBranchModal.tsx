@@ -1,50 +1,86 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { EditButton } from "../../components";
 import { UseControlModal } from "../../hooks";
-import { BASE_URL } from "../../api";
+import { useUpdateBranchMutation } from "../../slice/BranchApi";
+import { useForm } from "react-hook-form";
+import { Button, Form, Input } from "antd";
+import { useEffect } from "react";
 
-interface Branch {
+interface BranchType {
   name: string;
   id: string;
+  create_at: string;
+}
+interface Props {
+  branch: BranchType;
 }
 
-type BranchComponentProps = {
-  branch: Branch;
-  branchs: Branch[];
-  setBranch: (newBranches: Branch[]) => void;
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
 };
 
-const EditBranchModal = ({
-  branch,
-  branchs,
-  setBranch,
-}: BranchComponentProps) => {
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 8,
+    },
+  },
+};
+
+const EditBranchModal = ({ branch }: Props) => {
+  console.log(branch);
   const { isOpen, setIsOpen, openModal, handleBackdropClick, closeModal } =
     UseControlModal();
-  const [data, setData] = useState({
-    name: branch.name,
-  });
+  const {
+    // handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm();
+  const [updateBranch] = useUpdateBranchMutation();
+  const [form] = Form.useForm();
 
-  function handleSubmit(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
-    e.preventDefault();
-    axios
-      .patch(`${BASE_URL}/api/updatebranch/${branch.id}`, { ...data })
-      .then((res) => {
-        const branchUpdate = res.data.branch;
-        const editQuiz = branchs.map((client) =>
-          client.id === branch.id ? (client = branchUpdate) : client
-        );
-        setBranch(editQuiz);
-        toast.success("Information modifié avec succès!");
-        closeModal();
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
+  // Initialisation des valeurs
+  useEffect(() => {
+    if (branch) {
+      form.setFieldsValue({
+        name: branch.name, // Passez directement la propriété name
       });
-  }
+    }
+  }, [branch, form]);
+
+  const onFinish = async (values: BranchType) => {
+    try {
+      // 1. Préparation des données
+      const updatedData = {
+        ...values,
+        id: branch.id, // Conserver l'ID original
+      };
+      console.log("Updated data:", updatedData);
+
+      // 2. Appel à l'API - RTK Query gère automatiquement le cache
+      await updateBranch(updatedData).unwrap();
+
+      // 3. Feedback et reset
+      toast.success("branche mis à jour avec succès");
+      form.resetFields(); // Vide tous les champs
+      closeModal();
+    } catch (error) {
+      console.error("Erreur mise à jour:", error);
+      toast.error(error.data?.message || "Échec de la mise à jour");
+    }
+  };
 
   return (
     <div className="bg-green h-auto">
@@ -61,7 +97,7 @@ const EditBranchModal = ({
         }`}
       >
         {/* Contenu du modal */}
-        <div className="bg-white rounded-lg shadow-xl w-[450px] p-6 mx-4 relative">
+        <div className="bg-white rounded-lg shadow-xl w-[600px] p-6 mx-4 relative">
           {/* En-tête */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="font-mono text-[28px] font-bold text-gray-800">
@@ -87,31 +123,31 @@ const EditBranchModal = ({
             </button>
           </div>
 
-          <form className="space-y-4">
-            <div className="grid  justify-center items-center grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="">
-                <label className="flex text-center text-[20px] font-mono font-semibold text-gray-700 mb-1">
-                  Name:
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-[400px] px-4 py-2 text-black border-2 font-mono text-[18px] border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
-                  value={data.name}
-                />
-              </div>
-            </div>
+          <Form
+            {...formItemLayout}
+            form={form}
+            name="register"
+            onFinish={onFinish}
+            initialValues={{}}
+            style={{ maxWidth: 600 }}
+            scrollToFirstError
+            className="text-md font-medium text-gray-700"
+          >
+            <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+              <Input className="uppercase h-[40px]" />
+            </Form.Item>
 
-            <button
-              onClick={(e) => handleSubmit(e)}
-              style={{ backgroundColor: "green" }}
-              type="submit"
-              className="w-1/3 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
-            >
-              Edit branch
-            </button>
-          </form>
+            <Form.Item {...tailFormItemLayout}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                style={{ width: "100%", height: "40px" }}
+                size="large"
+              >
+                Update
+              </Button>
+            </Form.Item>
+          </Form>
         </div>
       </div>
     </div>

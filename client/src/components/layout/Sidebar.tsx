@@ -1,161 +1,190 @@
-import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import RecentActorsIcon from "@mui/icons-material/RecentActors";
-import QuizIcon from "@mui/icons-material/Quiz";
-import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
-import BarChartIcon from "@mui/icons-material/BarChart";
-import NotesIcon from "@mui/icons-material/Notes";
-import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
-import LogoutIcon from "@mui/icons-material/Logout";
-import BubbleChartIcon from "@mui/icons-material/BubbleChart";
-import SchoolIcon from "@mui/icons-material/School";
-import PauseCircleIcon from "@mui/icons-material/PauseCircle";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import "../../assets/sidebar.css";
+import {
+  UserOutlined,
+  PieChartOutlined,
+  DesktopOutlined,
+  TeamOutlined,
+  FileOutlined,
+  UserAddOutlined,
+  BranchesOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+} from "@ant-design/icons";
+import { Layout, Menu } from "antd";
+import type { MenuProps } from "antd";
 
-interface SidebarProps {
-  isOpen?: boolean;
+const { Sider } = Layout;
+
+type MenuItem = Required<MenuProps>["items"][number];
+
+const siderStyle: React.CSSProperties = {
+  overflow: "auto",
+  height: "100vh",
+  position: "sticky",
+  insetInlineStart: 0,
+  top: 0,
+  bottom: 0,
+  scrollbarWidth: "thin",
+  scrollbarGutter: "stable",
+};
+
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+  path?: string
+): MenuItem {
+  return {
+    key,
+    icon,
+    children,
+    label,
+    path,
+  } as MenuItem;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen = true }) => {
-  const location = useLocation();
+{
+  /* <BranchesOutlined />; */
+}
+const menuComponentStyle = { fontSize: "20px" };
+const items: MenuItem[] = [
+  getItem(
+    "Dashboard",
+    "1",
+    <DesktopOutlined style={menuComponentStyle} />,
+    undefined,
+    "/"
+  ),
+  getItem(
+    "Add User",
+    "2",
+    <UserAddOutlined style={menuComponentStyle} />,
+    undefined,
+    "/addUser"
+  ),
+  getItem(
+    "Add Branch",
+    "11",
+    <BranchesOutlined style={menuComponentStyle} />,
+    undefined,
+    "/addBranch"
+  ),
+  getItem("Manage User", "sub1", <UserOutlined style={menuComponentStyle} />, [
+    getItem(
+      "Administrators",
+      "3",
+      undefined,
+      undefined,
+      "/userlist/Administrateur"
+    ),
+    getItem("Parents", "4", undefined, undefined, "/userlist/Parent"),
+    getItem("Students", "5", undefined, undefined, "/userlist/Student"),
+    getItem("Teacher", "6", undefined, undefined, "/userlist/Teacher"),
+  ]),
+  getItem(
+    "Manage Branchs",
+    "12",
+    <BranchesOutlined style={menuComponentStyle} />,
+    undefined,
+    "/branchList"
+  ),
+  getItem("Team", "sub2", <TeamOutlined style={menuComponentStyle} />, [
+    getItem("Team 1", "7"),
+    getItem("Team 2", "8"),
+  ]),
+  getItem("Files", "9", <FileOutlined style={menuComponentStyle} />),
+  getItem("Option 1", "10", <PieChartOutlined style={menuComponentStyle} />),
+];
+
+export const Sidebar = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(["1"]);
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const location = useLocation();
 
-  const [tableMenu, setTableMenu] = useState([
-    {
-      icon: DashboardIcon,
-      text: "Dashboard",
-      autorised: "any",
-      path: "",
-      status: false,
-    },
-    {
-      icon: RecentActorsIcon,
-      text: "User List",
-      autorised: "Administrateur",
-      path: "userlist",
-      status: false,
-    },
-    {
-      icon: CloseFullscreenIcon,
-      text: "Branch List",
-      autorised: "Administrateur",
-      path: "branch",
-      status: false,
-    },
-    {
-      icon: BubbleChartIcon,
-      text: "Add Quiz",
-      autorised: "Teacher",
-      path: "quizzList",
-      status: false,
-    },
-    {
-      icon: QuizIcon,
-      text: "View Previously Quiz",
-      autorised: "Student",
-      path: "MyQuizz",
-      status: false,
-    },
-    {
-      icon: NotesIcon,
-      text: "Results",
-      autorised: "any",
-      path: "result",
-      status: false,
-    },
-    {
-      icon: BarChartIcon,
-      text: "Statistics",
-      autorised: "any",
-      path: "statistic",
-      status: false,
-    },
-    {
-      icon: CircleNotificationsIcon,
-      text: "Notifications",
-      autorised: "any",
-      path: "notification",
-      status: false,
-    },
-  ]);
+  // Fonction pour trouver la clé correspondant au chemin actuel
+  const findKeyByPath = (
+    items: MenuItem[],
+    currentPath: string
+  ): string | undefined => {
+    for (const item of items) {
+      if (item.path === currentPath) return item.key as string;
+      if (item.children) {
+        const keyInChildren = findKeyByPath(item.children, currentPath);
+        if (keyInChildren) return keyInChildren;
+      }
+    }
+    return undefined;
+  };
 
+  // Mettre à jour la sélection quand l'URL change
   useEffect(() => {
-    const currentPath = location.pathname.substring(1); // Enlever le slash au début
-    const updatedMenu = tableMenu.map((item) => ({
-      ...item,
-      status: item.path === currentPath,
-    }));
-    setTableMenu(updatedMenu);
+    const currentPath = location.pathname;
+    const key = findKeyByPath(items, currentPath);
+    if (key) {
+      setSelectedKeys([key]);
+
+      // Trouver aussi la clé du parent si c'est un sous-menu
+      const findParentKey = (
+        items: MenuItem[],
+        childKey: string
+      ): string | undefined => {
+        for (const item of items) {
+          if (item.children) {
+            const found = item.children.some((child) => child.key === childKey);
+            if (found) return item.key as string;
+            const parentKey = findParentKey(item.children, childKey);
+            if (parentKey) return parentKey;
+          }
+        }
+        return undefined;
+      };
+
+      const parentKey = findParentKey(items, key);
+      if (parentKey) {
+        setSelectedKeys((prev) => [...prev, parentKey]);
+      }
+    }
   }, [location.pathname]);
 
-  function handleClick(text: string) {
-    // Mettre à jour le statut dans le menu
-    const newArray = tableMenu.map((menu) => ({
-      ...menu,
-      status: menu.text === text,
-    }));
+  const handleMenuClick = ({ key }: { key: string }) => {
+    const findPath = (
+      items: MenuItem[],
+      targetKey: string
+    ): string | undefined => {
+      for (const item of items) {
+        if (item.key === targetKey && item.path) return item.path;
+        if (item.children) {
+          const pathInChildren = findPath(item.children, targetKey);
+          if (pathInChildren) return pathInChildren;
+        }
+      }
+    };
 
-    setTableMenu(newArray);
-    console.log("Menu mis à jour:", newArray);
-  }
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = "/login";
+    const path = findPath(items, key);
+    if (path) navigate(path);
   };
 
   return (
-    <aside
-      className={`bg-gray-800 text-white w-64 space-y-6 py-7 px-2 fixed inset-y-0 left-0 transform transition duration-200 ease-in-out z-50 ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      } md:translate-x-0`}
+    <Sider
+      style={siderStyle}
+      collapsible
+      collapsed={collapsed}
+      onCollapse={(value) => setCollapsed(value)}
+      width={"250px"}
     >
-      <div className="flex items-center space-x-1">
-        <SchoolIcon
-          style={{ height: "64px", width: "64px" }}
-          className="text-amber-50"
-        />
-        <span className="text-2xl text-amber-50 font-bold">Cabinfo!_Edu</span>
-      </div>
-      <nav className="space-y-2 border-t-2 border-amber-100">
-        {tableMenu.map((item, index) => (
-          <Link to={`/${item.path}`}>
-            <p
-              key={index}
-              className={`flex text-white items-center space-x-2 py-3 px-4 transition-colors duration-200 ${
-                item.status
-                  ? "bg-gray-700 font-bold text-white"
-                  : "hover:bg-gray-700 text-white"
-              } ${
-                item.autorised === user?.role || item.autorised === "any"
-                  ? ""
-                  : "hidden"
-              }`}
-              onClick={() => handleClick(item.text)}
-            >
-              <item.icon />
-              <span>{item.text}</span>
-            </p>
-          </Link>
-        ))}
-
-        <button
-          style={{
-            backgroundColor: "oklch(0.505 0.213 27.518)",
-            borderRadius: "3px",
-            width: "100%",
-          }}
-          className="flex items-center mt-10 text-white space-x-2 py-3 px-4 rounded hover:bg-gray-700"
-          onClick={handleLogout}
-        >
-          <LogoutIcon />
-          Logout
-        </button>
-      </nav>
-    </aside>
+      <div className="demo-logo-vertical mt-7" />
+      <Menu
+        theme="dark"
+        selectedKeys={selectedKeys}
+        mode="inline"
+        items={items}
+        onClick={handleMenuClick}
+        className="[&_.ant-menu-item]:text-white [&_.ant-menu-item]:text-lg [&_.ant-menu-submenu-title]:text-white [&_.ant-menu-submenu-title]:text-lg [&_.ant-menu-item-group-list_.ant-menu-item]:text-white [&_.ant-menu-item-group-list_.ant-menu-item]:text-base"
+      />
+    </Sider>
   );
 };
-
-export default Sidebar;

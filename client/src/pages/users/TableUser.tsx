@@ -14,26 +14,36 @@ import type {
   SorterResult,
 } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
-import axios from "axios";
 import RegistrationModal from "../../components/user/RegistrationModal";
 import EditUserModal from "../../components/user/EditUserModal";
 import toast from "react-hot-toast";
 import { DeleteButton } from "../../components";
-import { BASE_URL } from "../../api";
+import { useParams } from "react-router-dom";
+import { useGetUsersQuery, useDeleteUserMutation } from "../../slice/UsersApi";
+import dayjs from "dayjs";
+
+interface Student {
+  id: string;
+  name: string;
+  surname: string;
+}
 
 interface UserType {
   id: string;
   key: string;
   name: string;
   surname: string;
-  mail: string;
-  telephone: string;
+  email: string;
+  phone: string;
   role: "Student" | "Parent" | "Teacher" | "Administrateur";
-  dob: string;
-  brancnId?: string;
+  birthday: string;
+  branch?: string;
   studentArrayId?: string[];
-  sexe: "male" | "female";
-  adresse: string;
+  gender: "male" | "female";
+  residence: string;
+  prefix: string;
+  students: Student[];
+  branchName: string;
 }
 
 type DataIndex = keyof UserType;
@@ -50,10 +60,9 @@ const TableUser: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef<InputRef>(null);
+  const { role } = useParams();
 
   // States pour la pagination/tri
-  const [users, setUsers] = useState<UserType[]>([]);
-  const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -63,6 +72,34 @@ const TableUser: React.FC = () => {
 
   // State pour la sélection de lignes
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  // RTK Query hooks
+  const {
+    data: usersData,
+    isLoading,
+    isError,
+    error,
+  } = useGetUsersQuery({
+    page: tableParams.pagination?.current || 1,
+    pageSize: tableParams.pagination?.pageSize || 5,
+    gender: tableParams.filters?.sexe?.join(","),
+    role: role,
+  });
+
+  const [deleteUser] = useDeleteUserMutation();
+
+  // Mettre à jour la pagination avec le totalCount
+  useEffect(() => {
+    if (usersData?.totalCount !== undefined) {
+      setTableParams((prev) => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          total: usersData.totalCount,
+        },
+      }));
+    }
+  }, [usersData]);
 
   // Fonctions pour la recherche
   const handleSearch = (
@@ -168,7 +205,6 @@ const TableUser: React.FC = () => {
 
   // Fonctions pour la sélection de lignes
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -202,66 +238,15 @@ const TableUser: React.FC = () => {
     ],
   };
 
-  //fonction pour supprimer un user
-  const deleteUser = (id: string) => {
-    axios
-      .delete(`${BASE_URL}/api/deleteUser/${id}`)
-      .then((response) => {
-        setUsers(users.filter((user) => user.id !== id));
-        toast.success("Utilisateur supprimé avec succès");
-      })
-      .catch((error) => {
-        alert("Unable to delete User");
-      });
-  };
-
-  // Fonction pour récupérer les données depuis l'API
-  const fetchUsers = async () => {
-    setLoading(true);
+  // Fonction pour supprimer un utilisateur
+  const handleDeleteUser = async (id: string) => {
     try {
-      const { current, pageSize } = tableParams.pagination || {};
-      const { sexe, role } = tableParams.filters || {};
-
-      // Construire les paramètres de requête
-      const params = {
-        page: current,
-        pageSize,
-        ...(sexe && { gender: sexe.join(",") }), // Envoie les filtres genre
-        ...(role && { role: role.join(",") }), // Et les rôles si besoin
-      };
-
-      const response = await axios(`${BASE_URL}/api/users`, {
-        params,
-      });
-
-      const data = response.data.users;
-
-      console.log(data);
-
-      // Formater les données avec une clé unique
-      const formattedUsers = data.map((user: any) => ({
-        ...user,
-        key: user.id, // Utilisation de l'id comme clé
-      }));
-
-      setUsers(formattedUsers);
-      setLoading(false);
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: response.data.totalCount || data.length,
-        },
-      });
+      await deleteUser(id).unwrap();
+      toast.success("Utilisateur supprimé avec succès");
     } catch (error) {
-      console.error("Error fetching users:", error);
-      setLoading(false);
+      toast.error("Échec de la suppression de l'utilisateur");
     }
   };
-
-  useEffect(() => {
-    fetchUsers();
-  }, [JSON.stringify(tableParams)]);
 
   // Gestion du changement de table (tri, pagination, filtres)
   const handleTableChange: TableProps<UserType>["onChange"] = (
@@ -271,12 +256,11 @@ const TableUser: React.FC = () => {
   ) => {
     setTableParams({
       pagination,
-      filters,
+      filters: { ...filters, role: role ? [role] : undefined },
       sortField: (sorter as SorterResult<UserType>).field as string,
       sortOrder: (sorter as SorterResult<UserType>).order,
     });
 
-    // Reset la sélection si la page change
     if (pagination.current !== tableParams.pagination?.current) {
       setSelectedRowKeys([]);
     }
@@ -295,15 +279,15 @@ const TableUser: React.FC = () => {
     },
     {
       title: "Email",
-      dataIndex: "mail",
-      key: "mail",
+      dataIndex: "email",
+      key: "email",
       width: "20%",
-      ...getColumnSearchProps("mail"),
+      ...getColumnSearchProps("email"),
     },
     {
       title: "Sexe",
-      dataIndex: "sexe",
-      key: "sexe",
+      dataIndex: "gender",
+      key: "residence",
       width: "15%",
       filters: [
         { text: "Male", value: "Male" },
@@ -312,56 +296,52 @@ const TableUser: React.FC = () => {
     },
     {
       title: "Address",
-      dataIndex: "adresse",
-      key: "adresse",
+      dataIndex: "residence",
+      key: "residence",
       width: "20%",
-      ...getColumnSearchProps("adresse"),
+      ...getColumnSearchProps("residence"),
+      render: (residenceArray) => residenceArray?.join(", ") || "-",
     },
     {
       title: "Téléphone",
-      dataIndex: "telephone",
-      key: "telephone",
+      dataIndex: "phone",
+      key: "phone",
       width: "15%",
-      ...getColumnSearchProps("telephone"),
+      ...getColumnSearchProps("phone"),
+      render: (text, record) => `+${record.prefix} ${text}`,
     },
-    {
-      title: "Rôle",
-      dataIndex: "role",
-      key: "role",
-      width: "15%",
-      filters: [
-        { text: "Étudiant", value: "Student" },
-        { text: "Parent", value: "Parent" },
-        { text: "Enseignant", value: "Teacher" },
-        { text: "Administrateur", value: "Administrateur" },
-      ],
-      render: (role: UserType["role"]) => {
-        let color = "";
-        switch (role) {
-          case "Student":
-            color = "green";
-            break;
-          case "Parent":
-            color = "blue";
-            break;
-          case "Teacher":
-            color = "orange";
-            break;
-          case "Administrateur":
-            color = "red";
-            break;
-          default:
-            color = "gray";
-        }
-        return <Tag color={color}>{role}</Tag>;
-      },
-    },
+    ...(role === "Student"
+      ? [
+          {
+            title: "Branch",
+            dataIndex: "branchName",
+            key: "branchName",
+            width: "15%",
+            ...getColumnSearchProps("branchName"),
+            sorter: (a, b) => (a.branch || "").localeCompare(b.branch || ""),
+          },
+        ]
+      : []),
+    ...(role === "Parent"
+      ? [
+          {
+            title: "Children Name",
+            dataIndex: "students",
+            key: "students",
+            width: "15%",
+            ...getColumnSearchProps("students"),
+            render: (studentArray) => studentArray?.map(renderStudent),
+          },
+        ]
+      : []),
     {
       title: "Date de naissance",
-      dataIndex: "dob",
-      key: "dob",
+      dataIndex: "birthday",
+      key: "birthday",
       width: "15%",
-      sorter: (a, b) => new Date(a.dob).getTime() - new Date(b.dob).getTime(),
+      render: (dateString) =>
+        dateString ? dayjs(dateString).format("DD/MM/YYYY") : "-",
+      sorter: (a, b) => dayjs(a.birthday).unix() - dayjs(b.birthday).unix(),
     },
     {
       title: "Actions",
@@ -369,10 +349,9 @@ const TableUser: React.FC = () => {
       width: "15%",
       render: (_, record) => (
         <Space size="small">
-          {/* Modal d'édition */}
-          <EditUserModal user={record} users={users} setUsers={setUsers} />
+          <EditUserModal user={record} />
           <DeleteButton
-            onClick={() => deleteUser(record.id)}
+            onClick={() => handleDeleteUser(record.id)}
             text="Delete user"
           />
         </Space>
@@ -380,12 +359,29 @@ const TableUser: React.FC = () => {
     },
   ];
 
+  const renderStudent = (student) => (
+    <h3 key={student.id}>
+      {student.name} {student.surname}
+      {", "}
+    </h3>
+  );
+
+  // Gestion des erreurs
+  if (isError) {
+    return <div>Error: {JSON.stringify(error)}</div>;
+  }
+
+  // Formatage des données
+  const formattedUsers =
+    usersData?.users?.map((user) => ({
+      ...user,
+      key: user.id,
+    })) || [];
+
   return (
     <main className="ml-6 p-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Manage Users</h1>
-
-        <RegistrationModal users={users} setUsers={setUsers} />
+        <h1 className="text-2xl font-bold">Manage {role}</h1>
       </div>
 
       <Table
@@ -393,12 +389,11 @@ const TableUser: React.FC = () => {
         rowSelection={rowSelection}
         columns={columns}
         rowKey="id"
-        dataSource={users}
+        dataSource={formattedUsers}
         pagination={tableParams.pagination}
-        loading={loading}
+        loading={isLoading}
         onChange={handleTableChange}
         style={{ margin: "16px", zIndex: 1 }}
-        // scroll={{ x: true }}
       />
     </main>
   );

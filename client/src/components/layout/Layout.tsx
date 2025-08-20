@@ -1,30 +1,56 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import "../../assets/sidebar.css";
+import { Layout, theme } from "antd";
+import { Sidebar } from "./Sidebar";
+import { Headers } from "./Headers";
+import { Footers } from "./Footers";
+import { SettingsDrawer } from "../user/SettingsDrawer";
 
-export const Layout = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+const { Content } = Layout;
+
+export const Layouts: React.FC = () => {
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  const navigate = useNavigate();
+
+  // Déconnexion simple
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   return (
-    <div className="min-h-screen md:flex">
-      {/* Mobile Toggle Button */}
-      <div className="md:hidden fixed right-4 bottom-4 z-50">
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-3 bg-blue-600 text-white rounded-full shadow-lg"
+    <Layout
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "row" }}
+    >
+      <Sidebar />
+      <Layout
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
+      >
+        <Headers />
+
+        <Content
+          style={{
+            margin: "24px 16px",
+            padding: 24,
+            background: colorBgContainer,
+            borderRadius: borderRadiusLG,
+            overflow: "auto",
+            backgroundColor: "#dce2e8",
+          }}
         >
-          <i className="fas fa-bars"></i>
-        </button>
-      </div>
-      <Sidebar isOpen={isSidebarOpen} />
-      <main className="flex-1 md:ml-64">
-        <Header />
-        <Outlet /> {/* Ici s'afficheront les pages */}
-      </main>
-      <div className="main-content">
-        <div className="content-area"></div>
-      </div>
-    </div>
+          <Outlet />
+        </Content>
+        <Footers />
+      </Layout>
+      <SettingsDrawer />
+    </Layout>
   );
 };

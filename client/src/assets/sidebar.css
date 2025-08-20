@@ -1,0 +1,18 @@
+/* Style pour le menu principal */
+.custom-menu .ant-menu-item {
+  font-size: 18px !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+/* Style pour les sous-menus */
+.custom-menu .ant-menu-submenu-title {
+  font-size: 16px !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+.custom-menu .ant-menu-item-group-list .ant-menu-item {
+  font-size: 20px !important;
+  color: white !important;
+}

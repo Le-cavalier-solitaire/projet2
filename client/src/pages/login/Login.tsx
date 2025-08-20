@@ -1,38 +1,50 @@
 import React, { useState } from "react";
 import "../App.css";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useAuth } from "../../hooks/useAuth";
+import { useLoginMutation } from "../../slice/Auth/authApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../slice/Auth/authSlice";
 
 const Login: React.FC = () => {
   const [data, setData] = useState({
     mail: "",
     password: "",
   });
-  const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const dispatch = useDispatch();
+  const [login, { isLoading }] = useLoginMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/api/login", {
+      // Passez bien l'objet credentials attendu
+      const response = await login({
         email: data.mail,
         password: data.password,
-      });
-
-      if (response.data.token) {
-        login(response.data.token);
-        toast.success("Connexion réussie");
-        window.location.href = "/";
-      }
+      }).unwrap();
+      toast.success("Connexion réussie");
+      // Mise à jour du store avec les informations de l'utilisateur
+      dispatch(
+        setCredentials({
+          user: response.user,
+          token: response.access_token,
+          refreshToken: response.refresh_token,
+        })
+      );
+      navigate("/");
     } catch (error) {
-      toast.error("Email ou mot de passe incorrect");
+      console.error("Login failed:", error);
+      toast.error("identifiants incorrectes");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div
+      className="min-h-screen flex items-center justify-center"
+      style={{ backgroundColor: "#dce2e8" }}
+    >
       <div className="w-full max-w-md mx-auto p-6">
         <div className="bg-white rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">
@@ -50,9 +62,7 @@ const Login: React.FC = () => {
                 d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
               />
             </svg>
-            <h1 className="text-2xl font-bold mt-4">
-              Connexion à votre compte
-            </h1>
+            <h1 className="text-2xl font-bold mt-4">Connexion</h1>
             <p className="text-gray-600 mt-2">
               Entrez vos identifiants pour continuer
             </p>
@@ -132,16 +142,12 @@ const Login: React.FC = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <a
-                  href="#"
-                  className="font-medium text-blue-500 hover:text-blue-700"
-                >
-                  Mot de passe oublié ?
-                </a>
+                <Link to="/resetPassword">Mot de passe oublié ?</Link>
               </div>
             </div>
 
             <button
+              style={{ backgroundColor: "royalblue" }}
               type="submit"
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-800 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >

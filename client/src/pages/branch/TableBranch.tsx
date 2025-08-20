@@ -14,13 +14,14 @@ import type {
   SorterResult,
 } from "antd/es/table/interface";
 import Highlighter from "react-highlight-words";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { DeleteButton } from "../../components";
-import { BASE_URL } from "../../api";
-import { useGetBranchs } from "../../hooks";
 import EditBranchModal from "../../components/branch/EditBranchModal";
 import RegistrationBranchModal from "../../components/branch/RegistrationBranchModal";
+import {
+  useDeleteBranchMutation,
+  useGetBranchsQuery,
+} from "../../slice/BranchApi";
 
 interface BranchType {
   name: string;
@@ -44,8 +45,6 @@ const TableBranch: React.FC = () => {
   const searchInput = useRef<InputRef>(null);
 
   // States pour la pagination/tri
-  const { branchs, setBranch, isLoading } = useGetBranchs();
-  const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -55,6 +54,32 @@ const TableBranch: React.FC = () => {
 
   // State pour la sélection de lignes
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+
+  // RTK Query hooks
+  const {
+    data: branchsData,
+    isLoading,
+    isError,
+    error,
+  } = useGetBranchsQuery({
+    page: tableParams.pagination?.current || 1,
+    pageSize: tableParams.pagination?.pageSize || 5,
+  });
+
+  const [deleteBranch] = useDeleteBranchMutation();
+
+  // Mettre à jour la pagination avec le totalCount
+  useEffect(() => {
+    if (branchsData?.totalCount !== undefined) {
+      setTableParams((prev) => ({
+        ...prev,
+        pagination: {
+          ...prev.pagination,
+          total: branchsData.totalCount,
+        },
+      }));
+    }
+  }, [branchsData]);
 
   // Fonctions pour la recherche
   const handleSearch = (
@@ -160,7 +185,6 @@ const TableBranch: React.FC = () => {
 
   // Fonctions pour la sélection de lignes
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -194,39 +218,13 @@ const TableBranch: React.FC = () => {
     ],
   };
 
-  //fonction pour supprimer une branch
-  const deleteBranch = (id: string) => {
-    axios
-      .delete(`${BASE_URL}/api/deleteBranch/${id}`)
-      .then(() => {
-        setBranch(branchs.filter((branch: BranchType) => branch.id !== id));
-        toast.success("branch has already delete");
-      })
-      .catch((error) => {
-        toast.error("Unable to delete branch");
-      });
-  };
-
-  // Formatage des données avec useMemo (optimisation)
-  const formattedbranchs = useMemo(() => {
-    return branchs.map((branch) => ({
-      ...branch,
-      key: branch.id,
-    }));
-  }, [branchs]);
-
-  // Supprimez l'ancien formatage dans fetchbranchs (devenu inutile)
-  const fetchbranchs = async () => {
+  // Fonction pour supprimer un utilisateur
+  const handleDeleteBranch = async (id: string) => {
     try {
-      setTableParams({
-        ...tableParams,
-        pagination: {
-          ...tableParams.pagination,
-          total: branchs.length, // Utilise branchs directement
-        },
-      });
+      await deleteBranch(id).unwrap();
+      toast.success("Branche supprimé avec succès");
     } catch (error) {
-      console.error("Error:", error);
+      toast.error("Échec de la suppression de la branche");
     }
   };
 
@@ -238,12 +236,11 @@ const TableBranch: React.FC = () => {
   ) => {
     setTableParams({
       pagination,
-      filters,
+      filters: { filters },
       sortField: (sorter as SorterResult<BranchType>).field as string,
       sortOrder: (sorter as SorterResult<BranchType>).order,
     });
 
-    // Reset la sélection si la page change
     if (pagination.current !== tableParams.pagination?.current) {
       setSelectedRowKeys([]);
     }
@@ -275,13 +272,9 @@ const TableBranch: React.FC = () => {
       render: (_, record) => (
         <Space size="small">
           {/* Modal d'édition */}
-          <EditBranchModal
-            branch={record}
-            branchs={branchs}
-            setBranch={setBranch}
-          />
+          <EditBranchModal branch={record} />
           <DeleteButton
-            onClick={() => deleteBranch(record.id)}
+            onClick={() => handleDeleteBranch(record.id)}
             text="Delete branch"
           />
         </Space>
@@ -289,26 +282,39 @@ const TableBranch: React.FC = () => {
     },
   ];
 
+  // Gestion des erreurs
+  if (isError) {
+    return <div>Error: {JSON.stringify(error)}</div>;
+  }
+
+  // Formatage des données
+  const formattedbranchs =
+    branchsData?.branchs?.map((branch) => ({
+      ...branch,
+      key: branch.id,
+    })) || [];
+
   return (
-    <main className="ml-6 p-8">
+    <main className="ml-6 p-8 ">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Manage branchs</h1>
 
-        <RegistrationBranchModal branchs={branchs} setBranch={setBranch} />
+        {/* <RegistrationBranchModal  /> */}
       </div>
-
-      <Table
-        className="w-full"
-        rowSelection={rowSelection}
-        columns={columns}
-        rowKey="id"
-        dataSource={formattedbranchs}
-        pagination={tableParams.pagination}
-        loading={isLoading}
-        onChange={handleTableChange}
-        style={{ margin: "16px", zIndex: 1 }}
-        // scroll={{ x: true }}
-      />
+      <div className="flex justify-center items-center">
+        <Table
+          className="w-[900px]"
+          rowSelection={rowSelection}
+          columns={columns}
+          rowKey="id"
+          dataSource={formattedbranchs}
+          pagination={tableParams.pagination}
+          loading={isLoading}
+          onChange={handleTableChange}
+          style={{ margin: "16px", zIndex: 1 }}
+          // scroll={{ x: true }}
+        />
+      </div>
     </main>
   );
 };

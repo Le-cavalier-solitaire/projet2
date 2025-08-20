@@ -1,137 +1,133 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import plus from "../../assets/plus.png";
-import { UseControlModal } from "../../hooks";
-import { BASE_URL } from "../../api";
+import "../../assets/registrationuser.css";
+import { useForm } from "react-hook-form";
+import { Button, Form, Input } from "antd";
+import {
+  useAddBranchMutation,
+  useLazyCheckExistingBranchQuery,
+} from "../../slice/BranchApi";
 
 interface Branch {
-  name: string;
   id: string;
+  name: string;
+  create_at: string;
 }
 
-type BranchComponentProps = {
-  branchs: Branch[];
-  setBranch: (newBranches: Branch[]) => void;
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
 };
 
-const RegistrationBranchModal = ({
-  branchs,
-  setBranch,
-}: BranchComponentProps) => {
-  const { isOpen, setIsOpen, openModal, handleBackdropClick, closeModal } =
-    UseControlModal();
-  const [data, setData] = useState({
-    name: "",
-  });
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (!data.name || data.name.trim() === "") {
-      toast.error("Le nom de la branche est requis");
-      return;
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 8,
+    },
+  },
+};
+
+const RegistrationBranch = () => {
+  const {
+    // handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm();
+
+  const [form] = Form.useForm();
+  const [checkExistingBranch] = useLazyCheckExistingBranchQuery();
+  const [createBranch] = useAddBranchMutation();
+
+  const onFinish = async (values: any) => {
+    console.log("Received values of form: ", values);
+    try {
+      // 1. Vérification de l'existence du nom de la branche
+      const checkResult = await checkExistingBranch({
+        name: values.name,
+      }).unwrap();
+
+      if (checkResult.exists) {
+        if (checkResult.existingField === "name") {
+          toast.error("branche déjà existante");
+          form.setFields([
+            { name: "name", errors: ["branche déjà existante"] },
+          ]);
+        }
+        return;
+      }
+
+      // 2. Envoi des données
+      const response = await createBranch(values).unwrap();
+
+      toast.success("Branch créée avec succès!");
+      form.resetFields();
+    } catch (error) {
+      console.error("Erreur lors de la création:", error);
+      toast.error("Une erreur est survenue lors de la création");
     }
-    const branchExisting = branchs.find((branch) => branch.name == data.name);
-    console.log(branchExisting);
-    if (branchExisting) {
-      toast.error("Une branche de ce nom existe déjà");
-      return;
-    }
-    axios
-      .post(`${BASE_URL}/api/branch`, { ...data })
-      .then((res) => {
-        setBranch([...branchs, res.data]);
-        toast.success("branch added successfully");
-        setData({
-          name: "",
-        });
-        closeModal();
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error("une erreur est survenue");
-      });
-  }
+  };
 
   return (
-    <div className="bg-green h-auto">
-      {/* Bouton d'ouverture */}
-      <button
-        onClick={openModal}
-        style={{ background: "green", boxShadow: "3px 5px 5px 1px black" }}
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 m-4"
-      >
-        Add branch
-      </button>
-
-      {/* Overlay du modal */}
+    <div className=" flex justify-center items-center fontBranch">
       <div
-        onClick={handleBackdropClick}
-        style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
-        className={`fixed inset-0 bg-opacity-50 flex items-center justify-center z-50  ${
-          isOpen ? "visible" : "hidden"
-        }`}
+        className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 mx-4 borderstyle"
+        style={{
+          backgroundColor: "#f6f8fa",
+        }}
       >
-        {/* Contenu du modal */}
-        <div className="bg-white rounded-lg shadow-xl w-[450px] p-6 mx-4 relative">
-          {/* En-tête */}
-          <div className="flex justify-between items-center mb-6">
-            <u>
-              {" "}
-              <h2 className="font-mono text-[28px] font-bold text-gray-800">
-                Create branch
-              </h2>
-            </u>
-
-            <button
-              onClick={closeModal}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="flex text-center text-[20px] font-mono font-semibold text-gray-700 mb-1">
-                  Name:
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-[400px] px-3 py-2 ext-black border-2 font-mono text-[18px] border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  onChange={(e) =>
-                    setData({ ...data, name: e.target.value.toUpperCase() })
-                  }
-                  value={data.name}
-                />
-              </div>
-            </div>
-            <button
-              onClick={(e) => handleSubmit(e)}
-              style={{ backgroundColor: "green" }}
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
-            >
-              Create branch
-            </button>
-          </form>
+        {/* En-tête */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold text-gray-800">Create Branch</h2>
         </div>
+
+        <Form
+          {...formItemLayout}
+          form={form}
+          name="register"
+          onFinish={onFinish}
+          initialValues={{}}
+          style={{ maxWidth: 600 }}
+          scrollToFirstError
+          className="text-md font-medium text-gray-700"
+        >
+          <Form.Item
+            name="name"
+            label="Name"
+            rules={[
+              {
+                required: true,
+                message: "Please input your name!",
+                whitespace: true,
+              },
+            ]}
+          >
+            <Input className="uppercase h-[40px]" />
+          </Form.Item>
+
+          <Form.Item {...tailFormItemLayout}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ width: "100%", height: "40px" }}
+              size="large"
+            >
+              Register
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
     </div>
   );
 };
 
-export default RegistrationBranchModal;
+export default RegistrationBranch;

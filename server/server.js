@@ -29,61 +29,123 @@ server.use((req, res, next) => {
   setTimeout(next, 500);
 });
 
-// JWT Secret (à remplacer par une clé sécurisée en production)
+// Configuration
 const JWT_SECRET = "votre_clé_secrète";
+const TOKEN_EXPIRY = "1h";
+const REFRESH_SECRET = "votre_refresh_secret";
+const REFRESH_EXPIRY = "7d";
 
-// Middleware pour vérifier le token JWT
+server.use(middlewares);
+server.use(jsonServer.bodyParser);
+
+// Middleware d'authentification
 function authenticateToken(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) return res.sendStatus(401); // Non autorisé
+  if (!token) return res.sendStatus(401);
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403); // Token invalide
+    if (err) return res.sendStatus(403);
     req.user = user;
     next();
   });
 }
 
-// Routes personnalisées avant le routeur par défaut
-// ------------------------------------------------
+// Middleware d'autorisation
+function authorize(roles = []) {
+  return (req, res, next) => {
+    const user = router.db.get("users").find({ id: req.user.userId }).value();
+    if (!roles.includes(user.role)) return res.sendStatus(403);
+    next();
+  };
+}
 
-// Route de connexion (POST /login)
-server.post("/api/login", async (req, res) => {
-  const { email } = req.body;
-  const password = req.body.password;
+// Routes d'authentification
+// -------------------------------------------------
 
-  console.log("Tentative de connexion avec:", { email, password }); // Debug
-
-  // Cherche l'utilisateur dans "db.json"
+// POST /api/auth/login
+server.post("/api/auth/login", async (req, res) => {
+  const { email, password } = req.body;
   const users = router.db.get("users").value();
-  const user = users.find((u) => u.mail === email);
-
-  console.log("Utilisateur trouvé:", user); // Debug
+  const user = users.find((u) => u.email === email);
 
   if (!user) {
-    console.log("Utilisateur non trouvé"); // Debug
-    return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+    return res.status(401).json({ error: "Identifiants invalides" });
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  console.log("Mot de passe valide:", isPasswordValid); // Debug
-
-  if (!isPasswordValid) {
-    console.log("Mot de passe incorrect"); // Debug
-    return res.status(401).json({ error: "Email ou mot de passe incorrect" });
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    return res.status(401).json({ error: "Identifiants invalides" });
   }
 
-  // Génère un token JWT
-  const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
-  res.json({ token });
+  const accessToken = jwt.sign(
+    { userId: user.id, role: user.role },
+    JWT_SECRET,
+    { expiresIn: TOKEN_EXPIRY }
+  );
+
+  const refreshToken = jwt.sign({ userId: user.id }, REFRESH_SECRET, {
+    expiresIn: REFRESH_EXPIRY,
+  });
+
+  // Mise à jour du refresh token en base (simulé avec json-server)
+  router.db.get("users").find({ id: user.id }).assign({ refreshToken }).write();
+
+  res.json({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    user: {
+      id: user.id,
+      name: user.name,
+      surname: user.surname,
+      email: user.email,
+      role: user.role,
+    },
+  });
 });
 
-// Route protégée (GET /profile)
-server.get("/api/profile", authenticateToken, (req, res) => {
-  const user = router.db.get("users").find({ id: req.user.userId }).value();
+// POST /api/auth/refresh
+server.post("/api/auth/refresh", (req, res) => {
+  const { refresh_token } = req.body;
+  if (!refresh_token) return res.sendStatus(400);
 
+  try {
+    const decoded = jwt.verify(refresh_token, REFRESH_SECRET);
+    const user = router.db.get("users").find({ id: decoded.userId }).value();
+
+    if (!user || user.refreshToken !== refresh_token) {
+      return res.sendStatus(403);
+    }
+
+    const newAccessToken = jwt.sign(
+      { userId: user.id, role: user.role },
+      JWT_SECRET,
+      { expiresIn: TOKEN_EXPIRY }
+    );
+
+    res.json({ access_token: newAccessToken });
+  } catch (error) {
+    res.sendStatus(403);
+  }
+});
+
+// POST /api/auth/logout
+server.post("/api/auth/logout", authenticateToken, (req, res) => {
+  router.db
+    .get("users")
+    .find({ id: req.user.userId })
+    .assign({ refreshToken: null })
+    .write();
+
+  res.json({ message: "Déconnexion réussie" });
+});
+
+// GET /api/auth/me
+server.get("/api/auth/me", authenticateToken, (req, res) => {
+  const user = router.db.get("users").find({ id: req.user.userId }).value();
   if (!user) return res.sendStatus(404);
-  res.json({ username: user.username, email: user.email });
+
+  const { password, refreshToken, ...userData } = user;
+  res.json(userData);
 });
 
 // Exemple 1: Route pour obtenir les utilisateurs
@@ -92,6 +154,8 @@ server.get("/api/users", (req, res) => {
     const { page = 1, pageSize = 5, gender, role } = req.query;
 
     let users = router.db.get("users").value();
+    const usersArray = router.db.get("users").value();
+    const branchArray = router.db.get("branch").value();
     console.log("Utilisateurs récupérés:", users ? users.length : 0);
 
     if (!users || users.length === 0) {
@@ -108,6 +172,44 @@ server.get("/api/users", (req, res) => {
     if (role) {
       const roles = role.split(",");
       users = users.filter((user) => roles.includes(user.role));
+    }
+
+    if (role && role.split(",").includes("Parent")) {
+      users = users.map((user) => {
+        if (user.role === "Parent") {
+          // Récupérer les étudiants liés à ce parent
+          const students = user.studentArrayId
+            .map((id) => usersArray.find((u) => u.id === id))
+            .filter(Boolean) // Filtrer les étudiants non trouvés
+            .map((student) => ({
+              name: student.name,
+              surname: student.surname,
+              id: student.id,
+              // Ajouter d'autres champs si nécessaire
+            }));
+
+          return {
+            ...user,
+            students, // Nouveau champ avec les données des étudiants
+          };
+        }
+        return user;
+      });
+    }
+
+    if (role && role.split(",").includes("Student")) {
+      users = users.map((user) => {
+        if (user.role === "Student") {
+          // Récupérer la branch liés à ce
+          const branch = branchArray.find((b) => b.id === user.branch);
+
+          return {
+            ...user,
+            branchName: branch.name, // Nouveau champ avec les données des étudiants
+          };
+        }
+        return user;
+      });
     }
 
     // Pagination
@@ -128,25 +230,63 @@ server.get("/api/users", (req, res) => {
 });
 
 //route pour un obtenir un user grace à l'email et telephone
-server.get("/api/user/mail/:email/:phone", (req, res) => {
+server.get("/api/user/check-existing", (req, res) => {
   try {
-    const userEmail = req.params.email;
-    const userPhone = req.params.phone;
-    const users = router.db.get("users").value();
-    const userData = users.find(
-      (user) => user.mail == userEmail || user.telephone == userPhone
-    );
-    console.log("Utilisateur récupéré:", userData ? userData.length : 0);
+    const { email, phone } = req.query;
 
-    if (!userData || userData.length === 0) {
-      console.log("Aucun utilisateur trouvé dans la base de données");
+    // Validation des paramètres
+    if (!email && !phone) {
+      return res.status(400).json({
+        error: "Au moins un paramètre (email ou phone) est requis",
+      });
     }
 
-    res.json(userData || []);
+    const users = router.db.get("users").value();
+    let exists = false;
+    let existingField = null;
+
+    // Recherche dans la base de données
+    const existingUser = users.find((user) => {
+      if (email && user.email === email) {
+        existingField = "email";
+        return true;
+      }
+      if (phone && user.phone === phone) {
+        existingField = "phone";
+        return true;
+      }
+      return false;
+    });
+
+    exists = Boolean(existingUser);
+
+    // Logging pour le débogage
+    console.log(
+      `Vérification existance - Email: ${email}, Téléphone: ${phone}`
+    );
+    console.log(
+      `Résultat: ${exists ? "Existe" : "Nexiste pas"}` +
+        (existingField ? ` (Champ existant: ${existingField})` : "")
+    );
+
+    // Réponse structurée
+    res.json({
+      exists,
+      existingField,
+      user: exists
+        ? {
+            id: existingUser.id,
+            email: existingUser.mail,
+            phone: existingUser.telephone,
+          }
+        : null,
+    });
   } catch (error) {
-    console.error("Erreur lors de la récupération des utilisateurs:", error);
+    console.error("Erreur lors de la vérification:", error);
     res.status(500).json({
-      error: "Erreur serveur lors de la récupération des utilisateurs",
+      error: "Erreur serveur lors de la vérification",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 });
@@ -196,12 +336,71 @@ server.post("/api/user", async (req, res) => {
   const { confirm_password, ...newUserData } = userData;
   users.push(newUserData).write();
   const getEmailTemplate = (validationLink) => `
-  <div>
-      <h1>Bienvenu à CabInfo ☺!</h1>
-      <p>ci-dessous vous avez votre code de connexion à votre compte:</p>
-      <p>${verificationCode}</p>
-      <a href="${validationLink}">Me connecter</a>
-      <p>pour plus de securité, veuillez mettre à jour votre mot de passe dans votre compte</p>
+    <div
+      style="
+        font-family: Arial, sans-serif;
+        background-color: #f5f7fa;
+        padding: 20px;
+        color: #333;
+      "
+    >
+      <div
+        style="
+          max-width: 600px;
+          margin: auto;
+          background-color: #fff;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        "
+      >
+        <div
+          style="
+            background-color: #007bff;
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+          "
+        >
+          <h2 style="margin: 0">Bienvenue à CAbInfo!</h2>
+        </div>
+
+        <div style="padding: 30px">
+          <p>Bonjour ${payload.surname},</p>
+          <p>
+            Nous avons créer votre compte avec succès. Nous sommes ravis de vous compter
+            parmi nous.
+          </p>
+          <p>Nous vous prions de bien vouloir vous connecter à notre plateforme pour une meilleure expérience avec la formation</p>
+          <p style="margin-top: 20px">pour ce faire, vous aurez besoin du mot de passe confidentiel ci-dessous pour vous connecter:</p>
+
+          <table style="width: 100%; margin-top: 10px">
+            <tr>
+              <td><strong>Mot de passe:</strong></td>
+              <td>${verificationCode}</td>
+            </tr>
+            <tr>
+              <td>
+                <a href="${validationLink}">Me connecter</a>
+              </td>
+            </tr>
+          </table>
+
+          <p style="margin-top: 30px">À très bientôt,<br />L'équipe</p>
+        </div>
+
+        <div
+          style="
+            background-color: #f0f0f0;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+          "
+        >
+          © ${new Date().getFullYear()} CabInfo_Edu! – Tous droits réservés
+        </div>
+      </div>
     </div>
   `;
   const sendEmail = async (email, validationLink) => {
@@ -226,31 +425,6 @@ server.post("/api/user", async (req, res) => {
     console.warn("Email could not be sent");
   }
   res.status(201).json(userData);
-});
-
-// Route de vérification
-server.get("/api/verifyAccount", (req, res) => {
-  try {
-    const { token } = req.query;
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const users = router.db.get("users");
-    const user = users.find(
-      (u) => u.mail === decoded.email && u.verificationCode === decoded.code
-    );
-
-    if (user) {
-      user.verified = true;
-      users
-        .find((u) => u.mail === decoded.email)
-        .assign({ verified: true, verificationCode: "" })
-        .write();
-      return res.redirect("http://localhost:3000/verification-success");
-    }
-
-    return res.redirect("http://localhost:3000/verification-failed");
-  } catch (error) {
-    res.redirect("http://localhost:3000/verification-failed");
-  }
 });
 
 //route pour supprimer un user specifique
@@ -286,42 +460,220 @@ server.delete("/api/deleteUser/:id", (req, res) => {
 
 //route pour mettre à jour les données d'un user spécifique
 server.patch("/api/updateUser/:id", (req, res) => {
-  const newUserData = req.body;
-  const userID = req.params.id; // Pas besoin de parseInt car les IDs sont des strings
+  try {
+    const newUserData = req.body;
+    const userID = req.params.id;
+    const users = router.db.get("users");
+    const currentUser = users.find({ id: userID }).value();
 
-  const users = router.db.get("users");
-  const usersArray = users.value();
+    if (!currentUser) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
 
-  // Trouver l'utilisateur par ID
-  const userIndex = usersArray.findIndex((user) => user.id === userID);
+    // 1. Cloner les nouvelles données
+    const updatedUser = { ...newUserData, id: userID };
 
-  if (userIndex == -1) {
-    return res
-      .status(404)
-      .json({ error: "Utilisateur non trouvé", id: userID });
+    // 2. Nettoyage spécifique lors du changement de rôle Parent
+    if (currentUser.role === "Parent" && newUserData.role !== "Parent") {
+      updatedUser.studentArrayId = undefined; // Suppression explicite
+      console.log(`Nettoyage studentArrayId pour l'utilisateur ${userID}`);
+    }
+
+    // 3. Nettoyage spécifique lors du changement de rôle Student
+    if (currentUser.role === "Student" && newUserData.role !== "Student") {
+      updatedUser.branch = undefined;
+    }
+
+    // 4. Fusion avec les anciennes données
+    const finalUser = {
+      ...currentUser,
+      ...updatedUser,
+      // Protection des champs critiques
+      password: currentUser.password, // Ne jamais écraser le mot de passe
+    };
+    console.log(currentUser.password);
+
+    // 5. Mise à jour en base de données
+    users.find({ id: userID }).assign(finalUser).write();
+
+    res.status(200).json({
+      success: true,
+      user: users.find({ id: userID }).value(),
+    });
+  } catch (error) {
+    console.error("Erreur de mise à jour:", error);
+    res.status(500).json({
+      error: "Erreur serveur",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
-
-  // Récupérer l'utilisateur actuel et fusionner les nouvelles données
-  const currentUser = usersArray[userIndex];
-  if (currentUser.role == "Student") {
-    delete currentUser.brancnId;
-  }
-  if (currentUser.role == "Parent") {
-    delete currentUser.studentArrayId;
-  }
-  const updatedUser = { ...currentUser, ...newUserData };
-
-  // Mettre à jour l'utilisateur dans l'objet lowdb
-  users.splice(userIndex, 1, updatedUser).write();
-
-  // Vérifier la mise à jour
-  const afterUpdate = users.value()[userIndex];
-
-  res.status(200).json({ success: true, user: updatedUser });
 });
 
-//Route pour obtenir les branches
+//route pour modifier le password d'un user connecté
+server.patch("/api/updatePassword/:userId", async (req, res) => {
+  const { newPassword, currentPassword } = req.body;
+  const { userId } = req.params;
+
+  try {
+    const users = router.db.get("users");
+    const user = await users.find({ id: userId }).value();
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Mot de passe actuel incorrect" });
+    }
+
+    hashedPassword = await bcrypt.hash(newPassword, 10);
+    await users
+      .find({ id: userId })
+      .assign({ password: hashedPassword })
+      .write();
+
+    res.json({ message: "Mot de passe mis à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la modification du mot de passe:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+//route pour reset le password d'un compte
+server.patch("/api/resetPassword/:userMail", async (req, res) => {
+  const { userMail } = req.params;
+
+  try {
+    const users = router.db.get("users");
+    const user = await users.find({ email: userMail }).value();
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    const verificationCode = generateToken();
+    const hashedPassword = await bcrypt.hash(verificationCode, 10);
+
+    await users
+      .find({ email: userMail })
+      .assign({ password: hashedPassword })
+      .write();
+
+    const getEmailTemplate = (validationLink) => `
+    <div
+      style="
+        font-family: Arial, sans-serif;
+        background-color: #f5f7fa;
+        padding: 20px;
+        color: #333;
+      "
+    >
+      <div
+        style="
+          max-width: 600px;
+          margin: auto;
+          background-color: #fff;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        "
+      >
+        <div
+          style="
+            background-color: #007bff;
+            padding: 20px;
+            color: #fff;
+            text-align: center;
+          "
+        >
+          <h2 style="margin: 0">Reset Password !</h2>
+        </div>
+
+        <div style="padding: 30px">
+          <p>Bonjour ${user.surname},</p>
+          <p>
+           veuillez utiliser le mot de passe suivant afin de vous connectez à votre compte:
+          </p>
+          <p style="width: 100%; height: 20px, font-size: 20px, font-weight: bold">${verificationCode}</p>
+          <p style="margin-top: 20px"><a href="${validationLink}">Me connecter</a></p>
+          <p style="margin-top: 20px">Pour plus de sécurité, veuillez mettre à jour votre mot de passe dans votre session!</p>
+          <p style="margin-top: 30px">À très bientôt,<br />L'équipe</p>
+        </div>
+
+        <div
+          style="
+            background-color: #f0f0f0;
+            padding: 15px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+          "
+        >
+          © ${new Date().getFullYear()} CabInfo_Edu! – Tous droits réservés
+        </div>
+      </div>
+    </div>
+  `;
+    const sendEmail = async (email, validationLink) => {
+      try {
+        const data = await resend.emails.send({
+          from: "onboarding@resend.dev",
+          to: "djkarel92@gmail.com",
+          // email,
+          subject: "Reset Password",
+          html: getEmailTemplate(validationLink),
+        });
+        console.log("Email sent successfully:", data);
+        return true;
+      } catch (error) {
+        console.error("Error sending email:", error);
+        return false;
+      }
+    };
+    // Appelez sendEmail après la création de l'utilisateur
+    const emailSent = await sendEmail(
+      user.email,
+      `http://localhost:5173/login`
+    );
+    if (!emailSent) {
+      console.warn("Email could not be sent");
+    }
+
+    res.json({ message: "Mot de passe mis à jour avec succès" });
+  } catch (error) {
+    console.error("Erreur lors de la modification du mot de passe:", error);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+});
+
+//Route pour obtenir les branches avec filtre
 server.get("/api/branchs", (req, res) => {
+  try {
+    const { page = 1, pageSize = 5 } = req.query;
+    const branchs = router.db.get("branch").value();
+
+    if (!branchs || branchs.length === 0) {
+      console.log("Aucune branche trouvé dans la base de données");
+    }
+    // Pagination
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const paginatedUsers = branchs.slice(start, end);
+
+    res.json({
+      branchs: paginatedUsers,
+      totalCount: branchs.length,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des branches:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la récupération des branches",
+    });
+  }
+});
+
+//Route pour obtenir toutes les branches
+server.get("/api/branchs/all", (req, res) => {
   try {
     const branchs = router.db.get("branch").value();
 
@@ -334,6 +686,61 @@ server.get("/api/branchs", (req, res) => {
     console.error("Erreur lors de la récupération des branches:", error);
     res.status(500).json({
       error: "Erreur serveur lors de la récupération des branches",
+    });
+  }
+});
+
+//route pour un obtenir une branch grace à son name
+server.get("/api/branch/check-existing", (req, res) => {
+  try {
+    const { name } = req.query;
+
+    // Validation des paramètres
+    if (!name) {
+      return res.status(400).json({
+        error: "le paramètre (name) est requis",
+      });
+    }
+
+    const branchs = router.db.get("branch").value();
+    let exists = false;
+    let existingField = null;
+
+    // Recherche dans la base de données
+    const existingBranch = branchs.find((branch) => {
+      if (name && branch.name === name) {
+        existingField = "name";
+        return true;
+      }
+      return false;
+    });
+
+    exists = Boolean(existingBranch);
+
+    // Logging pour le débogage
+    console.log(`Vérification existance - Branch: ${name}`);
+    console.log(
+      `Résultat: ${exists ? "Existe" : "Nexiste pas"}` +
+        (existingField ? ` (Champ existant: ${existingField})` : "")
+    );
+
+    // Réponse structurée
+    res.json({
+      exists,
+      existingField,
+      branch: exists
+        ? {
+            id: existingBranch.id,
+            name: existingBranch.name,
+          }
+        : null,
+    });
+  } catch (error) {
+    console.error("Erreur lors de la vérification:", error);
+    res.status(500).json({
+      error: "Erreur serveur lors de la vérification",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 });
